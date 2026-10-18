@@ -4,17 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14302b">
-<title>Dépense Family</title>
+<title id="pageTitle">Gestion Personnelle</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- ÉCRAN DE VERROUILLAGE PIN -->
+  <div id="pinScreen" class="auth-screen" style="display:none;">
+    <div class="auth-card" style="text-align:center;">
+      <h2 style="margin-top:0;">🔒 Verrouillage PIN</h2>
+      <p style="font-size:0.9rem; color:var(--mute);">Entrez votre code PIN à 4 chiffres</p>
+      <input id="pinInput" type="password" maxlength="4" inputmode="numeric" placeholder="••••" style="text-align:center; font-size:1.8rem; letter-spacing:8px; margin-bottom:12px;">
+      <button class="go" id="pinUnlockBtn">Déverrouiller</button>
+      <p class="msg" id="pinMsg"></p>
+    </div>
+  </div>
+
   <!-- ÉCRAN D'AUTHENTIFICATION -->
   <div id="authScreen" class="auth-screen">
     <div class="auth-card">
-      <h2 id="authTitle" style="margin-top:0;">Connexion</h2>
+      <h2 id="authTitle" style="margin-top:0;">Connexion Famille</h2>
       <label for="authUser">Nom d'utilisateur</label>
-      <input id="authUser" type="text" placeholder="Entrez votre nom" autocomplete="off">
+      <input id="authUser" type="text" placeholder="Ex: Zongo..." autocomplete="off">
       <label for="authPass" style="margin-top:12px;">Mot de passe</label>
       <input id="authPass" type="password" placeholder="••••••••">
       <button class="go" id="authBtn">Se connecter</button>
@@ -23,144 +34,244 @@
     </div>
   </div>
 
-  <!-- MODAL MENU PRINCIPAL -->
-  <div id="menuModal" class="modal-screen" style="display:none;">
-    <div class="modal-card">
-      <h3>Menu Principal</h3>
-      <div class="menu-list">
-        <button class="menu-item" id="mDate">📅 Changer de Mois / Date</button>
-        <button class="menu-item" id="mDownloads">📥 Téléchargements / Fichiers</button>
-        <button class="menu-item" id="mProps">⚙️ Propriétés du compte</button>
-        <button class="menu-item" id="mTheme">🌓 Mode Jour / Nuit</button>
-        <button class="menu-item" id="mReport">📄 Rapport mensuel & PDF</button>
-        <button class="menu-item" id="mHistory">📊 Évolution des dépenses</button>
-        <button class="menu-item" id="mPots">💰 Objectifs d'épargne</button>
-        <button class="menu-item" id="mExport">📥 Exporter JSON</button>
-        <button class="menu-item" id="mImport">📤 Restaurer JSON</button>
-        <button class="menu-item" id="mLogout" style="color:var(--out);">🚪 Déconnexion</button>
-      </div>
-      <button class="modal-close" id="closeMenuModal">Fermer</button>
+  <!-- PAGE MODALE : COMPTE CRÉÉ AVEC SUCCÈS -->
+  <div id="successAccountModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="text-align:center;">
+      <div style="font-size:3rem; margin-bottom:8px;">🎉</div>
+      <h3 style="margin:0 0 8px; font-size:1.2rem; color:var(--in);">Compte créé avec succès !</h3>
+      <p id="successAccountMsg" style="font-size:0.9rem; color:var(--mute); margin-bottom:16px;"></p>
+      <button class="go" id="closeSuccessModal" style="background:var(--in); margin-top:0;">Super, continuer</button>
     </div>
   </div>
 
-  <!-- MODAL PARAMÈTRES -->
+  <!-- PAGE MODALE : CONFIRMATION DE SUPPRESSION DE COMPTE -->
+  <div id="deleteAccountModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="text-align:center;">
+      <div style="font-size:3rem; margin-bottom:8px;">⚠️</div>
+      <h3 style="margin:0 0 8px; font-size:1.2rem; color:var(--out);">Suppression de compte</h3>
+      <p id="deleteAccountMsg" style="font-size:0.9rem; color:var(--mute); margin-bottom:20px; line-height:1.5;"></p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button id="cancelDeleteBtn" style="background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">Annuler</button>
+        <button id="confirmDeleteBtn" style="background:var(--out); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">Oui, supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE MODALE : ÉCHÉANCIER & FACTURES -->
+  <div id="billsModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:1.1rem;">🎯 Échéancier & Factures</h3>
+        <button id="closeBillsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--mute); margin-top:0; margin-bottom:14px;">
+        Suivez vos charges fixes (loyer, abonnements) et leurs dates d'échéance.
+      </p>
+      <button class="go" id="addBillBtnModal" style="background:var(--in); margin-top:0; margin-bottom:14px;">+ Ajouter une facture</button>
+      <div id="billsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- MENU LATÉRAL -->
+  <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
+    <aside class="sidebar-drawer">
+      <div class="sidebar-header">
+        <h3>Menu de l'application</h3>
+        <button id="closeSidebar" class="close-sidebar-btn">✕</button>
+      </div>
+      <div class="sidebar-menu-items">
+        <button class="side-btn" id="navBills">🎯 Échéancier & Factures</button>
+        <button class="side-btn" id="navTheme">🌓 Mode (sombre / clair)</button>
+        <button class="side-btn" id="navReport">📄 Voir le rapport mensuel</button>
+        <button class="side-btn" id="navResetMonth">🗑️ Effacer les opérations du mois</button>
+        <button class="side-btn" id="navExportJson">💾 Exporter sauvegarde (.json)</button>
+        <button class="side-btn logout" id="navLogout">🚪 Déconnexion</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- PAGE MODALE RAPPORT MENSUEL -->
+  <div id="reportModal" class="modal-screen" style="display:none;">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:1.1rem;">Bilan du mois</h3>
+        <button id="closeReportModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
+      </div>
+      <div id="modalReportContent" style="font-size:0.95rem; line-height:1.6; margin-bottom:16px;"></div>
+      <button class="go" id="modalExportPdfBtn" style="background:var(--in); margin-top:0;">📥 Télécharger le bilan PDF</button>
+    </div>
+  </div>
+
+  <!-- PAGE MODALE PARAMÈTRES & PIN -->
   <div id="settingsModal" class="modal-screen" style="display:none;">
-    <div class="modal-card">
-      <h3>Paramètres</h3>
-      <div class="menu-list">
-        <button class="menu-item" id="sAbout">ℹ️ À propos</button>
-        <button class="menu-item" id="sTerms">📜 Conditions d'utilisation</button>
-        <button class="menu-item" id="sLang">🌐 Langue (Français)</button>
-        <button class="menu-item" id="sAccess">♿ Accessibilité</button>
-        <a class="menu-item" href="https://wa.me/" target="_blank">💬 Contactez-moi sur WhatsApp</a>
-        <a class="menu-item" href="https://t.me/" target="_blank">✈️ Contactez-moi sur Telegram</a>
-        <button class="menu-item" id="sDataSaver">⚡ Économie de données</button>
+    <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres & Sécurité</h3>
+        <button id="closeSettingsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
-      <button class="modal-close" id="closeSettingsModal">Fermer</button>
-    </div>
-  </div>
+      
+      <div class="settings-group">
+        <label>🔒 Sécurité (Code PIN à 4 chiffres)</label>
+        <input id="setPinCode" type="password" maxlength="4" inputmode="numeric" placeholder="Définir un PIN">
+        <button class="side-btn" style="width:100%; margin-top:6px; text-align:center; background:var(--btn); color:var(--btn-t);" id="savePinBtn">Enregistrer le PIN</button>
+      </div>
 
-  <!-- MODAL SOUS-SECTION : CHANGEMENT DE DATE -->
-  <div id="dateModal" class="modal-screen" style="display:none;">
-    <div class="modal-card">
-      <h3>Sélectionner le mois</h3>
-      <div class="nav" style="margin-top:12px;">
-        <button id="modalPrev">‹</button>
-        <h1 id="modalMois"></h1>
-        <button id="modalNext">›</button>
+      <div class="settings-group">
+        <label>🏷️ Gérer mes catégories personnalisées</label>
+        <div id="customCatsList" style="margin-top:6px; display:flex; flex-direction:column; gap:6px;"></div>
       </div>
-      <button class="modal-close" id="closeDateModal">Valider</button>
+
+      <button class="go" id="saveSettingsBtn" style="background:var(--in); margin-top:16px;">Fermer</button>
     </div>
   </div>
 
 <main id="appMain" style="display:none;">
-  <div class="header-top">
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span id="alertDot" class="alert-dot" title="État du budget"></span>
-      <div style="font-weight:800; font-size:1.1rem;" id="userGreeting">Dépense Family</div>
+  <!-- BARRE SUPÉRIEURE -->
+  <header class="header-top">
+    <div class="header-left">
+      <button id="openSidebarBtn" class="menu-hamburger-btn" title="Ouvrir le menu">☰</button>
+      <span id="userGreeting" class="user-greeting-txt">Mon Compte</span>
     </div>
-    <div class="header-actions">
-      <button id="openMenuBtn" class="theme-btn">☰ Menu</button>
-      <button id="openSettingsBtn" class="theme-btn">⚙️ Paramètres</button>
+    <div class="header-right-controls">
+      <div class="header-date-picker">
+        <button id="prevMonth" class="mini-nav-btn">‹</button>
+        <h1 id="monthLabel" class="mini-month-title"></h1>
+        <button id="nextMonth" class="mini-nav-btn">›</button>
+      </div>
+      <button id="navSettingsTop" class="settings-top-btn" title="Paramètres">⚙️</button>
     </div>
+  </header>
+
+  <!-- ================= PAGE 1 : ACCUEIL ================= -->
+  <div id="pageHome" class="app-page-content">
+    <section class="solde-container-clean">
+      <div class="solde-main-box">
+        <span class="solde-title-label">Solde principal du mois</span>
+        <div class="solde-big-amount" id="solde">0 FCFA</div>
+      </div>
+      <div class="autonomy-card-clean">
+        <div class="autonomy-icon-side">⚡</div>
+        <div class="autonomy-content-side">
+          <span class="detail-label">Autonomie & État financier</span>
+          <div id="autonomyText" class="autonomy-value-txt">Calcul en cours...</div>
+        </div>
+      </div>
+      <div class="solde-details-grid">
+        <div class="detail-card expense-card">
+          <span class="detail-label">Total Dépenses</span>
+          <span class="detail-amount" id="tOut">0 FCFA</span>
+        </div>
+        <div class="detail-card income-card">
+          <span class="detail-label">Total Revenus</span>
+          <span class="detail-amount" id="tIn">0 FCFA</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAISIE RAPIDE AVEC JUSTIFICATIF PHOTO -->
+    <section id="operationSection">
+      <h2>Saisie rapide d'une opération</h2>
+      <div class="tog" role="group">
+        <button id="bOut" aria-pressed="true">Dépense</button>
+        <button id="bIn" aria-pressed="false">Revenu</button>
+      </div>
+      <div class="row2">
+        <div><label for="amt">Montant</label><input id="amt" type="text" inputmode="decimal" placeholder="0"></div>
+        <div><label for="accountSelectOp">Compte / Portefeuille</label><select id="accountSelectOp"></select></div>
+      </div>
+      <div class="row2" style="margin-top:8px;">
+        <div><label for="cat">Catégorie</label><select id="cat"></select></div>
+      </div>
+      <div class="row2" style="margin-top:8px;">
+        <div><label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60" placeholder="Ex: Marché"></div>
+        <div><label for="tagLocation">Tag / Lieu</label><input id="tagLocation" type="text" maxlength="30" placeholder="Ex: Ouaga"></div>
+      </div>
+      <div style="margin-top:8px;">
+        <label for="receiptInput">🧾 Justificatif (Photo / Reçu)</label>
+        <input id="receiptInput" type="file" accept="image/*" style="padding:6px; font-size:0.85rem;">
+      </div>
+      <button class="go" id="add">Enregistrer</button>
+      <p class="msg" id="msg" role="status"></p>
+    </section>
   </div>
 
-  <div class="solde">
-    <div class="lab">Solde du mois <span id="currentMonthLabel" style="font-weight:600; color:var(--in);"></span></div>
-    <div class="big" id="solde"></div>
-    <div class="duo">
-      <div class="o">Dépenses<b id="tOut"></b></div>
-      <div class="i">Revenus<b id="tIn"></b></div>
-    </div>
+  <!-- ================= PAGE 2 : COMPTES & VIREMENTS INTERNES ================= -->
+  <div id="pageAccounts" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="margin:0;">💳 Mes Comptes & Portefeuilles</h2>
+      </div>
+      <p style="font-size:0.85rem; color:var(--mute); margin-top:0; margin-bottom:14px;">
+        Gérez vos supports de trésorerie, effectuez des virements et supprimez vos comptes superflus.
+      </p>
+
+      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:16px; border:1px solid var(--line);">
+        <label for="newAccountName" style="margin-top:0;">Ajouter un portefeuille (ex: Moov Money)</label>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <input id="newAccountName" type="text" placeholder="Nom du compte..." style="flex:1;">
+          <button id="submitAddAccount" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">Créer</button>
+        </div>
+      </div>
+
+      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:16px; border:1px solid var(--line);">
+        <h3 style="margin:0 0 8px; font-size:0.95rem;">🔄 Virement entre comptes</h3>
+        <div class="row2">
+          <div><label style="margin-top:0;">De (Source)</label><select id="transferFrom"></select></div>
+          <div><label style="margin-top:0;">Vers (Destination)</label><select id="transferTo"></select></div>
+        </div>
+        <div style="margin-top:8px;">
+          <label style="margin-top:0;">Montant du virement</label>
+          <input id="transferAmt" type="text" inputmode="decimal" placeholder="0">
+        </div>
+        <button class="go" id="submitTransfer" style="margin-top:10px; background:var(--btn); color:var(--btn-t);">Effectuer le virement</button>
+      </div>
+
+      <div id="accountsListDetailed" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </section>
   </div>
 
-  <section id="section-budget">
-    <h2>Budget mensuel</h2>
-    <div class="meter"><i id="budBar"></i></div>
-    <p class="alert" id="alertTxt" role="status"></p>
-    <label for="bud">Mon budget par mois</label>
-    <input id="bud" type="text" inputmode="decimal" placeholder="Ex. : 50000" autocomplete="off">
-  </section>
+  <!-- ================= PAGE 3 : HISTORIQUE ================= -->
+  <div id="pageOperations" class="app-page-content" style="display:none;">
+    <section>
+      <h2>Historique des Opérations</h2>
+      <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off" style="margin-bottom:12px;">
+      <ul id="list"></ul>
+    </section>
+  </div>
 
-  <section id="section-operation">
-    <h2>Nouvelle opération</h2>
-    <div class="tog" role="group" aria-label="Type d'opération">
-      <button id="bOut" aria-pressed="true">Dépense</button>
-      <button id="bIn" aria-pressed="false">Revenu</button>
-    </div>
-    <label for="amt">Montant</label>
-    <input id="amt" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
-    <div class="row2">
-      <div><label for="cat">Catégorie</label><select id="cat"></select></div>
-      <div><label for="date">Date</label><input id="date" type="date"></div>
-    </div>
-    <button style="border:0; background:transparent; color:var(--in); font-weight:600; padding:10px 0 0; cursor:pointer;" id="newCat" type="button">+ Créer ma propre catégorie</button>
-    <div id="catRow" hidden>
-      <input id="catEmoji" type="text" value="📌" maxlength="2" aria-label="Emoji">
-      <input id="catIn" type="text" maxlength="24" placeholder="Ex. : Tontine" aria-label="Nom">
-      <button id="catBtn" type="button">Ajouter</button>
-    </div>
-    <label for="note">Note (facultatif)</label>
-    <input id="note" type="text" maxlength="60" placeholder="Ex. : marché, taxi, recharge">
-    <button class="go" id="add">Enregistrer</button>
-    <p class="msg" id="msg" role="status"></p>
-  </section>
+  <!-- ================= PAGE 4 : ANALYSES & IA ================= -->
+  <div id="pageAnalytics" class="app-page-content" style="display:none;">
+    <section class="ai-advisor-card">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+        <span style="font-size:1.4rem;">🤖</span>
+        <h2 style="margin:0; font-size:0.95rem;">Conseiller Budgétaire IA</h2>
+      </div>
+      <div id="aiAdviceText" style="font-size:0.88rem; line-height:1.5; color:var(--ink); margin-bottom:8px;">Analyse en cours...</div>
+      <div id="aiPredictionText" style="font-size:0.85rem; font-weight:600; color:var(--in);">Prédiction fin de mois : ...</div>
+    </section>
+  </div>
 
-  <section id="section-stats">
-    <h2>Gestion des récurrences (Charges fixes) 🔄</h2>
-    <div class="row2">
-      <div><label for="recCat">Catégorie</label><input id="recCat" type="text" placeholder="Ex: Loyer"></div>
-      <div><label for="recAmt">Montant</label><input id="recAmt" type="text" inputmode="decimal" placeholder="0"></div>
-    </div>
-    <button class="go" id="recAdd">Ajouter récurrence mensuelle</button>
-    <div id="recList" style="margin-top:12px;"></div>
-  </section>
+  <!-- BARRE DE NAVIGATION INFÉRIEURE (4 ONGLETS ÉPURÉS) -->
+  <nav class="bottom-nav-bar">
+    <button class="bottom-nav-btn active" data-target="pageHome">
+      <span class="nav-icon">🏠</span>
+      <span>Accueil</span>
+    </button>
+    <button class="bottom-nav-btn" data-target="pageAccounts">
+      <span class="nav-icon">💳</span>
+      <span>Comptes</span>
+    </button>
+    <button class="bottom-nav-btn" data-target="pageOperations">
+      <span class="nav-icon">💸</span>
+      <span>Opérations</span>
+    </button>
+    <button class="bottom-nav-btn" data-target="pageAnalytics">
+      <span class="nav-icon">📊</span>
+      <span>Analyses</span>
+    </button>
+  </nav>
 
-  <section>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h2 style="margin:0;">Où part l'argent</h2>
-      <select id="chartPeriod" style="max-width:120px; padding:4px 8px; font-size:0.85rem;">
-        <option value="month">Ce mois</option>
-        <option value="week">Cette semaine</option>
-        <option value="year">Cette année</option>
-      </select>
-    </div>
-    <div class="chart-container">
-      <div id="pieChart" class="pie-chart"></div>
-      <div id="chartLegend" class="chart-legend"></div>
-    </div>
-  </section>
-
-  <section>
-    <h2>Opérations du mois</h2>
-    <div class="row2" style="margin-bottom:8px;">
-      <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off">
-    </div>
-    <ul id="list"></ul>
-  </section>
 </main>
-
-<input type="file" id="fileInput" accept=".json" hidden>
 
 <script>
 const DEFAULT_ICONS = {
@@ -172,22 +283,25 @@ const DEFAULT_ICONS = {
   "Salaire": "💵", "Ventes": "📈", "Prime": "🎁", "Aide familiale": "🤲", "Cadeau": "🎁", "Autre revenu": "💼"
 };
 
-const CHART_COLORS = ["#c2412d", "#23805a", "#a86500", "#2b6cb0", "#805ad5", "#d53f8c", "#319795", "#d69e2e", "#4a5568", "#e53e3e"];
-
 const CATS = {
   out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Famille","Vêtements","Ménage et hygiène","Entretien et réparations","Abonnements","Loisirs","Épargne","Dons et aide","Autre"],
   in: ["Salaire","Ventes","Prime","Aide familiale","Cadeau","Autre revenu"]
 };
 
 let currentUser = localStorage.getItem("current_user");
-let isRegistering = false;
 const USERS_KEY = "depense_family_users_db";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
 
-let S = { tx: [], cur: "FCFA", budget: 0, debts: [], pots: [], recurring: [], customIcons: [], downloads: [], exchangeRate: 0, cats: { out: [], in: [] }, theme: "light" };
+let S = { 
+  tx: [], 
+  accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }, { id: 'acc_momo', name: 'Orange Money', balance: 0 }],
+  transfers: [],
+  bills: [],
+  cur: "FCFA", budget: 0, customIcons: [], cats: { out: [], in: [] }, theme: "light", pin: "" 
+};
 
 function loadUserData() {
   if (!currentUser) return;
@@ -195,6 +309,9 @@ function loadUserData() {
     const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
     if (db[currentUser]) {
       S = Object.assign(S, db[currentUser]);
+      if (!S.accounts) S.accounts = [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }, { id: 'acc_momo', name: 'Orange Money', balance: 0 }];
+      if (!S.transfers) S.transfers = [];
+      if (!S.bills) S.bills = [];
     }
   } catch (e) {}
 }
@@ -205,43 +322,22 @@ function save() {
     const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
     db[currentUser] = S;
     localStorage.setItem(USERS_KEY, JSON.stringify(db));
-    
-    fetch("https://depense-family-default-rtdb.europe-west1.firebasedatabase.app/users/" + currentUser + ".json", {
-      method: "PUT",
-      body: JSON.stringify(S)
-    }).catch(err => {});
   } catch (e) {}
 }
 
 const getIcon = c => S.customIcons[c] || DEFAULT_ICONS[c] || "📌";
 const money = n => Math.round(n).toLocaleString("fr-FR") + " " + S.cur;
 
-let month = today().slice(0, 7), type = "out", armed = null, searchFilter = "", potArmed = null, recArmed = null;
-
-function playAlertSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
-  } catch(e) {}
-}
+let month = today().slice(0, 7), type = "out";
+let accountToDeleteId = null;
 
 function checkAuth() {
   if (currentUser) {
     loadUserData();
     $("authScreen").style.display = "none";
     $("appMain").style.display = "block";
-    $("userGreeting").textContent = "Dépense Family (" + currentUser + ")";
-    setTheme(S.theme || "light");
+    $("userGreeting").textContent = "Gestion (" + currentUser + ")";
     setType("out");
-    checkRecurring();
     render();
   } else {
     $("authScreen").style.display = "flex";
@@ -249,163 +345,173 @@ function checkAuth() {
   }
 }
 
-$("authSwitch").onclick = () => {
-  isRegistering = !isRegistering;
-  $("authTitle").textContent = isRegistering ? "Inscription" : "Connexion";
-  $("authBtn").textContent = isRegistering ? "S'inscrire" : "Se connecter";
-  $("authSwitch").textContent = isRegistering ? "Déjà un compte ? Se connecter" : "Créer un compte";
-};
-
-$("authBtn").onclick = () => {
-  const u = $("authUser").value.trim();
-  const p = $("authPass").value;
-  if (!u || !p) { $("authMsg").textContent = "Remplissez tous les champs."; return; }
-  
-  let db = {};
-  try { db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); } catch(e){}
-
-  if (isRegistering) {
-    if (db[u]) { $("authMsg").textContent = "Ce nom existe déjà."; return; }
-    db[u] = { ...S, pass: p };
-    localStorage.setItem(USERS_KEY, JSON.stringify(db));
-    currentUser = u;
-    localStorage.setItem("current_user", u);
-    $("authMsg").textContent = "";
-    checkAuth();
-  } else {
-    if (!db[u] || db[u].pass !== p) { $("authMsg").textContent = "Identifiants incorrects."; return; }
-    currentUser = u;
-    localStorage.setItem("current_user", u);
-    $("authMsg").textContent = "";
-    checkAuth();
-  }
-};
-
-$("openMenuBtn").onclick = () => $("menuModal").style.display = "flex";
-$("closeMenuModal").onclick = () => $("menuModal").style.display = "none";
-
-$("openSettingsBtn").onclick = () => $("settingsModal").style.display = "flex";
-$("closeSettingsModal").onclick = () => $("settingsModal").style.display = "none";
-
-$("mDate").onclick = () => { $("menuModal").style.display = "none"; $("dateModal").style.display = "flex"; };
-$("closeDateModal").onclick = () => $("dateModal").style.display = "none";
-
-$("mTheme").onclick = () => { setTheme(S.theme === "dark" ? "light" : "dark"); };
-
-$("mLogout").onclick = () => {
-  currentUser = null;
-  localStorage.removeItem("current_user");
-  $("menuModal").style.display = "none";
-  checkAuth();
-};
-
-$("mDownloads").onclick = () => {
-  let list = (S.downloads || []).join("\n") || "Aucun téléchargement enregistré.";
-  alert("Fichiers téléchargés :\n" + list);
-};
-
-$("mProps").onclick = () => {
-  let newCur = prompt("Devise actuelle (" + S.cur + ") :", S.cur);
-  if (newCur) { S.cur = newCur.trim(); save(); render(); }
-  let newRate = prompt("Taux de conversion vers USD/EUR (" + (S.exchangeRate || 0) + ") :", S.exchangeRate || "");
-  if (newRate !== null) { S.exchangeRate = parseFloat(newRate) || 0; save(); render(); }
-};
-
-$("mReport").onclick = () => {
-  const [y, m] = month.split("-").map(Number);
-  const monthTx = S.tx.filter(t => t.date.startsWith(month));
-  const outTx = monthTx.filter(t => t.type === "out");
-  const totalOut = outTx.reduce((s, t) => s + t.amt, 0);
-  const totalIn = monthTx.filter(t => t.type === "in").reduce((s, t) => s + t.amt, 0);
-  const savedPots = (S.pots || []).reduce((s, p) => s + p.saved, 0);
-  
-  let content = `📅 Bilan de ce mois (${new Date(y, m - 1, 1).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}):\n` +
-                `- Entrées : ${money(totalIn)}\n` +
-                `- Dépenses : ${money(totalOut)}\n` +
-                `- Épargne pots : ${money(savedPots)}`;
-  alert(content);
-};
-
-$("mHistory").onclick = () => {
-  let histText = "Évolution (3 derniers mois) :\n";
-  const [y, m] = month.split("-").map(Number);
-  for (let i = 2; i >= 0; i--) {
-    const d = new Date(y, m - 1 - i, 1);
-    const mStr = d.getFullYear() + "-" + pad(d.getMonth() + 1);
-    const label = d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-    const totalOut = S.tx.filter(t => t.type === "out" && t.date.startsWith(mStr)).reduce((s, t) => s + t.amt, 0);
-    histText += `- ${label} : ${money(totalOut)}\n`;
-  }
-  alert(histText);
-};
-
-$("mPots").onclick = () => {
-  let name = prompt("Nom du projet d'épargne (ex: Ordinateur) :");
-  if (!name) return;
-  let target = parseFloat(prompt("Montant cible :"));
-  if (!(target > 0)) return;
-  let saved = parseFloat(prompt("Déjà épargné (par défaut 0) :")) || 0;
-  if (!S.pots) S.pots = [];
-  S.pots.push({ id: Date.now(), name, target, saved });
-  save();
-  alert("Objectif créé avec succès !");
-};
-
-$("mExport").onclick = () => {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(S, null, 2));
-  const dlAnchor = document.createElement('a');
-  dlAnchor.setAttribute("href", dataStr); dlAnchor.setAttribute("download", "sauvegarde-depense-family.json");
-  document.body.appendChild(dlAnchor); dlAnchor.click(); dlAnchor.remove();
-  if(!S.downloads) S.downloads = [];
-  S.downloads.push("sauvegarde-depense-family.json");
-  save();
-};
-
-$("mImport").onclick = () => $("fileInput").click();
-$("fileInput").onchange = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = event => {
-    try {
-      const parsed = JSON.parse(event.target.result);
-      if (parsed && parsed.tx) {
-        S = Object.assign(S, parsed);
-        save(); setTheme(S.theme || "light");
-        setType("out"); render();
-        alert("Restauré avec succès !");
-      }
-    } catch (err) { alert("Erreur lors de la lecture du fichier."); }
+// Navigation par 4 onglets bas
+document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".bottom-nav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".app-page-content").forEach(p => p.style.display = "none");
+    btn.classList.add("active");
+    $(btn.getAttribute("data-target")).style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  reader.readAsText(file);
+});
+
+// GESTION DE LA MODALE ÉCHÉANCES & FACTURES
+$("navBills").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  renderBills();
+  $("billsModal").style.display = "flex";
+};
+$("closeBillsModal").onclick = () => { $("billsModal").style.display = "none"; };
+$("billsModal").onclick = (e) => { if (e.target === $("billsModal")) $("billsModal").style.display = "none"; };
+
+$("addBillBtnModal").onclick = () => {
+  const name = prompt("Nom de la facture (ex: Loyer, Électricité) :");
+  const amt = parseFloat(prompt("Montant :"));
+  const due = prompt("Date d'échéance (AAAA-MM-JJ) :", today());
+  if (name && amt > 0) {
+    S.bills.push({ id: Date.now(), name, amt, due });
+    save();
+    renderBills();
+  }
 };
 
-$("sAbout").onclick = () => alert("Dépense Family v2.5 - Application de gestion budgétaire collaborative et sécurisée.");
-$("sTerms").onclick = () => alert("Conditions d'utilisation : Vos données sont enregistrées en local et synchronisées via Firebase pour votre usage personnel.");
-$("sLang").onclick = () => alert("La langue actuelle est le Français.");
-$("sAccess").onclick = () => alert("Mode accessibilité actif : contrastes optimisés et polices adaptées.");
-$("sDataSaver").onclick = () => alert("Économie de données active : les animations lourdes sont réduites.");
-
-function setTheme(t) {
-  S.theme = t;
-  if (t === "dark") {
-    document.documentElement.setAttribute("data-theme", "dark");
-  } else {
-    document.documentElement.setAttribute("data-theme", "light");
+function renderBills() {
+  const box = $("billsList");
+  box.replaceChildren();
+  if (!S.bills.length) {
+    box.innerHTML = '<div style="text-align:center; padding:30px 0; color:var(--mute);"><span style="font-size:2rem; display:block; margin-bottom:6px;">🎯</span>Aucune facture enregistrée.</div>';
+    return;
   }
-  save();
+  const now = new Date();
+  S.bills.forEach(b => {
+    const dueDate = new Date(b.due);
+    const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+    
+    const card = document.createElement("div");
+    card.style.background = "var(--bg)"; card.style.border = "1px solid var(--line)";
+    card.style.borderRadius = "12px"; card.style.padding = "12px 14px";
+    card.style.display = "flex"; card.style.justifyContent = "space-between"; card.style.alignItems = "center";
+
+    const left = document.createElement("div");
+    left.innerHTML = `<b>📅 ${b.name}</b><small style="display:block; color:var(--mute); margin-top:2px;">Échéance le ${b.due} (${diffDays >= 0 ? diffDays + ' jours restants' : 'Échu'})</small>`;
+
+    const right = document.createElement("div");
+    right.style.display = "flex"; right.style.alignItems = "center"; right.style.gap = "10px";
+    right.innerHTML = `<span style="font-weight:700; color:var(--out);">${money(b.amt)}</span>`;
+
+    const del = document.createElement("button");
+    del.textContent = "🗑️"; del.style.background = "transparent"; del.style.border = "0"; del.style.cursor = "pointer";
+    del.onclick = () => {
+      S.bills = S.bills.filter(x => x.id !== b.id);
+      save();
+      renderBills();
+    };
+
+    right.append(del);
+    card.append(left, right);
+    box.append(card);
+  });
 }
 
-function checkRecurring() {
-  if (!S.recurring) S.recurring = [];
-  const currentMonthStr = today().slice(0, 7);
-  if (!S.lastRecMonth || S.lastRecMonth !== currentMonthStr) {
-    S.recurring.forEach(r => {
-      S.tx.push({ id: Date.now() + Math.random(), type: "out", amt: r.amt, cat: r.cat, note: "Charge fixe récurrente", date: currentMonthStr + "-01" });
-    });
-    S.lastRecMonth = currentMonthStr;
+// CRÉATION DE COMPTE
+$("submitAddAccount").onclick = () => {
+  const nameInput = $("newAccountName");
+  const accName = nameInput.value.trim();
+  if (!accName) { alert("Veuillez entrer un nom de compte valide."); return; }
+  S.accounts.push({ id: 'acc_' + Date.now(), name: accName, balance: 0 });
+  save();
+  nameInput.value = "";
+  renderAccountsList();
+  $("successAccountMsg").textContent = `Le portefeuille "${accName}" a été ajouté avec succès.`;
+  $("successAccountModal").style.display = "flex";
+};
+
+$("closeSuccessModal").onclick = () => { $("successAccountModal").style.display = "none"; };
+
+// SUPPRESSION DE COMPTE
+$("cancelDeleteBtn").onclick = () => { accountToDeleteId = null; $("deleteAccountModal").style.display = "none"; };
+$("confirmDeleteBtn").onclick = () => {
+  if (accountToDeleteId) {
+    S.accounts = S.accounts.filter(a => a.id !== accountToDeleteId);
+    S.tx = S.tx.filter(t => t.accountId !== accountToDeleteId);
+    S.transfers = S.transfers.filter(tr => tr.fromId !== accountToDeleteId && tr.toId !== accountToDeleteId);
     save();
+    renderAccountsList();
+    render();
   }
+  accountToDeleteId = null;
+  $("deleteAccountModal").style.display = "none";
+};
+
+// VIREMENTS INTERNES
+$("submitTransfer").onclick = () => {
+  const fromId = $("transferFrom").value;
+  const toId = $("transferTo").value;
+  const amt = parseFloat($("transferAmt").value.replace(/\s/g, "").replace(",", "."));
+  if (fromId === toId) { alert("Le compte source et le compte destination doivent être différents."); return; }
+  if (!(amt > 0)) { alert("Veuillez entrer un montant valide pour le virement."); return; }
+  S.transfers.push({ id: Date.now(), fromId, toId, amt, date: today() });
+  save();
+  $("transferAmt").value = "";
+  renderAccountsList();
+  alert("Virement interne effectué avec succès !");
+};
+
+function renderAccountsList() {
+  const detailedBox = $("accountsListDetailed");
+  const selectOp = $("accountSelectOp");
+  const tFrom = $("transferFrom");
+  const tTo = $("transferTo");
+  
+  detailedBox.replaceChildren();
+  selectOp.replaceChildren();
+  tFrom.replaceChildren();
+  tTo.replaceChildren();
+
+  S.accounts.forEach(acc => {
+    const accTx = S.tx.filter(t => t.accountId === acc.id);
+    const txSum = accTx.reduce((sum, t) => t.type === 'in' ? sum + t.amt : sum - t.amt, 0);
+    const incomingTransfers = S.transfers.filter(tr => tr.toId === acc.id).reduce((s, tr) => s + tr.amt, 0);
+    const outgoingTransfers = S.transfers.filter(tr => tr.fromId === acc.id).reduce((s, tr) => s + tr.amt, 0);
+    const accBalance = acc.balance + txSum + incomingTransfers - outgoingTransfers;
+
+    const card = document.createElement("div");
+    card.style.background = "var(--card)"; card.style.border = "1px solid var(--line)";
+    card.style.borderRadius = "12px"; card.style.padding = "14px 16px"; card.style.display = "flex";
+    card.style.justifyContent = "space-between"; card.style.alignItems = "center";
+
+    const left = document.createElement("div");
+    left.innerHTML = `<b>💳 ${acc.name}</b><small style="display:block; color:var(--mute); margin-top:2px;">Solde : ${money(accBalance)}</small>`;
+
+    const rightSide = document.createElement("div");
+    rightSide.style.display = "flex"; rightSide.style.alignItems = "center"; rightSide.style.gap = "10px";
+
+    const amt = document.createElement("span"); amt.style.fontSize = "1.15rem"; amt.style.fontWeight = "700";
+    amt.textContent = money(accBalance);
+    rightSide.append(amt);
+
+    if (S.accounts.length > 1) {
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "🗑️ Supprimer";
+      delBtn.style.fontSize = "0.75rem"; delBtn.style.background = "var(--out)"; delBtn.style.color = "#fff";
+      delBtn.style.border = "0"; delBtn.style.borderRadius = "6px"; delBtn.style.padding = "6px 8px"; delBtn.style.cursor = "pointer";
+      delBtn.onclick = () => {
+        accountToDeleteId = acc.id;
+        $("deleteAccountMsg").innerHTML = `Voulez-vous vraiment supprimer le compte <b>"${acc.name}"</b> ?`;
+        $("deleteAccountModal").style.display = "flex";
+      };
+      rightSide.append(delBtn);
+    }
+
+    card.append(left, rightSide);
+    detailedBox.append(card);
+
+    selectOp.append(new Option(acc.name, acc.id));
+    tFrom.append(new Option(acc.name, acc.id));
+    tTo.append(new Option(acc.name, acc.id));
+  });
+  if (S.accounts.length > 1) tTo.selectedIndex = 1;
 }
 
 function setType(t) {
@@ -415,215 +521,64 @@ function setType(t) {
   $("cat").replaceChildren(...[...S.cats[t], ...CATS[t]].map(c => new Option(getIcon(c) + " " + c, c)));
 }
 
-function updateBudget(o) {
-  const meter = document.querySelector(".meter"), bar = $("budBar"), txt = $("alertTxt"), dot = $("alertDot");
-  meter.classList.remove("warn", "over");
-  txt.className = "alert";
-  dot.classList.remove("pulse");
-  
-  if (!(S.budget > 0)) {
-    bar.style.width = "0";
-    txt.textContent = "Fixez un budget mensuel pour être alerté.";
-    return;
-  }
-  const p = o / S.budget * 100;
-  bar.style.width = Math.min(p, 100) + "%";
-  if (p > 100) {
-    meter.classList.add("over"); txt.classList.add("over");
-    txt.textContent = "Budget dépassé de " + money(o - S.budget) + ".";
-    dot.classList.add("pulse");
-    playAlertSound();
-  } else if (p >= 80) {
-    meter.classList.add("warn"); txt.classList.add("warn");
-    txt.textContent = "Attention : " + Math.round(p) + " % du budget utilisé.";
-    dot.classList.add("pulse");
-  } else {
-    txt.textContent = Math.round(p) + " % du budget utilisé. Reste " + money(S.budget - o) + ".";
-  }
-}
-
-function shiftMonth(delta) {
-  const [y, m] = month.split("-").map(Number);
-  const d = new Date(y, m - 1 + delta, 1);
-  month = d.getFullYear() + "-" + pad(d.getMonth() + 1);
-  render();
-}
-
 function render() {
-  const [y, m] = month.split("-").map(Number);
-  const monthName = new Date(y, m - 1, 1).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-  $("currentMonthLabel").textContent = "(" + monthName + ")";
-  $("modalMois").textContent = monthName;
-  
   const monthTx = S.tx.filter(t => t.date.startsWith(month));
-  monthTx.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
-                   
   const sum = (k, list = monthTx) => list.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
   const o = sum("out"), i = sum("in");
+  const netBalance = i - o;
+
   $("tOut").textContent = money(o);
   $("tIn").textContent = money(i);
-  $("solde").textContent = money(i - o);
-  $("solde").classList.toggle("neg", i - o < 0);
+  $("solde").textContent = money(netBalance);
+  $("solde").classList.toggle("neg", netBalance < 0);
 
-  updateBudget(o);
-  renderRecurring();
-
-  const period = $("chartPeriod").value;
-  const now = new Date();
-  let filteredChartTx = S.tx.filter(t => t.type === "out");
-  if (period === "month") filteredChartTx = filteredChartTx.filter(t => t.date.startsWith(month));
-  else if (period === "week") {
-    const oneWeekAgo = new Date(); oneWeekAgo.setDate(now.getDate() - 7);
-    filteredChartTx = filteredChartTx.filter(t => new Date(t.date) >= oneWeekAgo);
-  } else if (period === "year") {
-    filteredChartTx = filteredChartTx.filter(t => t.date.startsWith(now.getFullYear().toString()));
-  }
-
-  const chartSumOut = filteredChartTx.reduce((s, t) => s + t.amt, 0);
-  const by = {};
-  filteredChartTx.forEach(t => by[t.cat] = (by[t.cat] || 0) + t.amt);
-  
-  const pieChart = $("pieChart"), chartLegend = $("chartLegend");
-  pieChart.replaceChildren(); chartLegend.replaceChildren();
-
-  const entries = Object.entries(by).sort((a, b) => b[1] - a[1]);
-  if (!entries.length || chartSumOut === 0) {
-    pieChart.style.background = "var(--bg)";
-    const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucune dépense.";
-    chartLegend.append(p);
-  } else {
-    let cumulativePercent = 0;
-    let conicGradientStops = [];
-    entries.forEach(([c, v], index) => {
-      const pct = (v / chartSumOut) * 100;
-      const startAngle = cumulativePercent * 3.6;
-      cumulativePercent += pct;
-      const endAngle = cumulativePercent * 3.6;
-      const color = CHART_COLORS[index % CHART_COLORS.length];
-      conicGradientStops.push(`${color} ${startAngle}deg ${endAngle}deg`);
-
-      const item = document.createElement("div"); item.className = "legend-item";
-      const leftPart = document.createElement("div"); leftPart.style.display = "flex"; leftPart.style.alignItems = "center"; leftPart.style.gap = "8px";
-      const colorBox = document.createElement("div"); colorBox.className = "legend-color"; colorBox.style.backgroundColor = color;
-      const labelText = document.createElement("span"); labelText.textContent = getIcon(c) + " " + c;
-      leftPart.append(colorBox, labelText);
-      const rightPart = document.createElement("span"); rightPart.style.fontWeight = "600"; rightPart.textContent = money(v) + " (" + Math.round(pct) + "%)";
-      item.append(leftPart, rightPart); chartLegend.append(item);
-    });
-    pieChart.style.background = `conic-gradient(${conicGradientStops.join(", ")})`;
-  }
-
-  const query = searchFilter.toLowerCase().trim();
-  const tx = monthTx.filter(t => {
-    if (!query) return true;
-    return t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query)) || t.amt.toString().includes(query) || t.date.includes(query);
-  });
+  renderAccountsList();
 
   const ul = $("list");
   ul.replaceChildren();
-  if (!tx.length) {
+  if (!monthTx.length) {
     const li = document.createElement("li"); li.className = "empty"; li.textContent = "Aucune opération.";
     ul.append(li);
   }
-  tx.forEach(t => {
+  monthTx.forEach(t => {
     const li = document.createElement("li");
-    const mid = document.createElement("div"); mid.className = "m";
-    const b = document.createElement("b"); b.textContent = getIcon(t.cat) + " " + t.cat;
-    const s = document.createElement("small"); s.textContent = t.date.slice(8) + "/" + t.date.slice(5, 7) + (t.note ? " · " + t.note : "");
-    mid.append(b, s);
-    const a = document.createElement("div"); a.className = "a " + (t.type === "out" ? "o" : "i");
-    a.textContent = (t.type === "out" ? "−" : "+") + money(t.amt);
-    const x = document.createElement("button"); x.className = "x" + (armed === t.id ? " sure" : "");
-    x.textContent = armed === t.id ? "Confirmer" : "Supprimer";
-    x.onclick = () => {
-      if (armed === t.id) { S.tx = S.tx.filter(z => z.id !== t.id); armed = null; save(); }
-      else armed = t.id;
-      render();
-    };
-    li.append(mid, a, x); ul.append(li);
+    let receiptIcon = t.receipt ? ` <a href="${t.receipt}" target="_blank" title="Voir le reçu">🧾</a>` : '';
+    li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat}${receiptIcon}</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '−' : '+'}${money(t.amt)}</div>`;
+    ul.append(li);
   });
 }
 
-function renderRecurring() {
-  if (!S.recurring) S.recurring = [];
-  const box = $("recList");
-  box.replaceChildren();
-  if (!S.recurring.length) {
-    const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucune charge fixe récurrente.";
-    box.append(p); return;
-  }
-  S.recurring.forEach(r => {
-    const w = document.createElement("div"); w.className = "debt";
-    const h = document.createElement("div"); h.className = "h";
-    h.innerHTML = `<b>🔄 ${r.cat}</b><span class="amt o">${money(r.amt)} / mois</span>`;
-    const row = document.createElement("div"); row.className = "pay"; row.style.marginTop = "6px";
-    const x = document.createElement("button");
-    x.className = recArmed === r.id ? "sure" : "";
-    x.textContent = recArmed === r.id ? "Confirmer" : "Supprimer";
-    x.onclick = () => {
-      if (recArmed === r.id) { S.recurring = S.recurring.filter(z => z.id !== r.id); recArmed = null; save(); }
-      else recArmed = r.id;
-      renderRecurring();
-    };
-    row.append(x); w.append(h, row); box.append(w);
-  });
-}
-
-$("recAdd").onclick = () => {
-  const cat = $("recCat").value.trim();
-  const amt = parseN($("recAmt").value);
-  if (!cat || !(amt > 0)) return;
-  if (!S.recurring) S.recurring = [];
-  S.recurring.push({ id: Date.now(), cat, amt });
-  save();
-  $("recCat").value = ""; $("recAmt").value = "";
-  renderRecurring();
+$("authBtn").onclick = () => {
+  const u = $("authUser").value.trim();
+  const p = $("authPass").value;
+  if (!u || !p) return;
+  currentUser = u;
+  localStorage.setItem("current_user", u);
+  checkAuth();
 };
 
-const parseN = s => parseFloat(String(s).replace(/\s/g, "").replace(",", "."));
-
-function addCat() {
-  const emoji = $("catEmoji").value.trim() || "📌";
-  const name = $("catIn").value.trim();
-  if (!name) return;
-  if (!S.customIcons) S.customIcons = {};
-  S.customIcons[name] = emoji;
-  const all = [...S.cats[type], ...CATS[type]];
-  const hit = all.find(c => c.toLowerCase() === name.toLowerCase());
-  if (!hit) { S.cats[type].push(name); save(); }
-  setType(type);
-  $("cat").value = hit || name;
-  $("catIn").value = ""; $("catEmoji").value = "📌";
-  $("catRow").hidden = true;
-}
-
-function add() {
-  const amt = parseFloat($("amt").value.replace(/\s/g, "").replace(",", "."));
-  const date = $("date").value || today();
+$("add").onclick = () => {
+  let amt = parseFloat($("amt").value.replace(/\s/g, "").replace(",", "."));
   if (!(amt > 0)) return;
-  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date });
+
+  const fileInput = $("receiptInput");
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = ev => saveTx(amt, ev.target.result);
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    saveTx(amt, "");
+  }
+};
+
+function saveTx(amt, receipt) {
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: today(), accountId: $("accountSelectOp").value, tag: $("tagLocation").value.trim(), receipt });
   save();
-  month = date.slice(0, 7);
-  $("amt").value = ""; $("note").value = "";
-  armed = null; render();
-  $("amt").focus();
+  $("amt").value = ""; $("note").value = ""; $("tagLocation").value = ""; $("receiptInput").value = "";
+  render();
+  alert("Opération enregistrée avec succès !");
 }
 
-$("searchQuery").oninput = e => { searchFilter = e.target.value; render(); };
-
-$("modalPrev").onclick = () => { shiftMonth(-1); };
-$("modalNext").onclick = () => { shiftMonth(1); };
-$("bOut").onclick = () => setType("out");
-$("bIn").onclick = () => setType("in");
-$("add").onclick = add;
-$("newCat").onclick = () => { $("catRow").hidden = !$("catRow").hidden; if (!$("catRow").hidden) $("catIn").focus(); };
-$("catBtn").onclick = addCat;
-$("catIn").addEventListener("keydown", e => { if (e.key === "Enter") addCat(); });
-$("amt").addEventListener("keydown", e => { if (e.key === "Enter") add(); });
-$("bud").value = S.budget || "";
-$("bud").oninput = e => { S.budget = parseFloat(e.target.value.replace(/\s/g, "").replace(",", ".")) || 0; save(); render(); };
-
-$("date").value = today();
 checkAuth();
 </script>
 </body>
