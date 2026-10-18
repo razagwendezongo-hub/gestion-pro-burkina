@@ -251,7 +251,7 @@
     </section>
   </div>
 
-  <!-- BARRE DE NAVIGATION INFÉRIEURE (4 ONGLETS ÉPURÉS) -->
+  <!-- BARRE DE NAVIGATION INFÉRIEURE (4 ONGLETS) -->
   <nav class="bottom-nav-bar">
     <button class="bottom-nav-btn active" data-target="pageHome">
       <span class="nav-icon">🏠</span>
@@ -356,36 +356,18 @@ document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   };
 });
 
-// === GESTION DU MENU LATÉRAL (HAMBURGER) ===
-$("openSidebarBtn").onclick = () => {
-  $("sidebarOverlay").style.display = "flex";
-};
-$("closeSidebar").onclick = () => {
-  $("sidebarOverlay").style.display = "none";
-};
-$("sidebarOverlay").onclick = (e) => {
-  if (e.target === $("sidebarOverlay")) {
-    $("sidebarOverlay").style.display = "none";
-  }
-};
+// GESTION DU MENU LATÉRAL
+$("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
+$("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
+$("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
 
-// === GESTION DES PARAMÈTRES ===
-$("navSettingsTop").onclick = () => {
-  $("settingsModal").style.display = "flex";
-};
-$("closeSettingsModal").onclick = () => {
-  $("settingsModal").style.display = "none";
-};
-$("saveSettingsBtn").onclick = () => {
-  $("settingsModal").style.display = "none";
-};
-$("settingsModal").onclick = (e) => {
-  if (e.target === $("settingsModal")) {
-    $("settingsModal").style.display = "none";
-  }
-};
+// PARAMÈTRES
+$("navSettingsTop").onclick = () => { $("settingsModal").style.display = "flex"; };
+$("closeSettingsModal").onclick = () => { $("settingsModal").style.display = "none"; };
+$("saveSettingsBtn").onclick = () => { $("settingsModal").style.display = "none"; };
+$("settingsModal").onclick = (e) => { if (e.target === $("settingsModal")) $("settingsModal").style.display = "none"; };
 
-// === MODE SOMBRE / CLAIR ===
+// MODE SOMBRE / CLAIR
 $("navTheme").onclick = () => {
   S.theme = S.theme === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", S.theme);
@@ -397,7 +379,7 @@ if (S.theme === "dark") {
   document.documentElement.setAttribute("data-theme", "dark");
 }
 
-// === RAPPORT MENSUEL ===
+// RAPPORT MENSUEL
 $("navReport").onclick = () => {
   $("sidebarOverlay").style.display = "none";
   const monthTx = S.tx.filter(t => t.date.startsWith(month));
@@ -408,7 +390,7 @@ $("navReport").onclick = () => {
 $("closeReportModal").onclick = () => { $("reportModal").style.display = "none"; };
 $("reportModal").onclick = (e) => { if (e.target === $("reportModal")) $("reportModal").style.display = "none"; };
 
-// === EFFACER LES OPÉRATIONS DU MOIS ===
+// EFFACER MOIS
 $("navResetMonth").onclick = () => {
   if (confirm("Voulez-vous vraiment effacer toutes les opérations de ce mois (" + month + ") ?")) {
     S.tx = S.tx.filter(t => !t.date.startsWith(month));
@@ -419,7 +401,7 @@ $("navResetMonth").onclick = () => {
   }
 };
 
-// === EXPORTER SAUVEGARDE JSON ===
+// EXPORTER JSON
 $("navExportJson").onclick = () => {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(S));
   const downloadAnchor = document.createElement('a');
@@ -431,19 +413,17 @@ $("navExportJson").onclick = () => {
   $("sidebarOverlay").style.display = "none";
 };
 
-// === DÉCONNEXION ===
+// DÉCONNEXION
 $("navLogout").onclick = () => {
   localStorage.removeItem("current_user");
   currentUser = null;
   location.reload();
 };
 
-// === TÉLÉCHARGER BILAN PDF ===
-$("modalExportPdfBtn").onclick = () => {
-  window.print();
-};
+// PDF
+$("modalExportPdfBtn").onclick = () => { window.print(); };
 
-// === GESTION DE LA MODALE ÉCHÉANCES & FACTURES ===
+// GESTION DES FACTURES
 $("navBills").onclick = () => {
   $("sidebarOverlay").style.display = "none";
   renderBills();
@@ -501,7 +481,7 @@ function renderBills() {
   });
 }
 
-// CRÉATION DE COMPTE / CONNEXION
+// AUTHENTIFICATION & COMPTES
 $("authSwitch").onclick = () => {
   const title = $("authTitle");
   if (title.textContent.includes("Connexion")) {
