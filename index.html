@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14302b">
-<title id="pageTitle">Gestion Personnelle</title>
+<title id="pageTitle">Mes dépenses</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,13 +12,13 @@
   <!-- ÉCRAN D'AUTHENTIFICATION -->
   <div id="authScreen" class="auth-screen">
     <div class="auth-card">
-      <h2 id="authTitle" style="margin-top:0;">Connexion Famille</h2>
+      <h2 id="authTitle" style="margin-top:0;">Inscription Famille</h2>
       <label for="authUser">Nom d'utilisateur</label>
-      <input id="authUser" type="text" placeholder="Ex: Zongo..." autocomplete="off">
+      <input id="authUser" type="text" placeholder="Ex: Zongo, Maman..." autocomplete="off">
       <label for="authPass" style="margin-top:12px;">Mot de passe</label>
       <input id="authPass" type="password" placeholder="••••••••">
-      <button class="go" id="authBtn">Se connecter</button>
-      <button class="lnk" id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
+      <button class="go" id="authBtn">S'inscrire</button>
+      <button class="lnk" id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Déjà un compte ? Se connecter</button>
       <p class="msg" id="authMsg" style="text-align:center;"></p>
     </div>
   </div>
@@ -27,37 +27,30 @@
   <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
     <aside class="sidebar-drawer">
       <div class="sidebar-header">
-        <h3>Menu de l'application</h3>
+        <h3>Menu</h3>
         <button id="closeSidebar" class="close-sidebar-btn">✕</button>
       </div>
       <div class="sidebar-menu-items">
-        <button class="side-btn" id="navBills">🎯 Échéancier & Factures</button>
-        <button class="side-btn" id="navTheme">🌓 Mode (sombre / clair)</button>
-        <button class="side-btn" id="navReport">📄 Voir le rapport mensuel</button>
         <button class="side-btn logout" id="navLogout">🚪 Déconnexion</button>
       </div>
     </aside>
   </div>
 
-  <!-- PAGE MODALE RAPPORT MENSUEL -->
-  <div id="reportModal" class="modal-screen" style="display:none;">
-    <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
-        <h3 style="margin:0; font-size:1.1rem;">Bilan du mois</h3>
-        <button id="closeReportModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
-      </div>
-      <div id="modalReportContent" style="font-size:0.95rem; line-height:1.6; margin-bottom:16px;"></div>
-    </div>
-  </div>
-
   <!-- PAGE MODALE PARAMÈTRES -->
   <div id="settingsModal" class="modal-screen" style="display:none;">
-    <div class="modal-card">
+    <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
-        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres</h3>
+        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres & Conversion</h3>
         <button id="closeSettingsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
-      <p style="font-size:0.9rem; color:var(--mute);">Application de gestion financière personnelle.</p>
+      <label>Devise</label>
+      <input id="setCurrency" type="text" value="FCFA">
+      <label style="margin-top:10px;">Taux conversion (vers USD/EUR)</label>
+      <input id="setRate" type="text" placeholder="Ex: 655">
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button class="side-btn" id="exportJsonBtn" style="flex:1; text-align:center;">📥 Exporter JSON</button>
+        <button class="side-btn" id="importJsonBtn" style="flex:1; text-align:center;">📤 Restaurer JSON</button>
+      </div>
       <button class="go" id="saveSettingsBtn" style="background:var(--in); margin-top:16px;">Fermer</button>
     </div>
   </div>
@@ -66,8 +59,8 @@
   <!-- BARRE SUPÉRIEURE -->
   <header class="header-top">
     <div class="header-left">
-      <button id="openSidebarBtn" class="menu-hamburger-btn" title="Ouvrir le menu">☰</button>
-      <span id="userGreeting" class="user-greeting-txt">Mon Compte</span>
+      <button id="openSidebarBtn" class="menu-hamburger-btn" title="Ouvrir le menu">🚪</button>
+      <button id="navTheme" style="background:none; border:0; font-size:1.2rem; cursor:pointer;" title="Mode sombre/clair">🌙</button>
     </div>
     <div class="header-right-controls">
       <div class="header-date-picker">
@@ -83,73 +76,129 @@
   <div id="pageHome" class="app-page-content">
     <section class="solde-container-clean">
       <div class="solde-main-box">
-        <span class="solde-title-label">Solde principal du mois</span>
+        <span class="solde-title-label">Solde du mois</span>
         <div class="solde-big-amount" id="solde">0 FCFA</div>
       </div>
       <div class="solde-details-grid">
         <div class="detail-card expense-card">
-          <span class="detail-label">Total Dépenses</span>
+          <span class="detail-label">Dépenses</span>
           <span class="detail-amount" id="tOut">0 FCFA</span>
         </div>
         <div class="detail-card income-card">
-          <span class="detail-label">Total Revenus</span>
+          <span class="detail-label">Revenus</span>
           <span class="detail-amount" id="tIn">0 FCFA</span>
         </div>
       </div>
     </section>
 
+    <!-- BUDGET MENSUEL -->
+    <section>
+      <h2>Budget mensuel</h2>
+      <p style="font-size:0.85rem; color:var(--mute); margin:0 0 8px;">Fixez un budget mensuel pour être alerté.</p>
+      <label for="budgetInput">Mon budget par mois</label>
+      <input id="budgetInput" type="text" inputmode="decimal" placeholder="Ex. : 50000">
+    </section>
+
     <!-- SAISIE RAPIDE -->
     <section id="operationSection">
-      <h2>Saisie rapide d'une opération</h2>
+      <h2>Nouvelle opération</h2>
       <div class="tog" role="group">
         <button id="bOut" aria-pressed="true">Dépense</button>
         <button id="bIn" aria-pressed="false">Revenu</button>
       </div>
       <div class="row2">
         <div><label for="amt">Montant</label><input id="amt" type="text" inputmode="decimal" placeholder="0"></div>
-        <div><label for="accountSelectOp">Compte</label><select id="accountSelectOp"></select></div>
-      </div>
-      <div style="margin-top:8px;">
-        <label for="cat">Catégorie</label><select id="cat"></select>
+        <div><label for="cat">Catégorie</label><select id="cat"></select></div>
       </div>
       <div class="row2" style="margin-top:8px;">
-        <div><label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60" placeholder="Ex: Marché"></div>
-        <div><label for="tagLocation">Tag / Lieu</label><input id="tagLocation" type="text" maxlength="30" placeholder="Ex: Ouaga"></div>
+        <div><label for="member">Membre</label><select id="member"></select></div>
+        <div><label for="opDate">Date</label><input id="opDate" type="date"></div>
+      </div>
+      <div style="margin-top:8px;">
+        <label for="newMemberName">Ajouter membre</label>
+        <div style="display:flex; gap:8px;">
+          <input id="newMemberName" type="text" placeholder="Nom">
+          <button id="addMemberBtn" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">+</button>
+        </div>
+      </div>
+      <button id="addCatBtn" type="button" style="background:transparent; border:0; color:var(--in); font-weight:600; cursor:pointer; padding:6px 0; margin-top:8px;">+ Créer ma propre catégorie</button>
+      <div style="margin-top:8px;">
+        <label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60" placeholder="Ex. : marché, taxi, recharge">
       </div>
       <button class="go" id="add">Enregistrer</button>
       <p class="msg" id="msg" role="status"></p>
     </section>
   </div>
 
-  <!-- ================= PAGE 2 : COMPTES ================= -->
+  <!-- ================= PAGE 2 : COMPTES / CHARGES FIXES & OBJECTIFS ================= -->
   <div id="pageAccounts" class="app-page-content" style="display:none;">
     <section>
-      <h2>💳 Mes Comptes & Portefeuilles</h2>
-      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:16px; border:1px solid var(--line);">
-        <label for="newAccountName" style="margin-top:0;">Ajouter un portefeuille</label>
-        <div style="display:flex; gap:8px; margin-top:6px;">
-          <input id="newAccountName" type="text" placeholder="Nom..." style="flex:1;">
-          <button id="submitAddAccount" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">Créer</button>
-        </div>
+      <h2>Gestion des récurrences (Charges fixes) 🔄</h2>
+      <div class="row2">
+        <div><label>Catégorie</label><input id="billCat" type="text" placeholder="Ex: Loyer"></div>
+        <div><label>Montant</label><input id="billAmt" type="text" inputmode="decimal" placeholder="0"></div>
       </div>
-      <div id="accountsListDetailed" style="display:flex; flex-direction:column; gap:10px;"></div>
+      <button class="go" id="addBillBtn" style="background:var(--btn); color:var(--btn-t);">Ajouter récurrence mensuelle</button>
+      <div id="billsList" style="margin-top:12px;"></div>
+    </section>
+
+    <section>
+      <h2>Objectifs d'épargne (Pots)</h2>
+      <div class="row2">
+        <div><label>Nom du projet</label><input id="potName" type="text" placeholder="Ex: Ordinateur"></div>
+        <div><label>Montant cible</label><input id="potTarget" type="text" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <div style="margin-top:8px;"><label>Déjà épargné</label><input id="potSaved" type="text" inputmode="decimal" placeholder="0"></div>
+      <button class="go" id="addPotBtn" style="background:var(--in);">Créer un objectif</button>
+      <div id="potsList" style="margin-top:12px;"></div>
     </section>
   </div>
 
-  <!-- ================= PAGE 3 : HISTORIQUE ================= -->
+  <!-- ================= PAGE 3 : HISTORIQUE & DETTES ================= -->
   <div id="pageOperations" class="app-page-content" style="display:none;">
     <section>
-      <h2>Historique des Opérations</h2>
+      <h2>Opérations du mois</h2>
       <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off">
+      <div style="margin-bottom:12px;"><select id="filterMember"></select></div>
       <ul id="list"></ul>
+    </section>
+
+    <section>
+      <h2>Dettes et créances</h2>
+      <div class="tog" role="group">
+        <button id="debtOut" aria-pressed="true">Je dois</button>
+        <button id="debtIn" aria-pressed="false">On me doit</button>
+      </div>
+      <div class="row2">
+        <div><label>Créancier / Débiteur</label><input id="debtPerson" type="text" placeholder="Nom"></div>
+        <div><label>Montant</label><input id="debtAmt" type="text" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <div style="margin-top:8px;"><label>Échéance (facultatif)</label><input id="debtDate" type="date"></div>
+      <button class="go" id="addDebtBtn" style="background:var(--out);">Ajouter</button>
+      <div id="debtsList" style="margin-top:12px;"></div>
     </section>
   </div>
 
-  <!-- ================= PAGE 4 : ANALYSES ================= -->
+  <!-- ================= PAGE 4 : ANALYSES & RAPPORTS ================= -->
   <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section class="ai-advisor-card">
-      <h2 style="margin-bottom:8px;">📊 Analyses & Bilan</h2>
-      <div id="aiAdviceText" style="font-size:0.9rem; line-height:1.5;">Consultez vos statistiques et tendances de dépenses.</div>
+      <h2 style="margin-bottom:8px;">Comparatif Inter-Membres 👥</h2>
+      <div id="membersCompare"></div>
+    </section>
+
+    <section>
+      <h2>Où part l'argent</h2>
+      <div class="tog" role="group">
+        <button id="periodMonth" aria-pressed="true">Ce mois</button>
+        <button id="periodWeek" aria-pressed="false">Cette semaine</button>
+      </div>
+      <div id="breakdownList" style="margin-top:12px;"></div>
+    </section>
+
+    <section>
+      <h2>Rapport mensuel & Export PDF 📄</h2>
+      <div id="modalReportContent" style="font-size:0.95rem; line-height:1.6; margin-bottom:12px;"></div>
+      <button class="go" id="modalExportPdfBtn" style="background:var(--in); margin-top:0;">📥 Télécharger le bilan PDF</button>
     </section>
   </div>
 
@@ -197,9 +246,8 @@ const pad = n => String(n).padStart(2, "0");
 const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
 
 let S = { 
-  tx: [], 
-  accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }, { id: 'acc_momo', name: 'Orange Money', balance: 0 }],
-  cur: "FCFA", customIcons: [], cats: { out: [], in: [] }, theme: "light" 
+  tx: [], members: ["Papa", "Maman"], budget: 0, cur: "FCFA", customIcons: [], cats: { out: [], in: [] }, theme: "light",
+  bills: [], pots: [], debts: []
 };
 
 function loadUserData() {
@@ -208,7 +256,10 @@ function loadUserData() {
     const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
     if (db[currentUser]) {
       S = Object.assign(S, db[currentUser]);
-      if (!S.accounts) S.accounts = [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }];
+      if (!S.members) S.members = ["Papa", "Maman"];
+      if (!S.bills) S.bills = [];
+      if (!S.pots) S.pots = [];
+      if (!S.debts) S.debts = [];
     }
   } catch (e) {}
 }
@@ -225,14 +276,14 @@ function save() {
 const getIcon = c => S.customIcons[c] || DEFAULT_ICONS[c] || "📌";
 const money = n => Math.round(n).toLocaleString("fr-FR") + " " + S.cur;
 
-let month = today().slice(0, 7), type = "out";
+let month = today().slice(0, 7), type = "out", debtType = "out";
 
 function checkAuth() {
   if (currentUser) {
     loadUserData();
     $("authScreen").style.display = "none";
     $("appMain").style.display = "block";
-    $("userGreeting").textContent = "Gestion (" + currentUser + ")";
+    $("opDate").value = today();
     setType("out");
     render();
   } else {
@@ -241,17 +292,16 @@ function checkAuth() {
   }
 }
 
-// Connexion / Création de compte
 $("authSwitch").onclick = () => {
   const title = $("authTitle");
-  if (title.textContent.includes("Connexion")) {
-    title.textContent = "Créer un compte";
-    $("authBtn").textContent = "S'inscrire";
-    $("authSwitch").textContent = "Déjà un compte ? Se connecter";
-  } else {
+  if (title.textContent.includes("Inscription")) {
     title.textContent = "Connexion Famille";
     $("authBtn").textContent = "Se connecter";
     $("authSwitch").textContent = "Créer un compte";
+  } else {
+    title.textContent = "Inscription Famille";
+    $("authBtn").textContent = "S'inscrire";
+    $("authSwitch").textContent = "Déjà un compte ? Se connecter";
   }
 };
 
@@ -264,31 +314,18 @@ $("authBtn").onclick = () => {
   checkAuth();
 };
 
-// Menu Latéral (Hamburger)
 $("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
 $("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
 $("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
 
-// Paramètres & Modales
 $("navSettingsTop").onclick = () => { $("settingsModal").style.display = "flex"; };
 $("closeSettingsModal").onclick = () => { $("settingsModal").style.display = "none"; };
-$("saveSettingsBtn").onclick = () => { $("settingsModal").style.display = "none"; };
 
 $("navTheme").onclick = () => {
   S.theme = S.theme === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", S.theme);
   save();
-  $("sidebarOverlay").style.display = "none";
 };
-
-$("navReport").onclick = () => {
-  $("sidebarOverlay").style.display = "none";
-  const monthTx = S.tx.filter(t => t.date.startsWith(month));
-  const sum = k => monthTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
-  $("modalReportContent").innerHTML = `Mois : <b>${month}</b><br>Total Dépenses : <span style="color:var(--out);">${money(sum("out"))}</span><br>Total Revenus : <span style="color:var(--in);">${money(sum("in"))}</span>`;
-  $("reportModal").style.display = "flex";
-};
-$("closeReportModal").onclick = () => { $("reportModal").style.display = "none"; };
 
 $("navLogout").onclick = () => {
   localStorage.removeItem("current_user");
@@ -307,35 +344,6 @@ document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   };
 });
 
-// Gestion des comptes
-$("submitAddAccount").onclick = () => {
-  const nameInput = $("newAccountName");
-  const accName = nameInput.value.trim();
-  if (!accName) { alert("Entrez un nom valide."); return; }
-  S.accounts.push({ id: 'acc_' + Date.now(), name: accName, balance: 0 });
-  save();
-  nameInput.value = "";
-  renderAccountsList();
-  alert("Portefeuille ajouté avec succès !");
-};
-
-function renderAccountsList() {
-  const detailedBox = $("accountsListDetailed");
-  const selectOp = $("accountSelectOp");
-  if (!detailedBox || !selectOp) return;
-  
-  detailedBox.replaceChildren();
-  selectOp.replaceChildren();
-
-  S.accounts.forEach(acc => {
-    const card = document.createElement("div");
-    card.style.cssText = "background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;";
-    card.innerHTML = `<b>💳 ${acc.name}</b><span>Actif</span>`;
-    detailedBox.append(card);
-    selectOp.append(new Option(acc.name, acc.id));
-  });
-}
-
 function setType(t) {
   type = t;
   $("bOut").setAttribute("aria-pressed", t === "out");
@@ -346,37 +354,171 @@ function setType(t) {
 $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
 
+$("addMemberBtn").onclick = () => {
+  const name = $("newMemberName").value.trim();
+  if (name && !S.members.includes(name)) {
+    S.members.push(name);
+    save();
+    $("newMemberName").value = "";
+    render();
+  }
+};
+
+$("addCatBtn").onclick = () => {
+  const name = prompt("Nom de la nouvelle catégorie :");
+  if (name) {
+    S.cats[type].push(name);
+    save();
+    setType(type);
+  }
+};
+
+$("addBillBtn").onclick = () => {
+  const cat = $("billCat").value.trim();
+  const amt = parseFloat($("billAmt").value);
+  if (cat && amt > 0) {
+    S.bills.push({ id: Date.now(), cat, amt });
+    save();
+    $("billCat").value = ""; $("billAmt").value = "";
+    render();
+  }
+};
+
+$("addPotBtn").onclick = () => {
+  const name = $("potName").value.trim();
+  const target = parseFloat($("potTarget").value);
+  const saved = parseFloat($("potSaved").value) || 0;
+  if (name && target > 0) {
+    S.pots.push({ id: Date.now(), name, target, saved });
+    save();
+    $("potName").value = ""; $("potTarget").value = ""; $("potSaved").value = "";
+    render();
+  }
+};
+
+$("debtOut").onclick = () => { debtType = "out"; $("debtOut").setAttribute("aria-pressed", "true"); $("debtIn").setAttribute("aria-pressed", "false"); };
+$("debtIn").onclick = () => { debtType = "in"; $("debtIn").setAttribute("aria-pressed", "true"); $("debtOut").setAttribute("aria-pressed", "false"); };
+
+$("addDebtBtn").onclick = () => {
+  const person = $("debtPerson").value.trim();
+  const amt = parseFloat($("debtAmt").value);
+  const due = $("debtDate").value;
+  if (person && amt > 0) {
+    S.debts.push({ id: Date.now(), type: debtType, person, amt, due });
+    save();
+    $("debtPerson").value = ""; $("debtAmt").value = ""; $("debtDate").value = "";
+    render();
+  }
+};
+
+$("budgetInput").oninput = (e) => {
+  S.budget = parseFloat(e.target.value) || 0;
+  save();
+};
+
+$("setCurrency").oninput = (e) => {
+  S.cur = e.target.value.trim() || "FCFA";
+  save();
+  render();
+};
+
+$("modalExportPdfBtn").onclick = () => { window.print(); };
+
 function render() {
   if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
   $("monthLabel").textContent = month;
-  renderAccountsList();
-  
+  $("budgetInput").value = S.budget || "";
+  $("setCurrency").value = S.cur;
+
   const monthTx = S.tx.filter(t => t.date.startsWith(month));
   const sum = k => monthTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
   const o = sum("out"), i = sum("in");
+  const net = i - o;
+
   $("tOut").textContent = money(o);
   $("tIn").textContent = money(i);
-  $("solde").textContent = money(i - o);
+  $("solde").textContent = money(net);
+  $("solde").classList.toggle("neg", net < 0);
 
+  // Membres select
+  const memberSelect = $("member");
+  memberSelect.replaceChildren(...S.members.map(m => new Option(m, m)));
+  const filterMember = $("filterMember");
+  filterMember.replaceChildren(new Option("Tous les membres", "all"), ...S.members.map(m => new Option(m, m)));
+
+  // Liste opérations
   const ul = $("list");
-  if (ul) {
-    ul.replaceChildren();
-    if (!monthTx.length) {
-      ul.innerHTML = '<li style="text-align:center; color:var(--mute); padding:20px; display:block;">Aucune opération.</li>';
-    } else {
-      monthTx.forEach(t => {
-        const li = document.createElement("li");
-        li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat}</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '−' : '+'}${money(t.amt)}</div>`;
-        ul.append(li);
-      });
-    }
+  const query = $("searchQuery").value.toLowerCase();
+  const selectedMember = filterMember.value;
+  const filtered = monthTx.filter(t => {
+    const matchQ = t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query));
+    const matchM = selectedMember === "all" || t.member === selectedMember;
+    return matchQ && matchM;
+  });
+
+  ul.replaceChildren();
+  if (!filtered.length) {
+    ul.innerHTML = '<li style="text-align:center; color:var(--mute); padding:10px; display:block;">Aucune opération.</li>';
+  } else {
+    filtered.forEach(t => {
+      const li = document.createElement("li");
+      li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat} (${t.member})</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '−' : '+'}${money(t.amt)}</div>`;
+      ul.append(li);
+    });
   }
+
+  // Comparatif membres
+  const compBox = $("membersCompare");
+  compBox.replaceChildren();
+  S.members.forEach(m => {
+    const mOut = monthTx.filter(t => t.member === m && t.type === 'out').reduce((s, t) => s + t.amt, 0);
+    const div = document.createElement("div");
+    div.style.cssText = "display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line);";
+    div.innerHTML = `<span><b>${m}</b></span><span style="font-weight:700; color:var(--out);">${money(mOut)}</span>`;
+    compBox.append(div);
+  });
+
+  // Rapport mensuel
+  $("modalReportContent").innerHTML = `📅 <b>Bilan de ce mois (${currentUser}) :</b><br>• Entrées : <span style="color:var(--in);">${money(i)}</span><br>• Dépenses : <span style="color:var(--out);">${money(o)}</span>`;
+
+  // Charges fixes
+  const billsBox = $("billsList");
+  billsBox.replaceChildren();
+  S.bills.forEach(b => {
+    const div = document.createElement("div");
+    div.style.cssText = "display:flex; justify-content:space-between; padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
+    div.innerHTML = `<span><b>${b.cat}</b></span><span style="font-weight:700; color:var(--out);">${money(b.amt)}</span>`;
+    billsBox.append(div);
+  });
+
+  // Pots épargne
+  const potsBox = $("potsList");
+  potsBox.replaceChildren();
+  S.pots.forEach(p => {
+    const div = document.createElement("div");
+    div.style.cssText = "padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
+    div.innerHTML = `<b>🎯 ${p.name}</b> : ${money(p.saved)} / ${money(p.target)}`;
+    potsBox.append(div);
+  });
+
+  // Dettes
+  const debtsBox = $("debtsList");
+  debtsBox.replaceChildren();
+  S.debts.forEach(d => {
+    const div = document.createElement("div");
+    div.style.cssText = "display:flex; justify-content:space-between; padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
+    div.innerHTML = `<span><b>${d.person}</b> (${d.type === 'out' ? 'Je dois' : 'On me doit'})</span><span style="font-weight:700;">${money(d.amt)}</span>`;
+    debtsBox.append(div);
+  });
 }
+
+$("searchQuery").oninput = render;
+$("filterMember").onchange = render;
 
 $("add").onclick = () => {
   let amt = parseFloat($("amt").value.replace(/\s/g, "").replace(",", "."));
   if (!(amt > 0)) { alert("Veuillez entrer un montant valide."); return; }
-  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: today(), accountId: $("accountSelectOp").value });
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, member: $("member").value, note: $("note").value.trim(), date: $("opDate").value || today() });
   save();
   $("amt").value = ""; $("note").value = "";
   render();
