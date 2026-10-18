@@ -9,16 +9,27 @@
 </head>
 <body>
 
+  <!-- ÉCRAN DE VERROUILLAGE PIN -->
+  <div id="pinScreen" class="auth-screen" style="display:none;">
+    <div class="auth-card" style="text-align:center;">
+      <h2 style="margin-top:0;">🔒 Verrouillage PIN</h2>
+      <p style="font-size:0.9rem; color:var(--mute);">Entrez votre code PIN à 4 chiffres</p>
+      <input id="pinInput" type="password" maxlength="4" inputmode="numeric" placeholder="••••" style="text-align:center; font-size:1.8rem; letter-spacing:8px; margin-bottom:12px;">
+      <button class="go" id="pinUnlockBtn">Déverrouiller</button>
+      <p class="msg" id="pinMsg"></p>
+    </div>
+  </div>
+
   <!-- ÉCRAN D'AUTHENTIFICATION -->
   <div id="authScreen" class="auth-screen">
     <div class="auth-card">
-      <h2 id="authTitle" style="margin-top:0;">Inscription Famille</h2>
+      <h2 id="authTitle" style="margin-top:0;">Connexion Famille</h2>
       <label for="authUser">Nom d'utilisateur</label>
-      <input id="authUser" type="text" placeholder="Ex: Zongo, Maman..." autocomplete="off">
+      <input id="authUser" type="text" placeholder="Ex: Zongo..." autocomplete="off">
       <label for="authPass" style="margin-top:12px;">Mot de passe</label>
       <input id="authPass" type="password" placeholder="••••••••">
-      <button class="go" id="authBtn">S'inscrire</button>
-      <button class="lnk" id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Déjà un compte ? Se connecter</button>
+      <button class="go" id="authBtn">Se connecter</button>
+      <button class="lnk" id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
       <p class="msg" id="authMsg" style="text-align:center;"></p>
     </div>
   </div>
@@ -27,30 +38,40 @@
   <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
     <aside class="sidebar-drawer">
       <div class="sidebar-header">
-        <h3>Menu</h3>
+        <h3>Menu de l'application</h3>
         <button id="closeSidebar" class="close-sidebar-btn">✕</button>
       </div>
-      <div class="sidebar-menu-items">
+      <div class="sidebar-menu-items" style="display:flex; flex-direction:column; gap:10px;">
+        <button class="side-btn" id="navTheme">🌓 Mode (sombre / clair)</button>
+        <button class="side-btn" id="navReport">📄 Voir le rapport mensuel</button>
+        <button class="side-btn" id="navResetMonth">🗑️ Effacer les opérations du mois</button>
+        <button class="side-btn" id="navExportJson">💾 Exporter sauvegarde (.json)</button>
         <button class="side-btn logout" id="navLogout">🚪 Déconnexion</button>
       </div>
     </aside>
   </div>
 
+  <!-- PAGE MODALE RAPPORT MENSUEL -->
+  <div id="reportModal" class="modal-screen" style="display:none;">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:1.1rem;">Bilan du mois</h3>
+        <button id="closeReportModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
+      </div>
+      <div id="modalReportContent" style="font-size:0.95rem; line-height:1.6; margin-bottom:16px;"></div>
+      <button class="go" id="modalExportPdfBtn" style="background:var(--in); margin-top:0;">📥 Télécharger le bilan PDF</button>
+    </div>
+  </div>
+
   <!-- PAGE MODALE PARAMÈTRES -->
   <div id="settingsModal" class="modal-screen" style="display:none;">
-    <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
+    <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
-        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres & Conversion</h3>
+        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres</h3>
         <button id="closeSettingsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
       <label>Devise</label>
       <input id="setCurrency" type="text" value="FCFA">
-      <label style="margin-top:10px;">Taux conversion (vers USD/EUR)</label>
-      <input id="setRate" type="text" placeholder="Ex: 655">
-      <div style="display:flex; gap:10px; margin-top:16px;">
-        <button class="side-btn" id="exportJsonBtn" style="flex:1; text-align:center;">📥 Exporter JSON</button>
-        <button class="side-btn" id="importJsonBtn" style="flex:1; text-align:center;">📤 Restaurer JSON</button>
-      </div>
       <button class="go" id="saveSettingsBtn" style="background:var(--in); margin-top:16px;">Fermer</button>
     </div>
   </div>
@@ -59,8 +80,8 @@
   <!-- BARRE SUPÉRIEURE -->
   <header class="header-top">
     <div class="header-left">
-      <button id="openSidebarBtn" class="menu-hamburger-btn" title="Ouvrir le menu">🚪</button>
-      <button id="navTheme" style="background:none; border:0; font-size:1.2rem; cursor:pointer;" title="Mode sombre/clair">🌙</button>
+      <button id="openSidebarBtn" class="menu-hamburger-btn" title="Ouvrir le menu">☰</button>
+      <span id="userGreeting" class="user-greeting-txt">Mon Compte</span>
     </div>
     <div class="header-right-controls">
       <div class="header-date-picker">
@@ -76,16 +97,16 @@
   <div id="pageHome" class="app-page-content">
     <section class="solde-container-clean">
       <div class="solde-main-box">
-        <span class="solde-title-label">Solde du mois</span>
+        <span class="solde-title-label">Solde principal du mois</span>
         <div class="solde-big-amount" id="solde">0 FCFA</div>
       </div>
       <div class="solde-details-grid">
         <div class="detail-card expense-card">
-          <span class="detail-label">Dépenses</span>
+          <span class="detail-label">Total Dépenses</span>
           <span class="detail-amount" id="tOut">0 FCFA</span>
         </div>
         <div class="detail-card income-card">
-          <span class="detail-label">Revenus</span>
+          <span class="detail-label">Total Revenus</span>
           <span class="detail-amount" id="tIn">0 FCFA</span>
         </div>
       </div>
@@ -94,14 +115,13 @@
     <!-- BUDGET MENSUEL -->
     <section>
       <h2>Budget mensuel</h2>
-      <p style="font-size:0.85rem; color:var(--mute); margin:0 0 8px;">Fixez un budget mensuel pour être alerté.</p>
       <label for="budgetInput">Mon budget par mois</label>
       <input id="budgetInput" type="text" inputmode="decimal" placeholder="Ex. : 50000">
     </section>
 
     <!-- SAISIE RAPIDE -->
     <section id="operationSection">
-      <h2>Nouvelle opération</h2>
+      <h2>Saisie rapide d'une opération</h2>
       <div class="tog" role="group">
         <button id="bOut" aria-pressed="true">Dépense</button>
         <button id="bIn" aria-pressed="false">Revenu</button>
@@ -115,37 +135,38 @@
         <div><label for="opDate">Date</label><input id="opDate" type="date"></div>
       </div>
       <div style="margin-top:8px;">
-        <label for="newMemberName">Ajouter membre</label>
+        <label for="newMemberName">Ajouter un membre</label>
         <div style="display:flex; gap:8px;">
           <input id="newMemberName" type="text" placeholder="Nom">
           <button id="addMemberBtn" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">+</button>
         </div>
       </div>
-      <button id="addCatBtn" type="button" style="background:transparent; border:0; color:var(--in); font-weight:600; cursor:pointer; padding:6px 0; margin-top:8px;">+ Créer ma propre catégorie</button>
-      <div style="margin-top:8px;">
-        <label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60" placeholder="Ex. : marché, taxi, recharge">
+      <button id="addCatBtn" type="button" style="background:transparent; border:0; color:var(--in); font-weight:600; cursor:pointer; margin-top:8px;">+ Créer ma propre catégorie</button>
+      <div class="row2" style="margin-top:8px;">
+        <div><label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60" placeholder="Ex: Marché"></div>
+        <div><label for="tagLocation">Tag / Lieu</label><input id="tagLocation" type="text" maxlength="30" placeholder="Ex: Ouaga"></div>
       </div>
       <button class="go" id="add">Enregistrer</button>
       <p class="msg" id="msg" role="status"></p>
     </section>
   </div>
 
-  <!-- ================= PAGE 2 : COMPTES / CHARGES FIXES & OBJECTIFS ================= -->
+  <!-- ================= PAGE 2 : COMPTES & CHARGES FIXES ================= -->
   <div id="pageAccounts" class="app-page-content" style="display:none;">
     <section>
-      <h2>Gestion des récurrences (Charges fixes) 🔄</h2>
+      <h2>🔄 Charges fixes (Récurrences)</h2>
       <div class="row2">
         <div><label>Catégorie</label><input id="billCat" type="text" placeholder="Ex: Loyer"></div>
         <div><label>Montant</label><input id="billAmt" type="text" inputmode="decimal" placeholder="0"></div>
       </div>
-      <button class="go" id="addBillBtn" style="background:var(--btn); color:var(--btn-t);">Ajouter récurrence mensuelle</button>
+      <button class="go" id="addBillBtn" style="background:var(--btn); color:var(--btn-t);">Ajouter charge fixe</button>
       <div id="billsList" style="margin-top:12px;"></div>
     </section>
 
     <section>
-      <h2>Objectifs d'épargne (Pots)</h2>
+      <h2>🎯 Objectifs d'épargne (Pots)</h2>
       <div class="row2">
-        <div><label>Nom du projet</label><input id="potName" type="text" placeholder="Ex: Ordinateur"></div>
+        <div><label>Nom du projet</label><input id="potName" type="text" placeholder="Ex: Projet"></div>
         <div><label>Montant cible</label><input id="potTarget" type="text" inputmode="decimal" placeholder="0"></div>
       </div>
       <div style="margin-top:8px;"><label>Déjà épargné</label><input id="potSaved" type="text" inputmode="decimal" placeholder="0"></div>
@@ -157,8 +178,8 @@
   <!-- ================= PAGE 3 : HISTORIQUE & DETTES ================= -->
   <div id="pageOperations" class="app-page-content" style="display:none;">
     <section>
-      <h2>Opérations du mois</h2>
-      <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off">
+      <h2>Historique des Opérations</h2>
+      <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off" style="margin-bottom:8px;">
       <div style="margin-bottom:12px;"><select id="filterMember"></select></div>
       <ul id="list"></ul>
     </section>
@@ -170,33 +191,24 @@
         <button id="debtIn" aria-pressed="false">On me doit</button>
       </div>
       <div class="row2">
-        <div><label>Créancier / Débiteur</label><input id="debtPerson" type="text" placeholder="Nom"></div>
+        <div><label>Personne</label><input id="debtPerson" type="text" placeholder="Nom"></div>
         <div><label>Montant</label><input id="debtAmt" type="text" inputmode="decimal" placeholder="0"></div>
       </div>
-      <div style="margin-top:8px;"><label>Échéance (facultatif)</label><input id="debtDate" type="date"></div>
+      <div style="margin-top:8px;"><label>Échéance</label><input id="debtDate" type="date"></div>
       <button class="go" id="addDebtBtn" style="background:var(--out);">Ajouter</button>
       <div id="debtsList" style="margin-top:12px;"></div>
     </section>
   </div>
 
-  <!-- ================= PAGE 4 : ANALYSES & RAPPORTS ================= -->
+  <!-- ================= PAGE 4 : ANALYSES & IA ================= -->
   <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section class="ai-advisor-card">
-      <h2 style="margin-bottom:8px;">Comparatif Inter-Membres 👥</h2>
+      <h2 style="margin-bottom:8px;">👥 Comparatif Inter-Membres</h2>
       <div id="membersCompare"></div>
     </section>
 
     <section>
-      <h2>Où part l'argent</h2>
-      <div class="tog" role="group">
-        <button id="periodMonth" aria-pressed="true">Ce mois</button>
-        <button id="periodWeek" aria-pressed="false">Cette semaine</button>
-      </div>
-      <div id="breakdownList" style="margin-top:12px;"></div>
-    </section>
-
-    <section>
-      <h2>Rapport mensuel & Export PDF 📄</h2>
+      <h2>Rapport mensuel</h2>
       <div id="modalReportContent" style="font-size:0.95rem; line-height:1.6; margin-bottom:12px;"></div>
       <button class="go" id="modalExportPdfBtn" style="background:var(--in); margin-top:0;">📥 Télécharger le bilan PDF</button>
     </section>
@@ -221,6 +233,7 @@
       <span>Analyses</span>
     </button>
   </nav>
+
 </main>
 
 <script>
@@ -283,6 +296,7 @@ function checkAuth() {
     loadUserData();
     $("authScreen").style.display = "none";
     $("appMain").style.display = "block";
+    $("userGreeting").textContent = "Gestion (" + currentUser + ")";
     $("opDate").value = today();
     setType("out");
     render();
@@ -292,16 +306,98 @@ function checkAuth() {
   }
 }
 
+// === GESTION DU MENU LATÉRAL (HAMBURGER) ===
+$("openSidebarBtn").onclick = () => {
+  $("sidebarOverlay").style.display = "flex";
+};
+$("closeSidebar").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+};
+$("sidebarOverlay").onclick = (e) => {
+  if (e.target === $("sidebarOverlay")) {
+    $("sidebarOverlay").style.display = "none";
+  }
+};
+
+// === GESTION DES PARAMÈTRES ===
+$("navSettingsTop").onclick = () => {
+  $("settingsModal").style.display = "flex";
+};
+$("closeSettingsModal").onclick = () => {
+  $("settingsModal").style.display = "none";
+};
+$("saveSettingsBtn").onclick = () => {
+  $("settingsModal").style.display = "none";
+};
+$("settingsModal").onclick = (e) => {
+  if (e.target === $("settingsModal")) {
+    $("settingsModal").style.display = "none";
+  }
+};
+
+// === MODE SOMBRE / CLAIR ===
+$("navTheme").onclick = () => {
+  S.theme = S.theme === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", S.theme);
+  save();
+  $("sidebarOverlay").style.display = "none";
+};
+
+if (S.theme === "dark") {
+  document.documentElement.setAttribute("data-theme", "dark");
+}
+
+// === RAPPORT MENSUEL ===
+$("navReport").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  const monthTx = S.tx.filter(t => t.date.startsWith(month));
+  const sum = (k) => monthTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  $("modalReportContent").innerHTML = `Bilan du mois de <b>${month}</b><br><br>• Total Dépenses : <span style="color:var(--out);">${money(sum("out"))}</span><br>• Total Revenus : <span style="color:var(--in);">${money(sum("in"))}</span>`;
+  $("reportModal").style.display = "flex";
+};
+$("closeReportModal").onclick = () => { $("reportModal").style.display = "none"; };
+
+// === EFFACER LES OPÉRATIONS DU MOIS ===
+$("navResetMonth").onclick = () => {
+  if (confirm("Voulez-vous vraiment effacer toutes les opérations de ce mois (" + month + ") ?")) {
+    S.tx = S.tx.filter(t => !t.date.startsWith(month));
+    save();
+    render();
+    $("sidebarOverlay").style.display = "none";
+    alert("Opérations du mois effacées.");
+  }
+};
+
+// === EXPORTER SAUVEGARDE JSON ===
+$("navExportJson").onclick = () => {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(S));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", "sauvegarde_gestion_" + currentUser + "_" + today() + ".json");
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  $("sidebarOverlay").style.display = "none";
+};
+
+// === DÉCONNEXION ===
+$("navLogout").onclick = () => {
+  localStorage.removeItem("current_user");
+  currentUser = null;
+  location.reload();
+};
+
+// === CORRECTION DE L'INSCRIPTION / CONNEXION ===
 $("authSwitch").onclick = () => {
   const title = $("authTitle");
-  if (title.textContent.includes("Inscription")) {
+  if (title.textContent.includes("Connexion")) {
+    title.textContent = "Créer un compte";
+    $("authBtn").textContent = "S'inscrire";
+    $("authSwitch").textContent = "Déjà un compte ? Se connecter";
+  } else {
     title.textContent = "Connexion Famille";
     $("authBtn").textContent = "Se connecter";
     $("authSwitch").textContent = "Créer un compte";
-  } else {
-    title.textContent = "Inscription Famille";
-    $("authBtn").textContent = "S'inscrire";
-    $("authSwitch").textContent = "Déjà un compte ? Se connecter";
   }
 };
 
@@ -312,25 +408,6 @@ $("authBtn").onclick = () => {
   currentUser = u;
   localStorage.setItem("current_user", u);
   checkAuth();
-};
-
-$("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
-$("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
-$("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
-
-$("navSettingsTop").onclick = () => { $("settingsModal").style.display = "flex"; };
-$("closeSettingsModal").onclick = () => { $("settingsModal").style.display = "none"; };
-
-$("navTheme").onclick = () => {
-  S.theme = S.theme === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", S.theme);
-  save();
-};
-
-$("navLogout").onclick = () => {
-  localStorage.removeItem("current_user");
-  currentUser = null;
-  location.reload();
 };
 
 // Navigation par 4 onglets bas
@@ -440,76 +517,77 @@ function render() {
   $("solde").textContent = money(net);
   $("solde").classList.toggle("neg", net < 0);
 
-  // Membres select
   const memberSelect = $("member");
-  memberSelect.replaceChildren(...S.members.map(m => new Option(m, m)));
+  if (memberSelect) memberSelect.replaceChildren(...S.members.map(m => new Option(m, m)));
   const filterMember = $("filterMember");
-  filterMember.replaceChildren(new Option("Tous les membres", "all"), ...S.members.map(m => new Option(m, m)));
+  if (filterMember) filterMember.replaceChildren(new Option("Tous les membres", "all"), ...S.members.map(m => new Option(m, m)));
 
-  // Liste opérations
   const ul = $("list");
   const query = $("searchQuery").value.toLowerCase();
-  const selectedMember = filterMember.value;
+  const selectedMember = filterMember ? filterMember.value : "all";
   const filtered = monthTx.filter(t => {
     const matchQ = t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query));
     const matchM = selectedMember === "all" || t.member === selectedMember;
     return matchQ && matchM;
   });
 
-  ul.replaceChildren();
-  if (!filtered.length) {
-    ul.innerHTML = '<li style="text-align:center; color:var(--mute); padding:10px; display:block;">Aucune opération.</li>';
-  } else {
-    filtered.forEach(t => {
-      const li = document.createElement("li");
-      li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat} (${t.member})</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '−' : '+'}${money(t.amt)}</div>`;
-      ul.append(li);
+  if (ul) {
+    ul.replaceChildren();
+    if (!filtered.length) {
+      ul.innerHTML = '<li style="text-align:center; color:var(--mute); padding:10px; display:block;">Aucune opération.</li>';
+    } else {
+      filtered.forEach(t => {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat} (${t.member})</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '−' : '+'}${money(t.amt)}</div>`;
+        ul.append(li);
+      });
+    }
+  }
+
+  const compBox = $("membersCompare");
+  if (compBox) {
+    compBox.replaceChildren();
+    S.members.forEach(m => {
+      const mOut = monthTx.filter(t => t.member === m && t.type === 'out').reduce((s, t) => s + t.amt, 0);
+      const div = document.createElement("div");
+      div.style.cssText = "display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line);";
+      div.innerHTML = `<span><b>${m}</b></span><span style="font-weight:700; color:var(--out);">${money(mOut)}</span>`;
+      compBox.append(div);
     });
   }
 
-  // Comparatif membres
-  const compBox = $("membersCompare");
-  compBox.replaceChildren();
-  S.members.forEach(m => {
-    const mOut = monthTx.filter(t => t.member === m && t.type === 'out').reduce((s, t) => s + t.amt, 0);
-    const div = document.createElement("div");
-    div.style.cssText = "display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line);";
-    div.innerHTML = `<span><b>${m}</b></span><span style="font-weight:700; color:var(--out);">${money(mOut)}</span>`;
-    compBox.append(div);
-  });
-
-  // Rapport mensuel
-  $("modalReportContent").innerHTML = `📅 <b>Bilan de ce mois (${currentUser}) :</b><br>• Entrées : <span style="color:var(--in);">${money(i)}</span><br>• Dépenses : <span style="color:var(--out);">${money(o)}</span>`;
-
-  // Charges fixes
   const billsBox = $("billsList");
-  billsBox.replaceChildren();
-  S.bills.forEach(b => {
-    const div = document.createElement("div");
-    div.style.cssText = "display:flex; justify-content:space-between; padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
-    div.innerHTML = `<span><b>${b.cat}</b></span><span style="font-weight:700; color:var(--out);">${money(b.amt)}</span>`;
-    billsBox.append(div);
-  });
+  if (billsBox) {
+    billsBox.replaceChildren();
+    S.bills.forEach(b => {
+      const div = document.createElement("div");
+      div.style.cssText = "display:flex; justify-content:space-between; padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
+      div.innerHTML = `<span><b>${b.cat}</b></span><span style="font-weight:700; color:var(--out);">${money(b.amt)}</span>`;
+      billsBox.append(div);
+    });
+  }
 
-  // Pots épargne
   const potsBox = $("potsList");
-  potsBox.replaceChildren();
-  S.pots.forEach(p => {
-    const div = document.createElement("div");
-    div.style.cssText = "padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
-    div.innerHTML = `<b>🎯 ${p.name}</b> : ${money(p.saved)} / ${money(p.target)}`;
-    potsBox.append(div);
-  });
+  if (potsBox) {
+    potsBox.replaceChildren();
+    S.pots.forEach(p => {
+      const div = document.createElement("div");
+      div.style.cssText = "padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
+      div.innerHTML = `<b>🎯 ${p.name}</b> : ${money(p.saved)} / ${money(p.target)}`;
+      potsBox.append(div);
+    });
+  }
 
-  // Dettes
   const debtsBox = $("debtsList");
-  debtsBox.replaceChildren();
-  S.debts.forEach(d => {
-    const div = document.createElement("div");
-    div.style.cssText = "display:flex; justify-content:space-between; padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
-    div.innerHTML = `<span><b>${d.person}</b> (${d.type === 'out' ? 'Je dois' : 'On me doit'})</span><span style="font-weight:700;">${money(d.amt)}</span>`;
-    debtsBox.append(div);
-  });
+  if (debtsBox) {
+    debtsBox.replaceChildren();
+    S.debts.forEach(d => {
+      const div = document.createElement("div");
+      div.style.cssText = "display:flex; justify-content:space-between; padding:8px; background:var(--bg); border-radius:8px; margin-bottom:6px;";
+      div.innerHTML = `<span><b>${d.person}</b> (${d.type === 'out' ? 'Je dois' : 'On me doit'})</span><span style="font-weight:700;">${money(d.amt)}</span>`;
+      debtsBox.append(div);
+    });
+  }
 }
 
 $("searchQuery").oninput = render;
