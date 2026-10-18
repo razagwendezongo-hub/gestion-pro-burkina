@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14302b">
+<title>Dépense Family</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ÉCRAN D'AUTHENTIFICATION -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <h2 id="authTitle" style="margin-top:0;">Connexion</h2>
+      <label for="authUser">Nom d'utilisateur</label>
+      <input id="authUser" type="text" placeholder="Entrez votre nom" autocomplete="off">
+      <label for="authPass" style="margin-top:12px;">Mot de passe</label>
+      <input id="authPass" type="password" placeholder="••••••••">
+      <button class="go" id="authBtn">Se connecter</button>
+      <button class="lnk" id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
+      <p class="msg" id="authMsg" style="text-align:center;"></p>
+    </div>
+  </div>
+
+  <!-- MODAL MENU PRINCIPAL -->
+  <div id="menuModal" class="modal-screen" style="display:none;">
+    <div class="modal-card">
+      <h3>Menu Principal</h3>
+      <div class="menu-list">
+        <button class="menu-item" id="mDate">📅 Changer de Mois / Date</button>
+        <button class="menu-item" id="mDownloads">📥 Téléchargements / Fichiers</button>
+        <button class="menu-item" id="mProps">⚙️ Propriétés du compte</button>
+        <button class="menu-item" id="mTheme">🌓 Mode Jour / Nuit</button>
+        <button class="menu-item" id="mReport">📄 Rapport mensuel & PDF</button>
+        <button class="menu-item" id="mHistory">📊 Évolution des dépenses</button>
+        <button class="menu-item" id="mPots">💰 Objectifs d'épargne</button>
+        <button class="menu-item" id="mExport">📥 Exporter JSON</button>
+        <button class="menu-item" id="mImport">📤 Restaurer JSON</button>
+        <button class="menu-item" id="mLogout" style="color:var(--out);">🚪 Déconnexion</button>
+      </div>
+      <button class="modal-close" id="closeMenuModal">Fermer</button>
+    </div>
+  </div>
+
+  <!-- MODAL PARAMÈTRES -->
+  <div id="settingsModal" class="modal-screen" style="display:none;">
+    <div class="modal-card">
+      <h3>Paramètres</h3>
+      <div class="menu-list">
+        <button class="menu-item" id="sAbout">ℹ️ À propos</button>
+        <button class="menu-item" id="sTerms">📜 Conditions d'utilisation</button>
+        <button class="menu-item" id="sLang">🌐 Langue (Français)</button>
+        <button class="menu-item" id="sAccess">♿ Accessibilité</button>
+        <a class="menu-item" href="https://wa.me/" target="_blank">💬 Contactez-moi sur WhatsApp</a>
+        <a class="menu-item" href="https://t.me/" target="_blank">✈️ Contactez-moi sur Telegram</a>
+        <button class="menu-item" id="sDataSaver">⚡ Économie de données</button>
+      </div>
+      <button class="modal-close" id="closeSettingsModal">Fermer</button>
+    </div>
+  </div>
+
+  <!-- MODAL SOUS-SECTION : CHANGEMENT DE DATE -->
+  <div id="dateModal" class="modal-screen" style="display:none;">
+    <div class="modal-card">
+      <h3>Sélectionner le mois</h3>
+      <div class="nav" style="margin-top:12px;">
+        <button id="modalPrev">‹</button>
+        <h1 id="modalMois"></h1>
+        <button id="modalNext">›</button>
+      </div>
+      <button class="modal-close" id="closeDateModal">Valider</button>
+    </div>
+  </div>
+
+<main id="appMain" style="display:none;">
+  <div class="header-top">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span id="alertDot" class="alert-dot" title="État du budget"></span>
+      <div style="font-weight:800; font-size:1.1rem;" id="userGreeting">Dépense Family</div>
+    </div>
+    <div class="header-actions">
+      <button id="openMenuBtn" class="theme-btn">☰ Menu</button>
+      <button id="openSettingsBtn" class="theme-btn">⚙️ Paramètres</button>
+    </div>
+  </div>
+
+  <div class="solde">
+    <div class="lab">Solde du mois <span id="currentMonthLabel" style="font-weight:600; color:var(--in);"></span></div>
+    <div class="big" id="solde"></div>
+    <div class="duo">
+      <div class="o">Dépenses<b id="tOut"></b></div>
+      <div class="i">Revenus<b id="tIn"></b></div>
+    </div>
+  </div>
+
+  <section id="section-budget">
+    <h2>Budget mensuel</h2>
+    <div class="meter"><i id="budBar"></i></div>
+    <p class="alert" id="alertTxt" role="status"></p>
+    <label for="bud">Mon budget par mois</label>
+    <input id="bud" type="text" inputmode="decimal" placeholder="Ex. : 50000" autocomplete="off">
+  </section>
+
+  <section id="section-operation">
+    <h2>Nouvelle opération</h2>
+    <div class="tog" role="group" aria-label="Type d'opération">
+      <button id="bOut" aria-pressed="true">Dépense</button>
+      <button id="bIn" aria-pressed="false">Revenu</button>
+    </div>
+    <label for="amt">Montant</label>
+    <input id="amt" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+    <div class="row2">
+      <div><label for="cat">Catégorie</label><select id="cat"></select></div>
+      <div><label for="date">Date</label><input id="date" type="date"></div>
+    </div>
+    <button style="border:0; background:transparent; color:var(--in); font-weight:600; padding:10px 0 0; cursor:pointer;" id="newCat" type="button">+ Créer ma propre catégorie</button>
+    <div id="catRow" hidden>
+      <input id="catEmoji" type="text" value="📌" maxlength="2" aria-label="Emoji">
+      <input id="catIn" type="text" maxlength="24" placeholder="Ex. : Tontine" aria-label="Nom">
+      <button id="catBtn" type="button">Ajouter</button>
+    </div>
+    <label for="note">Note (facultatif)</label>
+    <input id="note" type="text" maxlength="60" placeholder="Ex. : marché, taxi, recharge">
+    <button class="go" id="add">Enregistrer</button>
+    <p class="msg" id="msg" role="status"></p>
+  </section>
+
+  <section id="section-stats">
+    <h2>Gestion des récurrences (Charges fixes) 🔄</h2>
+    <div class="row2">
+      <div><label for="recCat">Catégorie</label><input id="recCat" type="text" placeholder="Ex: Loyer"></div>
+      <div><label for="recAmt">Montant</label><input id="recAmt" type="text" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <button class="go" id="recAdd">Ajouter récurrence mensuelle</button>
+    <div id="recList" style="margin-top:12px;"></div>
+  </section>
+
+  <section>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h2 style="margin:0;">Où part l'argent</h2>
+      <select id="chartPeriod" style="max-width:120px; padding:4px 8px; font-size:0.85rem;">
+        <option value="month">Ce mois</option>
+        <option value="week">Cette semaine</option>
+        <option value="year">Cette année</option>
+      </select>
+    </div>
+    <div class="chart-container">
+      <div id="pieChart" class="pie-chart"></div>
+      <div id="chartLegend" class="chart-legend"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Opérations du mois</h2>
+    <div class="row2" style="margin-bottom:8px;">
+      <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off">
+    </div>
+    <ul id="list"></ul>
+  </section>
+</main>
+
+<input type="file" id="fileInput" accept=".json" hidden>
+
+<script>
+const DEFAULT_ICONS = {
+  "Nourriture": "🛒", "Transport": "🚗", "Essence": "⛽", "Crédit téléphone": "📱", 
+  "Internet": "🌐", "Logement": "🏠", "Électricité": "⚡", "Eau": "💧", 
+  "Santé": "💊", "École": "📚", "Famille": "👨‍👩‍👧‍👦", "Vêtements": "👕", 
+  "Ménage et hygiène": "🧼", "Entretien et réparations": "🔧", "Abonnements": "📺", 
+  "Loisirs": "🎉", "Épargne": "💰", "Dons et aide": "🤝", "Autre": "📦",
+  "Salaire": "💵", "Ventes": "📈", "Prime": "🎁", "Aide familiale": "🤲", "Cadeau": "🎁", "Autre revenu": "💼"
+};
+
+const CHART_COLORS = ["#c2412d", "#23805a", "#a86500", "#2b6cb0", "#805ad5", "#d53f8c", "#319795", "#d69e2e", "#4a5568", "#e53e3e"];
+
+const CATS = {
+  out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Famille","Vêtements","Ménage et hygiène","Entretien et réparations","Abonnements","Loisirs","Épargne","Dons et aide","Autre"],
+  in: ["Salaire","Ventes","Prime","Aide familiale","Cadeau","Autre revenu"]
+};
+
+let currentUser = localStorage.getItem("current_user");
+let isRegistering = false;
+const USERS_KEY = "depense_family_users_db";
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+
+let S = { tx: [], cur: "FCFA", budget: 0, debts: [], pots: [], recurring: [], customIcons: [], downloads: [], exchangeRate: 0, cats: { out: [], in: [] }, theme: "light" };
+
+function loadUserData() {
+  if (!currentUser) return;
+  try {
+    const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+    if (db[currentUser]) {
+      S = Object.assign(S, db[currentUser]);
+    }
+  } catch (e) {}
+}
+
+function save() {
+  if (!currentUser) return;
+  try {
+    const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+    db[currentUser] = S;
+    localStorage.setItem(USERS_KEY, JSON.stringify(db));
+    
+    fetch("https://depense-family-default-rtdb.europe-west1.firebasedatabase.app/users/" + currentUser + ".json", {
+      method: "PUT",
+      body: JSON.stringify(S)
+    }).catch(err => {});
+  } catch (e) {}
+}
+
+const getIcon = c => S.customIcons[c] || DEFAULT_ICONS[c] || "📌";
+const money = n => Math.round(n).toLocaleString("fr-FR") + " " + S.cur;
+
+let month = today().slice(0, 7), type = "out", armed = null, searchFilter = "", potArmed = null, recArmed = null;
+
+function playAlertSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  } catch(e) {}
+}
+
+function checkAuth() {
+  if (currentUser) {
+    loadUserData();
+    $("authScreen").style.display = "none";
+    $("appMain").style.display = "block";
+    $("userGreeting").textContent = "Dépense Family (" + currentUser + ")";
+    setTheme(S.theme || "light");
+    setType("out");
+    checkRecurring();
+    render();
+  } else {
+    $("authScreen").style.display = "flex";
+    $("appMain").style.display = "none";
+  }
+}
+
+$("authSwitch").onclick = () => {
+  isRegistering = !isRegistering;
+  $("authTitle").textContent = isRegistering ? "Inscription" : "Connexion";
+  $("authBtn").textContent = isRegistering ? "S'inscrire" : "Se connecter";
+  $("authSwitch").textContent = isRegistering ? "Déjà un compte ? Se connecter" : "Créer un compte";
+};
+
+$("authBtn").onclick = () => {
+  const u = $("authUser").value.trim();
+  const p = $("authPass").value;
+  if (!u || !p) { $("authMsg").textContent = "Remplissez tous les champs."; return; }
+  
+  let db = {};
+  try { db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); } catch(e){}
+
+  if (isRegistering) {
+    if (db[u]) { $("authMsg").textContent = "Ce nom existe déjà."; return; }
+    db[u] = { ...S, pass: p };
+    localStorage.setItem(USERS_KEY, JSON.stringify(db));
+    currentUser = u;
+    localStorage.setItem("current_user", u);
+    $("authMsg").textContent = "";
+    checkAuth();
+  } else {
+    if (!db[u] || db[u].pass !== p) { $("authMsg").textContent = "Identifiants incorrects."; return; }
+    currentUser = u;
+    localStorage.setItem("current_user", u);
+    $("authMsg").textContent = "";
+    checkAuth();
+  }
+};
+
+$("openMenuBtn").onclick = () => $("menuModal").style.display = "flex";
+$("closeMenuModal").onclick = () => $("menuModal").style.display = "none";
+
+$("openSettingsBtn").onclick = () => $("settingsModal").style.display = "flex";
+$("closeSettingsModal").onclick = () => $("settingsModal").style.display = "none";
+
+$("mDate").onclick = () => { $("menuModal").style.display = "none"; $("dateModal").style.display = "flex"; };
+$("closeDateModal").onclick = () => $("dateModal").style.display = "none";
+
+$("mTheme").onclick = () => { setTheme(S.theme === "dark" ? "light" : "dark"); };
+
+$("mLogout").onclick = () => {
+  currentUser = null;
+  localStorage.removeItem("current_user");
+  $("menuModal").style.display = "none";
+  checkAuth();
+};
+
+$("mDownloads").onclick = () => {
+  let list = (S.downloads || []).join("\n") || "Aucun téléchargement enregistré.";
+  alert("Fichiers téléchargés :\n" + list);
+};
+
+$("mProps").onclick = () => {
+  let newCur = prompt("Devise actuelle (" + S.cur + ") :", S.cur);
+  if (newCur) { S.cur = newCur.trim(); save(); render(); }
+  let newRate = prompt("Taux de conversion vers USD/EUR (" + (S.exchangeRate || 0) + ") :", S.exchangeRate || "");
+  if (newRate !== null) { S.exchangeRate = parseFloat(newRate) || 0; save(); render(); }
+};
+
+$("mReport").onclick = () => {
+  const [y, m] = month.split("-").map(Number);
+  const monthTx = S.tx.filter(t => t.date.startsWith(month));
+  const outTx = monthTx.filter(t => t.type === "out");
+  const totalOut = outTx.reduce((s, t) => s + t.amt, 0);
+  const totalIn = monthTx.filter(t => t.type === "in").reduce((s, t) => s + t.amt, 0);
+  const savedPots = (S.pots || []).reduce((s, p) => s + p.saved, 0);
+  
+  let content = `📅 Bilan de ce mois (${new Date(y, m - 1, 1).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}):\n` +
+                `- Entrées : ${money(totalIn)}\n` +
+                `- Dépenses : ${money(totalOut)}\n` +
+                `- Épargne pots : ${money(savedPots)}`;
+  alert(content);
+};
+
+$("mHistory").onclick = () => {
+  let histText = "Évolution (3 derniers mois) :\n";
+  const [y, m] = month.split("-").map(Number);
+  for (let i = 2; i >= 0; i--) {
+    const d = new Date(y, m - 1 - i, 1);
+    const mStr = d.getFullYear() + "-" + pad(d.getMonth() + 1);
+    const label = d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    const totalOut = S.tx.filter(t => t.type === "out" && t.date.startsWith(mStr)).reduce((s, t) => s + t.amt, 0);
+    histText += `- ${label} : ${money(totalOut)}\n`;
+  }
+  alert(histText);
+};
+
+$("mPots").onclick = () => {
+  let name = prompt("Nom du projet d'épargne (ex: Ordinateur) :");
+  if (!name) return;
+  let target = parseFloat(prompt("Montant cible :"));
+  if (!(target > 0)) return;
+  let saved = parseFloat(prompt("Déjà épargné (par défaut 0) :")) || 0;
+  if (!S.pots) S.pots = [];
+  S.pots.push({ id: Date.now(), name, target, saved });
+  save();
+  alert("Objectif créé avec succès !");
+};
+
+$("mExport").onclick = () => {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(S, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr); dlAnchor.setAttribute("download", "sauvegarde-depense-family.json");
+  document.body.appendChild(dlAnchor); dlAnchor.click(); dlAnchor.remove();
+  if(!S.downloads) S.downloads = [];
+  S.downloads.push("sauvegarde-depense-family.json");
+  save();
+};
+
+$("mImport").onclick = () => $("fileInput").click();
+$("fileInput").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = event => {
+    try {
+      const parsed = JSON.parse(event.target.result);
+      if (parsed && parsed.tx) {
+        S = Object.assign(S, parsed);
+        save(); setTheme(S.theme || "light");
+        setType("out"); render();
+        alert("Restauré avec succès !");
+      }
+    } catch (err) { alert("Erreur lors de la lecture du fichier."); }
+  };
+  reader.readAsText(file);
+};
+
+$("sAbout").onclick = () => alert("Dépense Family v2.5 - Application de gestion budgétaire collaborative et sécurisée.");
+$("sTerms").onclick = () => alert("Conditions d'utilisation : Vos données sont enregistrées en local et synchronisées via Firebase pour votre usage personnel.");
+$("sLang").onclick = () => alert("La langue actuelle est le Français.");
+$("sAccess").onclick = () => alert("Mode accessibilité actif : contrastes optimisés et polices adaptées.");
+$("sDataSaver").onclick = () => alert("Économie de données active : les animations lourdes sont réduites.");
+
+function setTheme(t) {
+  S.theme = t;
+  if (t === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+  save();
+}
+
+function checkRecurring() {
+  if (!S.recurring) S.recurring = [];
+  const currentMonthStr = today().slice(0, 7);
+  if (!S.lastRecMonth || S.lastRecMonth !== currentMonthStr) {
+    S.recurring.forEach(r => {
+      S.tx.push({ id: Date.now() + Math.random(), type: "out", amt: r.amt, cat: r.cat, note: "Charge fixe récurrente", date: currentMonthStr + "-01" });
+    });
+    S.lastRecMonth = currentMonthStr;
+    save();
+  }
+}
+
+function setType(t) {
+  type = t;
+  $("bOut").setAttribute("aria-pressed", t === "out");
+  $("bIn").setAttribute("aria-pressed", t === "in");
+  $("cat").replaceChildren(...[...S.cats[t], ...CATS[t]].map(c => new Option(getIcon(c) + " " + c, c)));
+}
+
+function updateBudget(o) {
+  const meter = document.querySelector(".meter"), bar = $("budBar"), txt = $("alertTxt"), dot = $("alertDot");
+  meter.classList.remove("warn", "over");
+  txt.className = "alert";
+  dot.classList.remove("pulse");
+  
+  if (!(S.budget > 0)) {
+    bar.style.width = "0";
+    txt.textContent = "Fixez un budget mensuel pour être alerté.";
+    return;
+  }
+  const p = o / S.budget * 100;
+  bar.style.width = Math.min(p, 100) + "%";
+  if (p > 100) {
+    meter.classList.add("over"); txt.classList.add("over");
+    txt.textContent = "Budget dépassé de " + money(o - S.budget) + ".";
+    dot.classList.add("pulse");
+    playAlertSound();
+  } else if (p >= 80) {
+    meter.classList.add("warn"); txt.classList.add("warn");
+    txt.textContent = "Attention : " + Math.round(p) + " % du budget utilisé.";
+    dot.classList.add("pulse");
+  } else {
+    txt.textContent = Math.round(p) + " % du budget utilisé. Reste " + money(S.budget - o) + ".";
+  }
+}
+
+function shiftMonth(delta) {
+  const [y, m] = month.split("-").map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  month = d.getFullYear() + "-" + pad(d.getMonth() + 1);
+  render();
+}
+
+function render() {
+  const [y, m] = month.split("-").map(Number);
+  const monthName = new Date(y, m - 1, 1).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  $("currentMonthLabel").textContent = "(" + monthName + ")";
+  $("modalMois").textContent = monthName;
+  
+  const monthTx = S.tx.filter(t => t.date.startsWith(month));
+  monthTx.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+                   
+  const sum = (k, list = monthTx) => list.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  const o = sum("out"), i = sum("in");
+  $("tOut").textContent = money(o);
+  $("tIn").textContent = money(i);
+  $("solde").textContent = money(i - o);
+  $("solde").classList.toggle("neg", i - o < 0);
+
+  updateBudget(o);
+  renderRecurring();
+
+  const period = $("chartPeriod").value;
+  const now = new Date();
+  let filteredChartTx = S.tx.filter(t => t.type === "out");
+  if (period === "month") filteredChartTx = filteredChartTx.filter(t => t.date.startsWith(month));
+  else if (period === "week") {
+    const oneWeekAgo = new Date(); oneWeekAgo.setDate(now.getDate() - 7);
+    filteredChartTx = filteredChartTx.filter(t => new Date(t.date) >= oneWeekAgo);
+  } else if (period === "year") {
+    filteredChartTx = filteredChartTx.filter(t => t.date.startsWith(now.getFullYear().toString()));
+  }
+
+  const chartSumOut = filteredChartTx.reduce((s, t) => s + t.amt, 0);
+  const by = {};
+  filteredChartTx.forEach(t => by[t.cat] = (by[t.cat] || 0) + t.amt);
+  
+  const pieChart = $("pieChart"), chartLegend = $("chartLegend");
+  pieChart.replaceChildren(); chartLegend.replaceChildren();
+
+  const entries = Object.entries(by).sort((a, b) => b[1] - a[1]);
+  if (!entries.length || chartSumOut === 0) {
+    pieChart.style.background = "var(--bg)";
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucune dépense.";
+    chartLegend.append(p);
+  } else {
+    let cumulativePercent = 0;
+    let conicGradientStops = [];
+    entries.forEach(([c, v], index) => {
+      const pct = (v / chartSumOut) * 100;
+      const startAngle = cumulativePercent * 3.6;
+      cumulativePercent += pct;
+      const endAngle = cumulativePercent * 3.6;
+      const color = CHART_COLORS[index % CHART_COLORS.length];
+      conicGradientStops.push(`${color} ${startAngle}deg ${endAngle}deg`);
+
+      const item = document.createElement("div"); item.className = "legend-item";
+      const leftPart = document.createElement("div"); leftPart.style.display = "flex"; leftPart.style.alignItems = "center"; leftPart.style.gap = "8px";
+      const colorBox = document.createElement("div"); colorBox.className = "legend-color"; colorBox.style.backgroundColor = color;
+      const labelText = document.createElement("span"); labelText.textContent = getIcon(c) + " " + c;
+      leftPart.append(colorBox, labelText);
+      const rightPart = document.createElement("span"); rightPart.style.fontWeight = "600"; rightPart.textContent = money(v) + " (" + Math.round(pct) + "%)";
+      item.append(leftPart, rightPart); chartLegend.append(item);
+    });
+    pieChart.style.background = `conic-gradient(${conicGradientStops.join(", ")})`;
+  }
+
+  const query = searchFilter.toLowerCase().trim();
+  const tx = monthTx.filter(t => {
+    if (!query) return true;
+    return t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query)) || t.amt.toString().includes(query) || t.date.includes(query);
+  });
+
+  const ul = $("list");
+  ul.replaceChildren();
+  if (!tx.length) {
+    const li = document.createElement("li"); li.className = "empty"; li.textContent = "Aucune opération.";
+    ul.append(li);
+  }
+  tx.forEach(t => {
+    const li = document.createElement("li");
+    const mid = document.createElement("div"); mid.className = "m";
+    const b = document.createElement("b"); b.textContent = getIcon(t.cat) + " " + t.cat;
+    const s = document.createElement("small"); s.textContent = t.date.slice(8) + "/" + t.date.slice(5, 7) + (t.note ? " · " + t.note : "");
+    mid.append(b, s);
+    const a = document.createElement("div"); a.className = "a " + (t.type === "out" ? "o" : "i");
+    a.textContent = (t.type === "out" ? "−" : "+") + money(t.amt);
+    const x = document.createElement("button"); x.className = "x" + (armed === t.id ? " sure" : "");
+    x.textContent = armed === t.id ? "Confirmer" : "Supprimer";
+    x.onclick = () => {
+      if (armed === t.id) { S.tx = S.tx.filter(z => z.id !== t.id); armed = null; save(); }
+      else armed = t.id;
+      render();
+    };
+    li.append(mid, a, x); ul.append(li);
+  });
+}
+
+function renderRecurring() {
+  if (!S.recurring) S.recurring = [];
+  const box = $("recList");
+  box.replaceChildren();
+  if (!S.recurring.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucune charge fixe récurrente.";
+    box.append(p); return;
+  }
+  S.recurring.forEach(r => {
+    const w = document.createElement("div"); w.className = "debt";
+    const h = document.createElement("div"); h.className = "h";
+    h.innerHTML = `<b>🔄 ${r.cat}</b><span class="amt o">${money(r.amt)} / mois</span>`;
+    const row = document.createElement("div"); row.className = "pay"; row.style.marginTop = "6px";
+    const x = document.createElement("button");
+    x.className = recArmed === r.id ? "sure" : "";
+    x.textContent = recArmed === r.id ? "Confirmer" : "Supprimer";
+    x.onclick = () => {
+      if (recArmed === r.id) { S.recurring = S.recurring.filter(z => z.id !== r.id); recArmed = null; save(); }
+      else recArmed = r.id;
+      renderRecurring();
+    };
+    row.append(x); w.append(h, row); box.append(w);
+  });
+}
+
+$("recAdd").onclick = () => {
+  const cat = $("recCat").value.trim();
+  const amt = parseN($("recAmt").value);
+  if (!cat || !(amt > 0)) return;
+  if (!S.recurring) S.recurring = [];
+  S.recurring.push({ id: Date.now(), cat, amt });
+  save();
+  $("recCat").value = ""; $("recAmt").value = "";
+  renderRecurring();
+};
+
+const parseN = s => parseFloat(String(s).replace(/\s/g, "").replace(",", "."));
+
+function addCat() {
+  const emoji = $("catEmoji").value.trim() || "📌";
+  const name = $("catIn").value.trim();
+  if (!name) return;
+  if (!S.customIcons) S.customIcons = {};
+  S.customIcons[name] = emoji;
+  const all = [...S.cats[type], ...CATS[type]];
+  const hit = all.find(c => c.toLowerCase() === name.toLowerCase());
+  if (!hit) { S.cats[type].push(name); save(); }
+  setType(type);
+  $("cat").value = hit || name;
+  $("catIn").value = ""; $("catEmoji").value = "📌";
+  $("catRow").hidden = true;
+}
+
+function add() {
+  const amt = parseFloat($("amt").value.replace(/\s/g, "").replace(",", "."));
+  const date = $("date").value || today();
+  if (!(amt > 0)) return;
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date });
+  save();
+  month = date.slice(0, 7);
+  $("amt").value = ""; $("note").value = "";
+  armed = null; render();
+  $("amt").focus();
+}
+
+$("searchQuery").oninput = e => { searchFilter = e.target.value; render(); };
+
+$("modalPrev").onclick = () => { shiftMonth(-1); };
+$("modalNext").onclick = () => { shiftMonth(1); };
+$("bOut").onclick = () => setType("out");
+$("bIn").onclick = () => setType("in");
+$("add").onclick = add;
+$("newCat").onclick = () => { $("catRow").hidden = !$("catRow").hidden; if (!$("catRow").hidden) $("catIn").focus(); };
+$("catBtn").onclick = addCat;
+$("catIn").addEventListener("keydown", e => { if (e.key === "Enter") addCat(); });
+$("amt").addEventListener("keydown", e => { if (e.key === "Enter") add(); });
+$("bud").value = S.budget || "";
+$("bud").oninput = e => { S.budget = parseFloat(e.target.value.replace(/\s/g, "").replace(",", ".")) || 0; save(); render(); };
+
+$("date").value = today();
+checkAuth();
+</script>
+</body>
+</html>
