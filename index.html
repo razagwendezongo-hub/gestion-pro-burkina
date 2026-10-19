@@ -7,8 +7,10 @@
 <link rel="manifest" href="manifest.json">
 <title>Gestion Financière Pro</title>
 <link rel="stylesheet" href="style.css">
-<!-- Intégration de Chart.js pour les graphiques circulaires -->
+<!-- Intégration de Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Intégration du client Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -119,13 +121,12 @@
     <section>
       <h2>💳 Comptes & Portefeuilles</h2>
       <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <input id="newAccountName" type="text" placeholder="Nouveau compte (ex: Moov Money)..." style="flex:1;">
+        <input id="newAccountName" type="text" placeholder="Nouveau compte..." style="flex:1;">
         <button id="submitAddAccount" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">Créer</button>
       </div>
       <div id="accountsListDetailed" style="display:flex; flex-direction:column; gap:8px;"></div>
     </section>
 
-    <!-- OBJECTIFS D'ÉPARGNE (POTS) -->
     <section>
       <h2>🎯 Objectifs d'épargne (Pots)</h2>
       <div class="row2">
@@ -141,7 +142,7 @@
   <!-- ================= PAGE 3 : HISTORIQUE & DETTES ================= -->
   <div id="pageOperations" class="app-page-content" style="display:none;">
     <section>
-      <h2>Historique & Filtres avancés</h2>
+      <h2>Historique & Filtres</h2>
       <div class="row2" style="margin-bottom:8px;">
         <div><label>Filtrer par</label><select id="filterMode"><option value="month">Ce mois</option><option value="week">Cette semaine</option><option value="all">Tout</option></select></div>
         <div><label>Rechercher</label><input id="searchQuery" type="text" placeholder="🔍 Mot clé..." autocomplete="off"></div>
@@ -149,7 +150,6 @@
       <ul id="list"></ul>
     </section>
 
-    <!-- GESTION DES DETTES -->
     <section>
       <h2>🤝 Dettes et Prêts</h2>
       <div class="tog" role="group">
@@ -170,7 +170,6 @@
   <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section>
       <h2>📊 Répartition des dépenses</h2>
-      <p style="font-size:0.85rem; color:var(--mute); margin-top:0;">Visualisez instantanément où part votre argent ce mois-ci.</p>
       <div style="max-width: 280px; margin: 0 auto;">
         <canvas id="expenseChart"></canvas>
       </div>
@@ -187,6 +186,11 @@
 </main>
 
 <script>
+// Configuration Supabase
+const SUPABASE_URL = 'https://meiluzsbvlnmcwkquoga.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_2SgbI7adXfv2k07k-2x4Sw_-5vveoSo';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const DEFAULT_ICONS = {
   "Nourriture": "🛒", "Transport": "🚗", "Essence": "⛽", "Crédit téléphone": "📱", 
   "Internet": "🌐", "Logement": "🏠", "Électricité": "⚡", "Eau": "💧", 
@@ -202,7 +206,6 @@ const CATS = {
 };
 
 let currentUser = localStorage.getItem("current_user");
-const USERS_KEY = "depense_family_users_db";
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
@@ -213,26 +216,38 @@ let S = {
   pots: [], debts: [], cur: "FCFA", theme: "light" 
 };
 
-function loadUserData() {
+async function loadUserData() {
   if (!currentUser) return;
   try {
-    const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-    if (db[currentUser]) {
-      S = Object.assign(S, db[currentUser]);
-      if (!S.accounts) S.accounts = [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }];
-      if (!S.pots) S.pots = [];
-      if (!S.debts) S.debts = [];
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('data')
+      .eq('username', currentUser)
+      .single();
+    
+    if (data && data.data) {
+      S = Object.assign(S, data.data);
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log("Chargement local de secours");
+    const local = localStorage.getItem("backup_" + currentUser);
+    if (local) S = JSON.parse(local);
+  }
 }
 
-function save() {
+async function save() {
   if (!currentUser) return;
+  // Sauvegarde locale de secours
+  localStorage.setItem("backup_" + currentUser, JSON.stringify(S));
+  
+  // Sauvegarde sur Supabase
   try {
-    const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-    db[currentUser] = S;
-    localStorage.setItem(USERS_KEY, JSON.stringify(db));
-  } catch (e) {}
+    await supabase
+      .from('profiles')
+      .upsert({ username: currentUser, data: S }, { onConflict: 'username' });
+  } catch (e) {
+    console.error("Erreur de synchronisation Supabase", e);
+  }
 }
 
 const getIcon = c => DEFAULT_ICONS[c] || "📌";
@@ -241,9 +256,9 @@ const money = n => Math.round(n).toLocaleString("fr-FR") + " " + S.cur;
 let month = today().slice(0, 7), type = "out", debtType = "out";
 let myChart = null;
 
-function checkAuth() {
+async function checkAuth() {
   if (currentUser) {
-    loadUserData();
+    await loadUserData();
     $("authScreen").style.display = "none";
     $("appMain").style.display = "block";
     $("userGreeting").textContent = "Compte : " + currentUser;
@@ -269,16 +284,15 @@ $("authSwitch").onclick = () => {
   }
 };
 
-$("authBtn").onclick = () => {
+$("authBtn").onclick = async () => {
   const u = $("authUser").value.trim();
   const p = $("authPass").value;
   if (!u || !p) { alert("Veuillez remplir tous les champs."); return; }
   currentUser = u;
   localStorage.setItem("current_user", u);
-  checkAuth();
+  await checkAuth();
 };
 
-// Navigation par onglets
 document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".bottom-nav-btn").forEach(b => b.classList.remove("active"));
@@ -290,7 +304,6 @@ document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   };
 });
 
-// Menu & Paramètres
 $("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
 $("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
 $("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
@@ -308,7 +321,6 @@ if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dar
 
 $("navLogout").onclick = () => { localStorage.removeItem("current_user"); currentUser = null; location.reload(); };
 
-// Export CSV
 $("navExportCsv").onclick = () => {
   let csv = "Date,Type,Categorie,Montant,Note\n";
   S.tx.forEach(t => { csv += `${t.date},${t.type},${t.cat},${t.amt},"${t.note || ''}"\n`; });
@@ -328,7 +340,6 @@ $("navResetMonth").onclick = () => {
   }
 };
 
-// Comptes
 $("submitAddAccount").onclick = () => {
   const name = $("newAccountName").value.trim();
   if (!name) return;
@@ -336,7 +347,6 @@ $("submitAddAccount").onclick = () => {
   save(); $("newAccountName").value = ""; render();
 };
 
-// Pots d'épargne
 $("addPotBtn").onclick = () => {
   const name = $("potName").value.trim();
   const target = parseFloat($("potTarget").value);
@@ -349,7 +359,6 @@ $("addPotBtn").onclick = () => {
   }
 };
 
-// Dettes
 $("debtOut").onclick = () => { debtType = "out"; $("debtOut").setAttribute("aria-pressed", "true"); $("debtIn").setAttribute("aria-pressed", "false"); };
 $("debtIn").onclick = () => { debtType = "in"; $("debtIn").setAttribute("aria-pressed", "true"); $("debtOut").setAttribute("aria-pressed", "false"); };
 
@@ -396,7 +405,6 @@ function render() {
   $("monthLabel").textContent = month;
   renderAccountsList();
 
-  // Filtrage des opérations
   const mode = $("filterMode").value;
   let filtered = S.tx;
   if (mode === "month") filtered = S.tx.filter(t => t.date.startsWith(month));
@@ -413,7 +421,6 @@ function render() {
   $("tIn").textContent = money(i);
   $("solde").textContent = money(i - o);
 
-  // Historique avec recherche
   const query = $("searchQuery").value.toLowerCase();
   const listFiltered = filtered.filter(t => t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query)));
   
@@ -429,7 +436,6 @@ function render() {
     });
   }
 
-  // Pots
   const potsBox = $("potsList");
   potsBox.replaceChildren();
   S.pots.forEach(p => {
@@ -440,7 +446,6 @@ function render() {
     potsBox.append(div);
   });
 
-  // Dettes
   const debtsBox = $("debtsList");
   debtsBox.replaceChildren();
   S.debts.forEach(d => {
@@ -454,19 +459,15 @@ function render() {
 function renderChart() {
   const ctx = $("expenseChart").getContext('2d');
   const monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
-  
   const catTotals = {};
   monthTx.forEach(t => { catTotals[t.cat] = (catTotals[t.cat] || 0) + t.amt; });
-
-  const labels = Object.keys(catTotals);
-  const data = Object.values(catTotals);
 
   if (myChart) myChart.destroy();
   myChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: labels,
-      datasets: [{ data: data, backgroundColor: ['#c2412d','#23805a','#3b82f6','#eab308','#a855f7','#ec4899','#14302b'] }]
+      labels: Object.keys(catTotals),
+      datasets: [{ data: Object.values(catTotals), backgroundColor: ['#c2412d','#23805a','#3b82f6','#eab308','#a855f7','#ec4899','#14302b'] }]
     },
     options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
   });
@@ -478,7 +479,7 @@ $("filterMode").onchange = render;
 $("add").onclick = () => {
   let amt = parseFloat($("amt").value.replace(/\s/g, "").replace(",", "."));
   if (!(amt > 0)) { alert("Entrez un montant valide."); return; }
-  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: $("opDate").value \vert{}\vert{} today(), accountId: $("accountSelectOp").value });
+  S.tx.ptr = S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: $("opDate").value \vert{}\vert{} today(), accountId: $("accountSelectOp").value });
   save();
   $("amt").value = ""; $("note").value = "";
   render();
