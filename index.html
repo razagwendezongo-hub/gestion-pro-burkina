@@ -9,24 +9,8 @@
 <link rel="stylesheet" href="style.css">
 <!-- Intégration de Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Intégration du client Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
-  <!-- ÉCRAN D'AUTHENTIFICATION -->
-  <div id="authScreen" class="auth-screen">
-    <div class="auth-card">
-      <h2 id="authTitle" style="margin-top:0;">Connexion / Inscription</h2>
-      <label for="authUser">Nom d'utilisateur</label>
-      <input id="authUser" type="text" placeholder="Ex: Zongo..." autocomplete="off">
-      <label for="authPass" style="margin-top:12px;">Mot de passe</label>
-      <input id="authPass" type="password" placeholder="••••••••">
-      <button class="go" id="authBtn">Se connecter</button>
-      <button class="lnk" id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
-      <p class="msg" id="authMsg" style="text-align:center;"></p>
-    </div>
-  </div>
 
   <!-- MENU LATÉRAL -->
   <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
@@ -39,7 +23,6 @@
         <button class="side-btn" id="navTheme">🌓 Mode Sombre / Clair</button>
         <button class="side-btn" id="navExportCsv">📊 Exporter en CSV (Excel)</button>
         <button class="side-btn" id="navResetMonth">🗑️ Effacer le mois en cours</button>
-        <button class="side-btn logout" id="navLogout">🚪 Déconnexion</button>
       </div>
     </aside>
   </div>
@@ -57,12 +40,12 @@
     </div>
   </div>
 
-<main id="appMain" style="display:none;">
+<main id="appMain">
   <!-- BARRE SUPÉRIEURE -->
   <header class="header-top">
     <div class="header-left">
       <button id="openSidebarBtn" class="menu-hamburger-btn" title="Menu">☰</button>
-      <span id="userGreeting" class="user-greeting-txt">Mon Compte</span>
+      <span class="user-greeting-txt">Gestion Financière</span>
     </div>
     <div class="header-right-controls">
       <div class="header-date-picker">
@@ -112,7 +95,6 @@
         <div><label for="opDate">Date</label><input id="opDate" type="date"></div>
       </div>
       <button class="go" id="add">Enregistrer</button>
-      <p class="msg" id="msg"></p>
     </section>
   </div>
 
@@ -186,11 +168,6 @@
 </main>
 
 <script>
-// Configuration Supabase
-const SUPABASE_URL = 'https://meiluzsbvlnmcwkquoga.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_2SgbI7adXfv2k07k-2x4Sw_-5vveoSo';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const DEFAULT_ICONS = {
   "Nourriture": "🛒", "Transport": "🚗", "Essence": "⛽", "Crédit téléphone": "📱", 
   "Internet": "🌐", "Logement": "🏠", "Électricité": "⚡", "Eau": "💧", 
@@ -205,47 +182,18 @@ const CATS = {
   in: ["Salaire","Ventes","Prime","Aide familiale","Cadeau","Autre revenu"]
 };
 
-let currentUser = localStorage.getItem("current_user");
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
 
-let S = { 
+let S = JSON.parse(localStorage.getItem("gestion_finances_data")) || { 
   tx: [], 
   accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }, { id: 'acc_momo', name: 'Orange Money', balance: 0 }],
   pots: [], debts: [], cur: "FCFA", theme: "light" 
 };
 
-async function loadUserData() {
-  if (!currentUser) return;
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('data')
-      .eq('username', currentUser)
-      .single();
-    
-    if (data && data.data) {
-      S = Object.assign(S, data.data);
-    }
-  } catch (e) {
-    console.log("Chargement local de secours");
-    const local = localStorage.getItem("backup_" + currentUser);
-    if (local) S = JSON.parse(local);
-  }
-}
-
-async function save() {
-  if (!currentUser) return;
-  localStorage.setItem("backup_" + currentUser, JSON.stringify(S));
-  
-  try {
-    await supabase
-      .from('profiles')
-      .upsert({ username: currentUser, data: S }, { onConflict: 'username' });
-  } catch (e) {
-    console.error("Erreur de synchronisation Supabase", e);
-  }
+function save() {
+  localStorage.setItem("gestion_finances_data", JSON.stringify(S));
 }
 
 const getIcon = c => DEFAULT_ICONS[c] || "📌";
@@ -254,44 +202,10 @@ const money = n => Math.round(n).toLocaleString("fr-FR") + " " + S.cur;
 let month = today().slice(0, 7), type = "out", debtType = "out";
 let myChart = null;
 
-async function checkAuth() {
-  if (currentUser) {
-    await loadUserData();
-    $("authScreen").style.display = "none";
-    $("appMain").style.display = "block";
-    $("userGreeting").textContent = "Compte : " + currentUser;
-    $("opDate").value = today();
-    setType("out");
-    render();
-  } else {
-    $("authScreen").style.display = "flex";
-    $("appMain").style.display = "none";
-  }
-}
-
-$("authSwitch").onclick = () => {
-  const title = $("authTitle");
-  const isLogin = title.textContent.includes("Connexion");
-  if (isLogin) {
-    title.textContent = "Créer un compte";
-    $("authBtn").textContent = "S'inscrire";
-    $("authSwitch").textContent = "Déjà un compte ? Se connecter";
-  } else {
-    title.textContent = "Connexion / Inscription";
-    $("authBtn").textContent = "Se connecter";
-    $("authSwitch").textContent = "Créer un compte";
-  }
-};
-
-$("authBtn").onclick = async () => {
-  const u = $("authUser").value.trim();
-  const p = $("authPass").value;
-  if (!u || !p) { alert("Veuillez remplir tous les champs."); return; }
-  
-  currentUser = u;
-  localStorage.setItem("current_user", u);
-  await checkAuth();
-};
+// Initialisation directe
+$("opDate").value = today();
+setType("out");
+render();
 
 document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   btn.onclick = () => {
@@ -319,15 +233,13 @@ $("navTheme").onclick = () => {
 };
 if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
-$("navLogout").onclick = () => { localStorage.removeItem("current_user"); currentUser = null; location.reload(); };
-
 $("navExportCsv").onclick = () => {
   let csv = "Date,Type,Categorie,Montant,Note\n";
   S.tx.forEach(t => { csv += `${t.date},${t.type},${t.cat},${t.amt},"${t.note || ''}"\n`; });
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `export_finances_${currentUser}.csv`;
+  a.href = url; a.download = `export_finances.csv`;
   a.click();
   $("sidebarOverlay").style.display = "none";
 };
@@ -485,8 +397,6 @@ $("add").onclick = () => {
   render();
   alert("Opération enregistrée !");
 };
-
-checkAuth();
 </script>
 </body>
 </html>
