@@ -75,16 +75,17 @@
 </head>
 <body>
 
-  <!-- ÉCRAN D'AUTHENTIFICATION -->
-  <div id="authScreen" class="auth-screen" style="position:fixed; inset:0; background:var(--bg); z-index:2000; display:flex; align-items:center; justify-content:center; padding:16px;">
-    <div class="auth-card" style="background:var(--card); padding:24px; border-radius:14px; border:1px solid var(--line); width:100%; max-width:380px;">
+  <!-- ÉCRAN D'AUTHENTIFICATION FONCTIONNEL -->
+  <div id="authScreen" style="position:fixed; inset:0; background:var(--bg); z-index:2000; display:flex; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--card); padding:24px; border-radius:14px; border:1px solid var(--line); width:100%; max-width:380px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
       <h2 id="authTitle" style="margin-top:0;">Connexion / Inscription</h2>
       <label for="authUser">Nom d'utilisateur</label>
       <input id="authUser" type="text" placeholder="Ex: Zongo..." autocomplete="off">
       <label for="authPass" style="margin-top:12px;">Mot de passe</label>
       <input id="authPass" type="password" placeholder="••••••••">
       <button class="go" id="authBtn">Se connecter</button>
-      <button class="lnk" id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
+      <button id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
+      <p id="authMsg" style="text-align:center; font-size:0.85rem; color:var(--out); margin-top:10px;"></p>
     </div>
   </div>
 
@@ -118,7 +119,7 @@
       <button class="side-btn" id="navReport">📄 Copier le rapport WhatsApp</button>
       <button class="side-btn" id="navResetMonth">🗑️ Effacer les opérations du mois</button>
       <button class="side-btn" id="navExportJson">💾 Exporter sauvegarde (.json)</button>
-      <button class="side-btn" id="navLogout" style="color:var(--out);">🚪 Déconnexion</button>
+      <button class="side-btn" id="navLogout" style="color:var(--out);">🚪 Changer de compte / Déconnexion</button>
     </aside>
   </div>
 
@@ -152,7 +153,6 @@
 
   <!-- PAGE 1 : ACCUEIL -->
   <div id="pageHome" class="app-page-content active">
-    <div id="homeAlertContainer"></div>
     <section>
       <div class="solde-main-box">
         <span class="solde-title-label">Solde principal du mois</span>
@@ -281,6 +281,7 @@ let month = today().slice(0, 7), type = "out", myChart = null;
 $("opDate").value = today();
 if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
+// Gestion de l'authentification fonctionnelle
 function checkAuth() {
   if (currentUser) {
     loadUserData();
@@ -295,13 +296,7 @@ function checkAuth() {
   }
 }
 
-// Boutons rapides de montant
-window.addQuickAmt = (val) => {
-  let current = parseFloat($("amt").value) || 0;
-  $("amt").value = current + val;
-};
-
-// Authentification
+// Bascule Connexion / Inscription
 $("authSwitch").onclick = () => {
   const title = $("authTitle");
   if (title.textContent.includes("Connexion")) {
@@ -315,12 +310,30 @@ $("authSwitch").onclick = () => {
   }
 };
 
+// Bouton de validation Connexion / Inscription
 $("authBtn").onclick = () => {
-  let u = $("authUser").value.trim(), p = $("authPass").value;
-  if (!u || !p) { alert("Remplissez tous les champs"); return; }
+  let u = $("authUser").value.trim();
+  let p = $("authPass").value;
+  if (!u || !p) {
+    $("authMsg").textContent = "Veuillez remplir tous les champs.";
+    return;
+  }
   currentUser = u;
   localStorage.setItem("current_user", u);
+  $("authMsg").textContent = "";
   checkAuth();
+};
+
+$("navLogout").onclick = () => {
+  localStorage.removeItem("current_user");
+  currentUser = null;
+  location.reload();
+};
+
+// Boutons rapides de montant
+window.addQuickAmt = (val) => {
+  let current = parseFloat($("amt").value) || 0;
+  $("amt").value = current + val;
 };
 
 // Navigation onglets
@@ -360,8 +373,6 @@ $("navExportJson").onclick = () => {
   a.click(); $("sidebarOverlay").style.display = "none";
 };
 
-$("navLogout").onclick = () => { localStorage.removeItem("current_user"); currentUser = null; location.reload(); };
-
 // Rapport WhatsApp
 $("navReport").onclick = () => {
   $("sidebarOverlay").style.display = "none";
@@ -375,7 +386,7 @@ $("navReport").onclick = () => {
 $("closeReportModal").onclick = () => $("reportModal").style.display = "none";
 $("copyWhatsappBtn").onclick = () => {
   navigator.clipboard.writeText($("modalReportContent").textContent);
-  alert("Rapport copié dans le presse-papier ! Vous pouvez le coller sur WhatsApp.");
+  alert("Rapport copié dans le presse-papier !");
   $("reportModal").style.display = "none";
 };
 
@@ -468,7 +479,6 @@ function render() {
   $("monthLabel").textContent = month;
   checkBillAlerts();
 
-  // Comptes select & filtre
   let selectOp = $("accountSelectOp"), filterAcc = $("filterAccount");
   selectOp.replaceChildren(...S.accounts.map(acc => new Option(acc.name, acc.id)));
   
@@ -494,7 +504,6 @@ function render() {
   soldeEl.textContent = money(net);
   soldeEl.classList.toggle("neg", net < 0);
 
-  // Historique avec filtre compte
   let ul = $("list");
   let query = $("searchQuery").value.toLowerCase();
   let accFilter = filterAcc.value;
@@ -529,9 +538,8 @@ function renderChart() {
     labels = Object.keys(totals);
     dataValues = Object.values(totals);
   } else {
-    // Vue annuelle (regroupée par mois)
     let year = month.slice(0, 4);
-    let yearTx = S.tx.filter(t => t.date.startsWith(year) && t.type === 'out');
+    let yearTx = S.tx.filter(t => t.t.startsWith(year) && t.type === 'out');
     let monthlyTotals = { "01": 0, "02": 0, "03": 0, "04": 0, "05": 0, "06": 0, "07": 0, "08": 0, "09": 0, "10": 0, "11": 0, "12": 0 };
     yearTx.forEach(t => {
       let mKey = t.date.slice(5, 7);
@@ -552,6 +560,7 @@ function renderChart() {
   });
 }
 
+// Lancement au démarrage
 checkAuth();
 </script>
 </body>
