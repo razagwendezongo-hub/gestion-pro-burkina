@@ -237,10 +237,8 @@ async function loadUserData() {
 
 async function save() {
   if (!currentUser) return;
-  // Sauvegarde locale de secours
   localStorage.setItem("backup_" + currentUser, JSON.stringify(S));
   
-  // Sauvegarde sur Supabase
   try {
     await supabase
       .from('profiles')
@@ -273,7 +271,8 @@ async function checkAuth() {
 
 $("authSwitch").onclick = () => {
   const title = $("authTitle");
-  if (title.textContent.includes("Connexion")) {
+  const isLogin = title.textContent.includes("Connexion");
+  if (isLogin) {
     title.textContent = "Créer un compte";
     $("authBtn").textContent = "S'inscrire";
     $("authSwitch").textContent = "Déjà un compte ? Se connecter";
@@ -288,6 +287,7 @@ $("authBtn").onclick = async () => {
   const u = $("authUser").value.trim();
   const p = $("authPass").value;
   if (!u || !p) { alert("Veuillez remplir tous les champs."); return; }
+  
   currentUser = u;
   localStorage.setItem("current_user", u);
   await checkAuth();
@@ -479,7 +479,7 @@ $("filterMode").onchange = render;
 $("add").onclick = () => {
   let amt = parseFloat($("amt").value.replace(/\s/g, "").replace(",", "."));
   if (!(amt > 0)) { alert("Entrez un montant valide."); return; }
-  S.tx.ptr = S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: $("opDate").value \vert{}\vert{} today(), accountId: $("accountSelectOp").value });
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: $("opDate").value \vert{}\vert{} today(), accountId: $("accountSelectOp").value });
   save();
   $("amt").value = ""; $("note").value = "";
   render();
