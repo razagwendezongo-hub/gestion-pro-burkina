@@ -4,10 +4,54 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14302b">
-<link rel="manifest" href="manifest.json">
 <title>Gestion Financière Pro</title>
-<link rel="stylesheet" href="style.css">
-<!-- Intégration de Chart.js -->
+<style>
+  :root {
+    --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --mute: #64748b;
+    --line: #e2e8f0; --in: #23805a; --out: #c2412d; --primary: #14302b;
+  }
+  [data-theme="dark"] {
+    --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --mute: #94a3b8;
+    --line: #334155; --in: #34d399; --out: #f87171; --primary: #34d399;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 70px; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+  .header-left, .header-right-controls { display: flex; align-items: center; gap: 10px; }
+  button { cursor: pointer; font-family: inherit; }
+  .menu-hamburger-btn, .settings-top-btn, .mini-nav-btn { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 1rem; color: var(--text); }
+  .app-page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  h2 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+  .solde-main-box { text-align: center; padding: 10px; background: var(--bg); border-radius: 8px; }
+  .solde-big-amount { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
+  .solde-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .detail-card { background: var(--bg); padding: 10px; border-radius: 8px; text-align: center; }
+  .detail-amount { display: block; font-weight: 700; margin-top: 4px; }
+  .expense-card .detail-amount { color: var(--out); }
+  .income-card .detail-amount { color: var(--in); }
+  .tog { display: flex; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 4px; margin-bottom: 12px; }
+  .tog button { flex: 1; border: 0; background: transparent; padding: 8px; border-radius: 6px; font-weight: 600; color: var(--mute); }
+  .tog button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label { display: block; font-size: 0.85rem; color: var(--mute); margin-bottom: 4px; }
+  input, select { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); box-sizing: border-box; font-size: 1rem; margin-bottom: 10px; }
+  .go { width: 100%; background: var(--primary); color: #fff; border: 0; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 1rem; margin-top: 6px; }
+  .bottom-nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--line); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
+  .bottom-nav-btn { background: none; border: 0; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: var(--mute); gap: 2px; }
+  .bottom-nav-btn.active { color: var(--primary); font-weight: 700; }
+  .bottom-nav-btn .nav-icon { font-size: 1.2rem; }
+  ul#list { list-style: none; padding: 0; margin: 0; }
+  ul#list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  ul#list li small { color: var(--mute); display: block; font-size: 0.8rem; }
+  .a.out { color: var(--out); font-weight: 700; }
+  .a.in { color: var(--in); font-weight: 700; }
+  /* Tiroir et modale */
+  .sidebar-overlay, .modal-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .sidebar-drawer { position: absolute; left: 0; top: 0; bottom: 0; width: 260px; background: var(--card); padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 10px; }
+  .side-btn { width: 100%; text-align: left; background: var(--bg); border: 1px solid var(--line); padding: 12px; border-radius: 8px; color: var(--text); font-weight: 600; }
+  .modal-card { background: var(--card); padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid var(--line); }
+</style>
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -15,150 +59,139 @@
   <!-- MENU LATÉRAL -->
   <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
     <aside class="sidebar-drawer">
-      <div class="sidebar-header">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h3 style="margin:0;">Menu</h3>
-        <button id="closeSidebar" style="background:none; border:0; font-size:1.2rem; cursor:pointer;">✕</button>
+        <button id="closeSidebar" style="background:none; border:0; font-size:1.2rem; color:var(--text);">✕</button>
       </div>
-      <div class="sidebar-menu-items">
-        <button class="side-btn" id="navTheme">🌓 Mode Sombre / Clair</button>
-        <button class="side-btn" id="navExportCsv">📊 Exporter en CSV (Excel)</button>
-        <button class="side-btn" id="navResetMonth">🗑️ Effacer le mois en cours</button>
-      </div>
+      <button class="side-btn" id="navTheme">🌓 Mode Sombre / Clair</button>
+      <button class="side-btn" id="navExportCsv">📊 Exporter en CSV</button>
+      <button class="side-btn" id="navResetMonth">🗑️ Effacer le mois</button>
     </aside>
   </div>
 
-  <!-- PAGE MODALE PARAMÈTRES -->
+  <!-- MODALE PARAMÈTRES -->
   <div id="settingsModal" class="modal-screen" style="display:none;">
     <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
-        <h3 style="margin:0;">⚙️ Paramètres</h3>
-        <button id="closeSettingsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer;">✕</button>
-      </div>
-      <label>Devise de l'application</label>
+      <h3>⚙️ Paramètres</h3>
+      <label>Devise</label>
       <input id="setCurrency" type="text" value="FCFA">
-      <button class="go" id="saveSettingsBtn" style="background:var(--in); margin-top:16px;">Fermer</button>
+      <button class="go" id="saveSettingsBtn">Fermer</button>
     </div>
   </div>
 
-<main id="appMain">
-  <!-- BARRE SUPÉRIEURE -->
-  <header class="header-top">
+<main>
+  <header>
     <div class="header-left">
-      <button id="openSidebarBtn" class="menu-hamburger-btn" title="Menu">☰</button>
-      <span class="user-greeting-txt">Gestion Financière</span>
+      <button id="openSidebarBtn" class="menu-hamburger-btn">☰</button>
+      <span style="font-weight:700;">Gestion Financière</span>
     </div>
     <div class="header-right-controls">
-      <div class="header-date-picker">
+      <div style="display:flex; align-items:center; gap:4px;">
         <button id="prevMonth" class="mini-nav-btn">‹</button>
-        <h1 id="monthLabel" class="mini-month-title"></h1>
+        <span id="monthLabel" style="font-weight:600; font-size:0.9rem;"></span>
         <button id="nextMonth" class="mini-nav-btn">›</button>
       </div>
-      <button id="navSettingsTop" class="settings-top-btn" title="Paramètres">⚙️</button>
+      <button id="navSettingsTop" class="settings-top-btn">⚙️</button>
     </div>
   </header>
 
-  <!-- ================= PAGE 1 : ACCUEIL ================= -->
+  <!-- PAGE 1 : ACCUEIL -->
   <div id="pageHome" class="app-page-content">
     <section>
-      <div class="solde-main-box" style="margin-bottom:0;">
-        <span class="solde-title-label">Solde principal du mois</span>
+      <div class="solde-main-box">
+        <span style="font-size:0.85rem; color:var(--mute);">Solde principal du mois</span>
         <div class="solde-big-amount" id="solde">0 FCFA</div>
       </div>
-      <div class="solde-details-grid" style="margin-top:12px;">
+      <div class="solde-details-grid">
         <div class="detail-card expense-card">
-          <span class="detail-label">Dépenses</span>
+          <span style="font-size:0.8rem; color:var(--mute);">Dépenses</span>
           <span class="detail-amount" id="tOut">0 FCFA</span>
         </div>
         <div class="detail-card income-card">
-          <span class="detail-label">Revenus</span>
+          <span style="font-size:0.8rem; color:var(--mute);">Revenus</span>
           <span class="detail-amount" id="tIn">0 FCFA</span>
         </div>
       </div>
     </section>
 
-    <!-- SAISIE RAPIDE -->
     <section>
       <h2>Nouvelle opération</h2>
-      <div class="tog" role="group">
+      <div class="tog">
         <button id="bOut" aria-pressed="true">Dépense</button>
         <button id="bIn" aria-pressed="false">Revenu</button>
       </div>
       <div class="row2">
-        <div><label for="amt">Montant</label><input id="amt" type="text" inputmode="decimal" placeholder="0"></div>
-        <div><label for="accountSelectOp">Portefeuille / Compte</label><select id="accountSelectOp"></select></div>
+        <div><label>Montant</label><input id="amt" type="number" placeholder="0"></div>
+        <div><label>Compte</label><select id="accountSelectOp"></select></div>
       </div>
-      <div style="margin-top:8px;">
-        <label for="cat">Catégorie</label><select id="cat"></select>
-      </div>
-      <div class="row2" style="margin-top:8px;">
-        <div><label for="note">Note</label><input id="note" type="text" maxlength="60" placeholder="Ex: Marché"></div>
-        <div><label for="opDate">Date</label><input id="opDate" type="date"></div>
+      <div><label>Catégorie</label><select id="cat"></select></div>
+      <div class="row2">
+        <div><label>Note</label><input id="note" type="text" placeholder="Ex: Marché"></div>
+        <div><label>Date</label><input id="opDate" type="date"></div>
       </div>
       <button class="go" id="add">Enregistrer</button>
     </section>
   </div>
 
-  <!-- ================= PAGE 2 : COMPTES & OBJECTIFS D'ÉPARGNE ================= -->
+  <!-- PAGE 2 : COMPTES & ÉPARGNE -->
   <div id="pageAccounts" class="app-page-content" style="display:none;">
     <section>
       <h2>💳 Comptes & Portefeuilles</h2>
-      <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <input id="newAccountName" type="text" placeholder="Nouveau compte..." style="flex:1;">
-        <button id="submitAddAccount" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">Créer</button>
+      <div style="display:flex; gap:8px;">
+        <input id="newAccountName" type="text" placeholder="Nouveau compte..." style="margin:0;">
+        <button id="submitAddAccount" style="background:var(--primary); color:#fff; border:0; border-radius:8px; padding:0 14px; font-weight:700;">Créer</button>
       </div>
-      <div id="accountsListDetailed" style="display:flex; flex-direction:column; gap:8px;"></div>
+      <div id="accountsListDetailed" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;"></div>
     </section>
 
     <section>
-      <h2>🎯 Objectifs d'épargne (Pots)</h2>
+      <h2>🎯 Objectifs d'épargne</h2>
       <div class="row2">
         <div><label>Nom du projet</label><input id="potName" type="text" placeholder="Ex: Téléphone"></div>
-        <div><label>Montant cible</label><input id="potTarget" type="text" inputmode="decimal" placeholder="0"></div>
+        <div><label>Montant cible</label><input id="potTarget" type="number" placeholder="0"></div>
       </div>
-      <div style="margin-top:8px;"><label>Déjà épargné</label><input id="potSaved" type="text" inputmode="decimal" placeholder="0"></div>
-      <button class="go" id="addPotBtn" style="background:var(--in);">Ajouter l'objectif</button>
-      <div id="potsList" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+      <div><label>Déjà épargné</label><input id="potSaved" type="number" placeholder="0"></div>
+      <button class="go" id="addPotBtn">Ajouter l'objectif</button>
+      <div id="potsList" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;"></div>
     </section>
   </div>
 
-  <!-- ================= PAGE 3 : HISTORIQUE & DETTES ================= -->
+  <!-- PAGE 3 : HISTORIQUE & DETTES -->
   <div id="pageOperations" class="app-page-content" style="display:none;">
     <section>
-      <h2>Historique & Filtres</h2>
-      <div class="row2" style="margin-bottom:8px;">
-        <div><label>Filtrer par</label><select id="filterMode"><option value="month">Ce mois</option><option value="week">Cette semaine</option><option value="all">Tout</option></select></div>
-        <div><label>Rechercher</label><input id="searchQuery" type="text" placeholder="🔍 Mot clé..." autocomplete="off"></div>
+      <h2>Historique</h2>
+      <div class="row2">
+        <div><label>Filtre</label><select id="filterMode"><option value="month">Ce mois</option><option value="all">Tout</option></select></div>
+        <div><label>Recherche</label><input id="searchQuery" type="text" placeholder="🔍 Mot clé..."></div>
       </div>
       <ul id="list"></ul>
     </section>
 
     <section>
       <h2>🤝 Dettes et Prêts</h2>
-      <div class="tog" role="group">
+      <div class="tog">
         <button id="debtOut" aria-pressed="true">Je dois</button>
         <button id="debtIn" aria-pressed="false">On me doit</button>
       </div>
       <div class="row2">
-        <div><label>Nom de la personne</label><input id="debtPerson" type="text" placeholder="Nom"></div>
-        <div><label>Montant</label><input id="debtAmt" type="text" inputmode="decimal" placeholder="0"></div>
+        <div><label>Personne</label><input id="debtPerson" type="text" placeholder="Nom"></div>
+        <div><label>Montant</label><input id="debtAmt" type="number" placeholder="0"></div>
       </div>
-      <div style="margin-top:8px;"><label>Date d'échéance</label><input id="debtDate" type="date"></div>
+      <div><label>Échéance</label><input id="debtDate" type="date"></div>
       <button class="go" id="addDebtBtn" style="background:var(--out);">Enregistrer la dette</button>
-      <div id="debtsList" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+      <div id="debtsList" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;"></div>
     </section>
   </div>
 
-  <!-- ================= PAGE 4 : ANALYSES & GRAPHIQUES ================= -->
+  <!-- PAGE 4 : ANALYSES -->
   <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section>
       <h2>📊 Répartition des dépenses</h2>
-      <div style="max-width: 280px; margin: 0 auto;">
-        <canvas id="expenseChart"></canvas>
-      </div>
+      <div style="max-width: 250px; margin: 0 auto;"><canvas id="expenseChart"></canvas></div>
     </section>
   </div>
 
-  <!-- BARRE DE NAVIGATION INFÉRIEURE -->
+  <!-- BARRE DE NAVIGATION -->
   <nav class="bottom-nav-bar">
     <button class="bottom-nav-btn active" data-target="pageHome"><span class="nav-icon">🏠</span><span>Accueil</span></button>
     <button class="bottom-nav-btn" data-target="pageAccounts"><span class="nav-icon">💳</span><span>Comptes</span></button>
@@ -168,45 +201,27 @@
 </main>
 
 <script>
-const DEFAULT_ICONS = {
-  "Nourriture": "🛒", "Transport": "🚗", "Essence": "⛽", "Crédit téléphone": "📱", 
-  "Internet": "🌐", "Logement": "🏠", "Électricité": "⚡", "Eau": "💧", 
-  "Santé": "💊", "École": "📚", "Famille": "👨‍👩‍👧‍👦", "Vêtements": "👕", 
-  "Ménage et hygiène": "🧼", "Entretien et réparations": "🔧", "Abonnements": "📺", 
-  "Loisirs": "🎉", "Épargne": "💰", "Dons et aide": "🤝", "Autre": "📦",
-  "Salaire": "💵", "Ventes": "📈", "Prime": "🎁", "Aide familiale": "🤲", "Cadeau": "🎁", "Autre revenu": "💼"
-};
-
 const CATS = {
-  out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Famille","Vêtements","Ménage et hygiène","Entretien et réparations","Abonnements","Loisirs","Épargne","Dons et aide","Autre"],
-  in: ["Salaire","Ventes","Prime","Aide familiale","Cadeau","Autre revenu"]
+  out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Loisirs","Autre"],
+  in: ["Salaire","Ventes","Prime","Cadeau","Autre"]
 };
 
 const $ = id => document.getElementById(id);
-const pad = n => String(n).padStart(2, "0");
-const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+const today = () => new Date().toISOString().slice(0, 10);
 
-let S = JSON.parse(localStorage.getItem("gestion_finances_data")) || { 
-  tx: [], 
-  accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }, { id: 'acc_momo', name: 'Orange Money', balance: 0 }],
-  pots: [], debts: [], cur: "FCFA", theme: "light" 
+let S = JSON.parse(localStorage.getItem("gestion_finances_data")) || {
+  tx: [], accounts: [{ id: 'acc_main', name: 'Principal' }], pots: [], debts: [], cur: "FCFA", theme: "light"
 };
 
-function save() {
-  localStorage.setItem("gestion_finances_data", JSON.stringify(S));
-}
-
-const getIcon = c => DEFAULT_ICONS[c] || "📌";
+function save() { localStorage.setItem("gestion_finances_data", JSON.stringify(S)); }
 const money = n => Math.round(n).toLocaleString("fr-FR") + " " + S.cur;
 
-let month = today().slice(0, 7), type = "out", debtType = "out";
-let myChart = null;
+let month = today().slice(0, 7), type = "out", debtType = "out", myChart = null;
 
-// Initialisation directe
 $("opDate").value = today();
-setType("out");
-render();
+if(S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
+// Navigation onglets
 document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".bottom-nav-btn").forEach(b => b.classList.remove("active"));
@@ -214,189 +229,176 @@ document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
     btn.classList.add("active");
     $(btn.getAttribute("data-target")).style.display = "block";
     if(btn.getAttribute("data-target") === "pageAnalytics") renderChart();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 });
 
-$("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
-$("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
-$("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
-$("navSettingsTop").onclick = () => { $("settingsModal").style.display = "flex"; };
-$("closeSettingsModal").onclick = () => { $("settingsModal").style.display = "none"; };
-$("saveSettingsBtn").onclick = () => { $("settingsModal").style.display = "none"; };
+// Sidebar & Modale
+$("openSidebarBtn").onclick = () => $("sidebarOverlay").style.display = "flex";
+$("closeSidebar").onclick = () => $("sidebarOverlay").style.display = "none";
+$("sidebarOverlay").onclick = e => { if(e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
+$("navSettingsTop").onclick = () => $("settingsModal").style.display = "flex";
+$("saveSettingsBtn").onclick = () => $("settingsModal").style.display = "none";
 
 $("navTheme").onclick = () => {
   S.theme = S.theme === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", S.theme);
-  save();
-  $("sidebarOverlay").style.display = "none";
+  save(); $("sidebarOverlay").style.display = "none";
 };
-if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
 $("navExportCsv").onclick = () => {
   let csv = "Date,Type,Categorie,Montant,Note\n";
-  S.tx.forEach(t => { csv += `${t.date},${t.type},${t.cat},${t.amt},"${t.note || ''}"\n`; });
+  S.tx.forEach(t => csv += `${t.date},${t.type},${t.cat},${t.amt},"${t.note || ''}"\n`);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `export_finances.csv`;
-  a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "export.csv"; a.click();
   $("sidebarOverlay").style.display = "none";
 };
 
 $("navResetMonth").onclick = () => {
-  if (confirm("Effacer les opérations de ce mois ?")) {
+  if(confirm("Effacer les opérations de ce mois ?")) {
     S.tx = S.tx.filter(t => !t.date.startsWith(month));
-    save(); render();
-    $("sidebarOverlay").style.display = "none";
+    save(); render(); $("sidebarOverlay").style.display = "none";
   }
 };
 
-$("submitAddAccount").onclick = () => {
-  const name = $("newAccountName").value.trim();
-  if (!name) return;
-  S.accounts.push({ id: 'acc_' + Date.now(), name, balance: 0 });
-  save(); $("newAccountName").value = ""; render();
-};
-
-$("addPotBtn").onclick = () => {
-  const name = $("potName").value.trim();
-  const target = parseFloat($("potTarget").value);
-  const saved = parseFloat($("potSaved").value) || 0;
-  if (name && target > 0) {
-    S.pots.push({ id: Date.now(), name, target, saved });
-    save();
-    $("potName").value = ""; $("potTarget").value = ""; $("potSaved").value = "";
-    render();
-  }
-};
-
-$("debtOut").onclick = () => { debtType = "out"; $("debtOut").setAttribute("aria-pressed", "true"); $("debtIn").setAttribute("aria-pressed", "false"); };
-$("debtIn").onclick = () => { debtType = "in"; $("debtIn").setAttribute("aria-pressed", "true"); $("debtOut").setAttribute("aria-pressed", "false"); };
-
-$("addDebtBtn").onclick = () => {
-  const person = $("debtPerson").value.trim();
-  const amt = parseFloat($("debtAmt").value);
-  const due = $("debtDate").value;
-  if (person && amt > 0) {
-    S.debts.push({ id: Date.now(), type: debtType, person, amt, due });
-    save();
-    $("debtPerson").value = ""; $("debtAmt").value = ""; $("debtDate").value = "";
-    render();
-  }
-};
-
+// Gestion types dépense/revenu
 function setType(t) {
   type = t;
   $("bOut").setAttribute("aria-pressed", t === "out");
   $("bIn").setAttribute("aria-pressed", t === "in");
-  $("cat").replaceChildren(...[...S.cats[t], ...CATS[t]].map(c => new Option(getIcon(c) + " " + c, c)));
+  $("cat").replaceChildren(...CATS[t].map(c => new Option(c, c)));
 }
 $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
+setType("out");
 
-function renderAccountsList() {
-  const box = $("accountsListDetailed");
-  const selectOp = $("accountSelectOp");
-  if (!box || !selectOp) return;
-  box.replaceChildren(); selectOp.replaceChildren();
+// Mois précédent / suivant
+$("prevMonth").onclick = () => {
+  let d = new Date(month + "-01"); d.setMonth(d.getMonth() - 1);
+  month = d.toISOString().slice(0, 7); render();
+};
+$("nextMonth").onclick = () => {
+  let d = new Date(month + "-01"); d.setMonth(d.getMonth() + 1);
+  month = d.toISOString().slice(0, 7); render();
+};
 
-  S.accounts.forEach(acc => {
-    const accTx = S.tx.filter(t => t.accountId === acc.id);
-    const balance = accTx.reduce((sum, t) => t.type === 'in' ? sum + t.amt : sum - t.amt, acc.balance);
+// Ajout transaction
+$("add").onclick = () => {
+  let amt = parseFloat($("amt").value);
+  if(!(amt > 0)) { alert("Entrez un montant valide"); return; }
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value, date: $("opDate").value \vert{}\vert{} today(), accountId: $("accountSelectOp").value });
+  save(); $("amt").value = ""; $("note").value = "";
+  render(); alert("Enregistré !");
+};
 
-    const div = document.createElement("div");
-    div.style.cssText = "background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;";
-    div.innerHTML = `<b>💳 ${acc.name}</b><span style="font-weight:700;">${money(balance)}</span>`;
-    box.append(div);
-    selectOp.append(new Option(acc.name, acc.id));
-  });
-}
+// Comptes
+$("submitAddAccount").onclick = () => {
+  let name = $("newAccountName").value.trim();
+  if(!name) return;
+  S.accounts.push({ id: 'acc_' + Date.now(), name });
+  save(); $("newAccountName").value = ""; render();
+};
 
-function render() {
-  $("monthLabel").textContent = month;
-  renderAccountsList();
-
-  const mode = $("filterMode").value;
-  let filtered = S.tx;
-  if (mode === "month") filtered = S.tx.filter(t => t.date.startsWith(month));
-  else if (mode === "week") {
-    const now = new Date();
-    const oneWeekAgo = new Date(now.setDate(now.getDate() - 7));
-    filtered = S.tx.filter(t => new Date(t.date) >= oneWeekAgo);
+// Épargne
+$("addPotBtn").onclick = () => {
+  let name = $("potName").value.trim(), target = parseFloat($("potTarget").value), saved = parseFloat($("potSaved").value) || 0;
+  if(name && target > 0) {
+    S.pots.push({ id: Date.now(), name, target, saved });
+    save(); $("potName").value = ""; $("potTarget").value = ""; $("potSaved").value = "";
+    render();
   }
+};
 
-  const monthTx = S.tx.filter(t => t.date.startsWith(month));
-  const sum = k => monthTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
-  const o = sum("out"), i = sum("in");
-  $("tOut").textContent = money(o);
-  $("tIn").textContent = money(i);
-  $("solde").textContent = money(i - o);
+// Dettes
+$("debtOut").onclick = () => { debtType = "out"; $("debtOut").setAttribute("aria-pressed", "true"); $("debtIn").setAttribute("aria-pressed", "false"); };
+$("debtIn").onclick = () => { debtType = "in"; $("debtIn").setAttribute("aria-pressed", "true"); $("debtOut").setAttribute("aria-pressed", "false"); };
 
-  const query = $("searchQuery").value.toLowerCase();
-  const listFiltered = filtered.filter(t => t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query)));
-  
-  const ul = $("list");
-  ul.replaceChildren();
-  if (!listFiltered.length) {
-    ul.innerHTML = '<li style="text-align:center; color:var(--mute); padding:15px; display:block;">Aucune opération.</li>';
-  } else {
-    listFiltered.forEach(t => {
-      const li = document.createElement("li");
-      li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat}</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '−' : '+'}${money(t.amt)}</div>`;
-      ul.append(li);
-    });
+$("addDebtBtn").onclick = () => {
+  let person = $("debtPerson").value.trim(), amt = parseFloat($("debtAmt").value), due = $("debtDate").value;
+  if(person && amt > 0) {
+    S.debts.push({ id: Date.now(), type: debtType, person, amt, due });
+    save(); $("debtPerson").value = ""; $("debtAmt").value = ""; $("debtDate").value = "";
+    render();
   }
-
-  const potsBox = $("potsList");
-  potsBox.replaceChildren();
-  S.pots.forEach(p => {
-    const pct = Math.min(100, Math.round((p.saved / p.target) * 100));
-    const div = document.createElement("div");
-    div.style.cssText = "background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px;";
-    div.innerHTML = `<b>🎯 ${p.name}</b> : ${money(p.saved)} / ${money(p.target)} (${pct}%)<div style="background:var(--line); border-radius:5px; height:8px; margin-top:6px; overflow:hidden;"><div style="background:var(--in); width:${pct}%; height:100%;"></div></div>`;
-    potsBox.append(div);
-  });
-
-  const debtsBox = $("debtsList");
-  debtsBox.replaceChildren();
-  S.debts.forEach(d => {
-    const div = document.createElement("div");
-    div.style.cssText = "background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;";
-    div.innerHTML = `<span><b>${d.person}</b> (${d.type === 'out' ? 'Je dois' : 'On me doit'})<br><small style="color:var(--mute);">${d.due || 'Sans date'}</small></span><span style="font-weight:700; color:${d.type==='out'?'var(--out)':'var(--in)'};">${money(d.amt)}</span>`;
-    debtsBox.append(div);
-  });
-}
-
-function renderChart() {
-  const ctx = $("expenseChart").getContext('2d');
-  const monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
-  const catTotals = {};
-  monthTx.forEach(t => { catTotals[t.cat] = (catTotals[t.cat] || 0) + t.amt; });
-
-  if (myChart) myChart.destroy();
-  myChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: Object.keys(catTotals),
-      datasets: [{ data: Object.values(catTotals), backgroundColor: ['#c2412d','#23805a','#3b82f6','#eab308','#a855f7','#ec4899','#14302b'] }]
-    },
-    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
-  });
-}
+};
 
 $("searchQuery").oninput = render;
 $("filterMode").onchange = render;
 
-$("add").onclick = () => {
-  let amt = parseFloat($("amt").value.replace(/\s/g, "").replace(",", "."));
-  if (!(amt > 0)) { alert("Entrez un montant valide."); return; }
-  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: $("opDate").value \vert{}\vert{} today(), accountId: $("accountSelectOp").value });
-  save();
-  $("amt").value = ""; $("note").value = "";
-  render();
-  alert("Opération enregistrée !");
-};
+function render() {
+  $("monthLabel").textContent = month;
+  
+  // Comptes select
+  let selectOp = $("accountSelectOp");
+  selectOp.replaceChildren(...S.accounts.map(acc => new Option(acc.name, acc.id)));
+  
+  let accountsBox = $("accountsListDetailed");
+  accountsBox.replaceChildren(...S.accounts.map(acc => {
+    let div = document.createElement("div");
+    div.style.cssText = "background:var(--bg); padding:8px; border-radius:6px; display:flex; justify-content:space-between;";
+    div.innerHTML = `<b>💳 ${acc.name}</b>`;
+    return div;
+  }));
+
+  let monthTx = S.tx.filter(t => t.date.startsWith(month));
+  let o = monthTx.filter(t => t.type === 'out').reduce((s,t) => s + t.amt, 0);
+  let i = monthTx.filter(t => t.type === 'in').reduce((s,t) => s + t.amt, 0);
+  
+  $("tOut").textContent = money(o);
+  $("tIn").textContent = money(i);
+  $("solde").textContent = money(i - o);
+
+  // Liste historique
+  let ul = $("list");
+  let query = $("searchQuery").value.toLowerCase();
+  let filtered = monthTx.filter(t => t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query)));
+  
+  ul.replaceChildren();
+  if(!filtered.length) {
+    ul.innerHTML = '<li style="text-align:center; color:var(--mute); padding:10px;">Aucune opération</li>';
+  } else {
+    filtered.forEach(t => {
+      let li = document.createElement("li");
+      li.innerHTML = `<div><b>${t.cat}</b><small>${t.date} ${t.note ? '· ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '-' : '+'}${money(t.amt)}</div>`;
+      ul.append(li);
+    });
+  }
+
+  // Pots
+  $("potsList").replaceChildren(...S.pots.map(p => {
+    let div = document.createElement("div");
+    let pct = Math.min(100, Math.round((p.saved / p.target) * 100));
+    div.style.cssText = "background:var(--bg); padding:8px; border-radius:6px;";
+    div.innerHTML = `<b>🎯 ${p.name}</b> : ${money(p.saved)} / ${money(p.target)} (${pct}%)`;
+    return div;
+  }));
+
+  // Dettes
+  $("debtsList").replaceChildren(...S.debts.map(d => {
+    let div = document.createElement("div");
+    div.style.cssText = "background:var(--bg); padding:8px; border-radius:6px; display:flex; justify-content:space-between;";
+    div.innerHTML = `<span><b>${d.person}</b> (${d.type === 'out' ? 'Je dois' : 'On me doit'})</span><b style="color:${d.type==='out'?'var(--out)':'var(--in)'};">${money(d.amt)}</b>`;
+    return div;
+  }));
+}
+
+function renderChart() {
+  let ctx = $("expenseChart").getContext('2d');
+  let monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
+  let totals = {};
+  monthTx.forEach(t => totals[t.cat] = (totals[t.cat] || 0) + t.amt);
+
+  if(myChart) myChart.destroy();
+  myChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(totals),
+      datasets: [{ data: Object.values(totals), backgroundColor: ['#c2412d','#23805a','#3b82f6','#eab308','#a855f7','#ec4899'] }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } }
+  });
+}
+
+render();
 </script>
 </body>
 </html>
