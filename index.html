@@ -19,7 +19,8 @@
   .header-left, .header-right-controls { display: flex; align-items: center; gap: 10px; }
   button { cursor: pointer; font-family: inherit; }
   .menu-hamburger-btn, .settings-top-btn, .mini-nav-btn { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 1rem; color: var(--text); }
-  .app-page-content { padding: 16px; max-width: 600px; margin: 0 auto; }
+  .app-page-content { padding: 16px; max-width: 600px; margin: 0 auto; display: none; }
+  .app-page-content.active { display: block; }
   section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
   h2 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
   .solde-main-box { text-align: center; padding: 10px; background: var(--bg); border-radius: 8px; }
@@ -45,19 +46,17 @@
   ul#list li small { color: var(--mute); display: block; font-size: 0.8rem; }
   .a.out { color: var(--out); font-weight: 700; }
   .a.in { color: var(--in); font-weight: 700; }
-  /* Tiroir et modale */
-  .sidebar-overlay, .modal-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .sidebar-overlay, .modal-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
   .sidebar-drawer { position: absolute; left: 0; top: 0; bottom: 0; width: 260px; background: var(--card); padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 10px; }
   .side-btn { width: 100%; text-align: left; background: var(--bg); border: 1px solid var(--line); padding: 12px; border-radius: 8px; color: var(--text); font-weight: 600; }
   .modal-card { background: var(--card); padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid var(--line); }
 </style>
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
   <!-- MENU LATÉRAL -->
-  <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
+  <div id="sidebarOverlay" class="sidebar-overlay">
     <aside class="sidebar-drawer">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h3 style="margin:0;">Menu</h3>
@@ -70,7 +69,7 @@
   </div>
 
   <!-- MODALE PARAMÈTRES -->
-  <div id="settingsModal" class="modal-screen" style="display:none;">
+  <div id="settingsModal" class="modal-screen">
     <div class="modal-card">
       <h3>⚙️ Paramètres</h3>
       <label>Devise</label>
@@ -96,7 +95,7 @@
   </header>
 
   <!-- PAGE 1 : ACCUEIL -->
-  <div id="pageHome" class="app-page-content">
+  <div id="pageHome" class="app-page-content active">
     <section>
       <div class="solde-main-box">
         <span style="font-size:0.85rem; color:var(--mute);">Solde principal du mois</span>
@@ -134,7 +133,7 @@
   </div>
 
   <!-- PAGE 2 : COMPTES & ÉPARGNE -->
-  <div id="pageAccounts" class="app-page-content" style="display:none;">
+  <div id="pageAccounts" class="app-page-content">
     <section>
       <h2>💳 Comptes & Portefeuilles</h2>
       <div style="display:flex; gap:8px;">
@@ -157,7 +156,7 @@
   </div>
 
   <!-- PAGE 3 : HISTORIQUE & DETTES -->
-  <div id="pageOperations" class="app-page-content" style="display:none;">
+  <div id="pageOperations" class="app-page-content">
     <section>
       <h2>Historique</h2>
       <div class="row2">
@@ -184,7 +183,7 @@
   </div>
 
   <!-- PAGE 4 : ANALYSES -->
-  <div id="pageAnalytics" class="app-page-content" style="display:none;">
+  <div id="pageAnalytics" class="app-page-content">
     <section>
       <h2>📊 Répartition des dépenses</h2>
       <div style="max-width: 250px; margin: 0 auto;"><canvas id="expenseChart"></canvas></div>
@@ -202,8 +201,8 @@
 
 <script>
 const CATS = {
-  out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Loisirs","Autre"],
-  in: ["Salaire","Ventes","Prime","Cadeau","Autre"]
+  out: ["Nourriture", "Transport", "Essence", "Crédit téléphone", "Internet", "Logement", "Électricité", "Eau", "Santé", "École", "Loisirs", "Autre"],
+  in: ["Salaire", "Ventes", "Prime", "Cadeau", "Autre"]
 };
 
 const $ = id => document.getElementById(id);
@@ -221,18 +220,19 @@ let month = today().slice(0, 7), type = "out", debtType = "out", myChart = null;
 $("opDate").value = today();
 if(S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
-// Navigation onglets
+// Navigation par onglets
 document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".bottom-nav-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".app-page-content").forEach(p => p.style.display = "none");
+    document.querySelectorAll(".app-page-content").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
-    $(btn.getAttribute("data-target")).style.display = "block";
-    if(btn.getAttribute("data-target") === "pageAnalytics") renderChart();
+    const targetId = btn.getAttribute("data-target");
+    $(targetId).classList.add("active");
+    if(targetId === "pageAnalytics") renderChart();
   };
 });
 
-// Sidebar & Modale
+// Menu et Paramètres
 $("openSidebarBtn").onclick = () => $("sidebarOverlay").style.display = "flex";
 $("closeSidebar").onclick = () => $("sidebarOverlay").style.display = "none";
 $("sidebarOverlay").onclick = e => { if(e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
@@ -260,7 +260,7 @@ $("navResetMonth").onclick = () => {
   }
 };
 
-// Gestion types dépense/revenu
+// Gestion types dépense/revenu et catégories
 function setType(t) {
   type = t;
   $("bOut").setAttribute("aria-pressed", t === "out");
@@ -271,7 +271,7 @@ $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
 setType("out");
 
-// Mois précédent / suivant
+// Navigation mois
 $("prevMonth").onclick = () => {
   let d = new Date(month + "-01"); d.setMonth(d.getMonth() - 1);
   month = d.toISOString().slice(0, 7); render();
@@ -327,7 +327,6 @@ $("filterMode").onchange = render;
 function render() {
   $("monthLabel").textContent = month;
   
-  // Comptes select
   let selectOp = $("accountSelectOp");
   selectOp.replaceChildren(...S.accounts.map(acc => new Option(acc.name, acc.id)));
   
@@ -347,7 +346,6 @@ function render() {
   $("tIn").textContent = money(i);
   $("solde").textContent = money(i - o);
 
-  // Liste historique
   let ul = $("list");
   let query = $("searchQuery").value.toLowerCase();
   let filtered = monthTx.filter(t => t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query)));
@@ -363,7 +361,6 @@ function render() {
     });
   }
 
-  // Pots
   $("potsList").replaceChildren(...S.pots.map(p => {
     let div = document.createElement("div");
     let pct = Math.min(100, Math.round((p.saved / p.target) * 100));
@@ -372,7 +369,6 @@ function render() {
     return div;
   }));
 
-  // Dettes
   $("debtsList").replaceChildren(...S.debts.map(d => {
     let div = document.createElement("div");
     div.style.cssText = "background:var(--bg); padding:8px; border-radius:6px; display:flex; justify-content:space-between;";
