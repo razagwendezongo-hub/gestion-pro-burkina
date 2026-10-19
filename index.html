@@ -4,20 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14302b">
-<link rel="manifest" href="manifest.json">
-<title id="pageTitle">Gestion Personnelle</title>
+<title>Gestion Financière Pro</title>
 <style>
   :root {
     --bg: #f8fafc; --card: #ffffff; --ink: #0f172a; --mute: #64748b;
     --line: #e2e8f0; --in: #23805a; --out: #c2412d; --primary: #14302b;
-    --btn: #e2e8f0; --btn-t: #0f172a;
   }
   [data-theme="dark"] {
     --bg: #0f172a; --card: #1e293b; --ink: #f8fafc; --mute: #94a3b8;
     --line: #334155; --in: #34d399; --out: #f87171; --primary: #34d399;
-    --btn: #334155; --btn-t: #f8fafc;
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); margin: 0; padding: 0; padding-bottom: 75px; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); margin: 0; padding: 0; padding-bottom: 75px; }
   header { background: var(--card); border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
   .header-left, .header-right-controls { display: flex; align-items: center; gap: 8px; }
   button { cursor: pointer; font-family: inherit; }
@@ -30,7 +27,7 @@
   
   .solde-main-box { text-align: center; padding: 12px; background: var(--bg); border-radius: 12px; }
   .solde-title-label { font-size: 0.85rem; color: var(--mute); display: block; }
-  .solde-big-amount { font-size: 2rem; font-weight: 800; color: var(--primary); margin-top: 4px; transition: all 0.3s ease; }
+  .solde-big-amount { font-size: 2rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
   .solde-big-amount.neg { color: var(--out); }
   
   .solde-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
@@ -41,7 +38,7 @@
   .income-card .detail-amount { color: var(--in); }
 
   .tog { display: flex; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 4px; margin-bottom: 12px; }
-  .tog button { flex: 1; border: 0; background: transparent; padding: 8px; border-radius: 8px; font-weight: 600; color: var(--mute); transition: all 0.2s; }
+  .tog button { flex: 1; border: 0; background: transparent; padding: 8px; border-radius: 8px; font-weight: 600; color: var(--mute); }
   .tog button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
   
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -68,42 +65,22 @@
   .sidebar-drawer { position: absolute; left: 0; top: 0; bottom: 0; width: 280px; background: var(--card); padding: 20px; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 10px; }
   .side-btn { width: 100%; text-align: left; background: var(--bg); border: 1px solid var(--line); padding: 12px; border-radius: 10px; color: var(--ink); font-weight: 600; cursor: pointer; }
   .modal-card { background: var(--card); padding: 20px; border-radius: 14px; width: 90%; max-width: 420px; border: 1px solid var(--line); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-  
-  .bill-alert-box { background: rgba(194, 65, 45, 0.1); border: 1px solid var(--out); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; color: var(--out); font-weight: 600; font-size: 0.9rem; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <!-- ÉCRAN D'AUTHENTIFICATION FONCTIONNEL -->
+  <!-- ÉCRAN DE CONNEXION / INSCRIPTION -->
   <div id="authScreen" style="position:fixed; inset:0; background:var(--bg); z-index:2000; display:flex; align-items:center; justify-content:center; padding:16px;">
     <div style="background:var(--card); padding:24px; border-radius:14px; border:1px solid var(--line); width:100%; max-width:380px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
       <h2 id="authTitle" style="margin-top:0;">Connexion / Inscription</h2>
-      <label for="authUser">Nom d'utilisateur</label>
+      <label>Nom d'utilisateur</label>
       <input id="authUser" type="text" placeholder="Ex: Zongo..." autocomplete="off">
-      <label for="authPass" style="margin-top:12px;">Mot de passe</label>
+      <label style="margin-top:12px;">Mot de passe</label>
       <input id="authPass" type="password" placeholder="••••••••">
       <button class="go" id="authBtn">Se connecter</button>
       <button id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
       <p id="authMsg" style="text-align:center; font-size:0.85rem; color:var(--out); margin-top:10px;"></p>
-    </div>
-  </div>
-
-  <!-- ALERTE FACTURE URGENTE (ACCUEIL) -->
-  <div id="billAlertBanner" class="bill-alert-box" style="display:none;">
-    <span>⚠️</span>
-    <span id="billAlertText">Une facture arrive à échéance très bientôt !</span>
-  </div>
-
-  <!-- MODALE ÉCHÉANCIER & FACTURES -->
-  <div id="billsModal" class="modal-screen">
-    <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
-        <h3 style="margin:0; font-size:1.1rem;">🎯 Échéancier & Factures</h3>
-        <button id="closeBillsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
-      </div>
-      <button class="go" id="addBillBtnModal" style="background:var(--in); margin-top:0; margin-bottom:14px;">+ Ajouter une facture</button>
-      <div id="billsList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
   </div>
 
@@ -112,14 +89,13 @@
     <aside class="sidebar-drawer">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h3 style="margin:0;">Menu</h3>
-        <button id="closeSidebar" style="background:none; border:0; font-size:1.2rem; color:var(--ink); cursor:pointer;">✕</button>
+        <button id="closeSidebar" style="background:none; border:0; font-size:1.2rem; cursor:pointer;">✕</button>
       </div>
-      <button class="side-btn" id="navBills">🎯 Échéancier & Factures</button>
       <button class="side-btn" id="navTheme">🌓 Mode Sombre / Clair</button>
       <button class="side-btn" id="navReport">📄 Copier le rapport WhatsApp</button>
       <button class="side-btn" id="navResetMonth">🗑️ Effacer les opérations du mois</button>
       <button class="side-btn" id="navExportJson">💾 Exporter sauvegarde (.json)</button>
-      <button class="side-btn" id="navLogout" style="color:var(--out);">🚪 Changer de compte / Déconnexion</button>
+      <button class="side-btn" id="navLogout" style="color:var(--out);">🚪 Déconnexion</button>
     </aside>
   </div>
 
@@ -219,7 +195,7 @@
     </section>
   </div>
 
-  <!-- PAGE 4 : ANALYSES & GRAPHIQUE ANNUEL/MENSUEL -->
+  <!-- PAGE 4 : ANALYSES -->
   <div id="pageAnalytics" class="app-page-content">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -254,7 +230,7 @@ const $ = id => document.getElementById(id);
 const today = () => new Date().toISOString().slice(0, 10);
 
 let S = {
-  tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal' }], bills: [], cur: "FCFA", theme: "light"
+  tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal' }], cur: "FCFA", theme: "light"
 };
 
 function loadUserData() {
@@ -281,7 +257,6 @@ let month = today().slice(0, 7), type = "out", myChart = null;
 $("opDate").value = today();
 if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
-// Gestion de l'authentification fonctionnelle
 function checkAuth() {
   if (currentUser) {
     loadUserData();
@@ -296,7 +271,6 @@ function checkAuth() {
   }
 }
 
-// Bascule Connexion / Inscription
 $("authSwitch").onclick = () => {
   const title = $("authTitle");
   if (title.textContent.includes("Connexion")) {
@@ -310,14 +284,10 @@ $("authSwitch").onclick = () => {
   }
 };
 
-// Bouton de validation Connexion / Inscription
 $("authBtn").onclick = () => {
   let u = $("authUser").value.trim();
   let p = $("authPass").value;
-  if (!u || !p) {
-    $("authMsg").textContent = "Veuillez remplir tous les champs.";
-    return;
-  }
+  if (!u || !p) { $("authMsg").textContent = "Remplissez tous les champs"; return; }
   currentUser = u;
   localStorage.setItem("current_user", u);
   $("authMsg").textContent = "";
@@ -330,13 +300,11 @@ $("navLogout").onclick = () => {
   location.reload();
 };
 
-// Boutons rapides de montant
 window.addQuickAmt = (val) => {
   let current = parseFloat($("amt").value) || 0;
   $("amt").value = current + val;
 };
 
-// Navigation onglets
 document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".bottom-nav-btn").forEach(b => b.classList.remove("active"));
@@ -348,7 +316,6 @@ document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   };
 });
 
-// Sidebar & Modales
 $("openSidebarBtn").onclick = () => $("sidebarOverlay").style.display = "flex";
 $("closeSidebar").onclick = () => $("sidebarOverlay").style.display = "none";
 $("sidebarOverlay").onclick = e => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
@@ -373,7 +340,6 @@ $("navExportJson").onclick = () => {
   a.click(); $("sidebarOverlay").style.display = "none";
 };
 
-// Rapport WhatsApp
 $("navReport").onclick = () => {
   $("sidebarOverlay").style.display = "none";
   let monthTx = S.tx.filter(t => t.date.startsWith(month));
@@ -390,57 +356,6 @@ $("copyWhatsappBtn").onclick = () => {
   $("reportModal").style.display = "none";
 };
 
-// Factures & Échéancier
-$("navBills").onclick = () => {
-  $("sidebarOverlay").style.display = "none";
-  renderBills();
-  $("billsModal").style.display = "flex";
-};
-$("closeBillsModal").onclick = () => $("billsModal").style.display = "none";
-
-$("addBillBtnModal").onclick = () => {
-  let name = prompt("Nom de la facture (ex: Loyer) :");
-  let amt = parseFloat(prompt("Montant :"));
-  let due = prompt("Date d'échéance (AAAA-MM-JJ) :", today());
-  if (name && amt > 0) {
-    S.bills.push({ id: Date.now(), name, amt, due });
-    save(); renderBills(); checkBillAlerts();
-  }
-};
-
-function renderBills() {
-  let box = $("billsList");
-  box.replaceChildren();
-  if (!S.bills.length) {
-    box.innerHTML = '<div style="text-align:center; color:var(--mute); padding:20px;">Aucune facture</div>';
-    return;
-  }
-  S.bills.forEach(b => {
-    let div = document.createElement("div");
-    div.style.cssText = "background:var(--bg); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;";
-    div.innerHTML = `<span><b>${b.name}</b> (${money(b.amt)})<br><small style="color:var(--mute);">Échéance : ${b.due}</small></span>`;
-    let del = document.createElement("button"); del.textContent = "🗑️"; del.style.background = "none"; del.style.border = "0"; del.style.cursor = "pointer";
-    del.onclick = () => { S.bills = S.bills.filter(x => x.id !== b.id); save(); renderBills(); checkBillAlerts(); };
-    div.append(del); box.append(div);
-  });
-}
-
-function checkBillAlerts() {
-  let banner = $("billAlertBanner");
-  let now = new Date();
-  let urgent = S.bills.find(b => {
-    let diff = (new Date(b.due) - now) / (1000 * 60 * 60 * 24);
-    return diff >= 0 && diff <= 3;
-  });
-  if (urgent) {
-    $("billAlertText").textContent = `Attention ! La facture "${urgent.name}" (${money(urgent.amt)}) arrive à échéance le ${urgent.due}.`;
-    banner.style.display = "flex";
-  } else {
-    banner.style.display = "none";
-  }
-}
-
-// Type transaction
 function setType(t) {
   type = t;
   $("bOut").setAttribute("aria-pressed", t === "out");
@@ -450,11 +365,9 @@ function setType(t) {
 $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
 
-// Mois précédent / suivant
 $("prevMonth").onclick = () => { let d = new Date(month + "-01"); d.setMonth(d.getMonth() - 1); month = d.toISOString().slice(0, 7); render(); };
 $("nextMonth").onclick = () => { let d = new Date(month + "-01"); d.setMonth(d.getMonth() + 1); month = d.toISOString().slice(0, 7); render(); };
 
-// Ajout transaction
 $("add").onclick = () => {
   let amt = parseFloat($("amt").value);
   if (!(amt > 0)) { alert("Entrez un montant valide"); return; }
@@ -463,7 +376,6 @@ $("add").onclick = () => {
   render(); alert("Opération enregistrée !");
 };
 
-// Comptes
 $("submitAddAccount").onclick = () => {
   let name = $("newAccountName").value.trim();
   if (!name) return;
@@ -477,7 +389,6 @@ $("chartMode").onchange = renderChart;
 
 function render() {
   $("monthLabel").textContent = month;
-  checkBillAlerts();
 
   let selectOp = $("accountSelectOp"), filterAcc = $("filterAccount");
   selectOp.replaceChildren(...S.accounts.map(acc => new Option(acc.name, acc.id)));
@@ -539,7 +450,7 @@ function renderChart() {
     dataValues = Object.values(totals);
   } else {
     let year = month.slice(0, 4);
-    let yearTx = S.tx.filter(t => t.t.startsWith(year) && t.type === 'out');
+    let yearTx = S.tx.filter(t => t.date.startsWith(year) && t.type === 'out');
     let monthlyTotals = { "01": 0, "02": 0, "03": 0, "04": 0, "05": 0, "06": 0, "07": 0, "08": 0, "09": 0, "10": 0, "11": 0, "12": 0 };
     yearTx.forEach(t => {
       let mKey = t.date.slice(5, 7);
@@ -560,7 +471,6 @@ function renderChart() {
   });
 }
 
-// Lancement au démarrage
 checkAuth();
 </script>
 </body>
