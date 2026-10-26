@@ -4,266 +4,565 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14302b">
-<title>Gestion Financière Pro</title>
+<title>Gestion Financière Pro - Édition Ultime</title>
+<link rel="manifest" href="manifest.json">
 <style>
-  :root {
-    --bg: #f8fafc; --card: #ffffff; --ink: #0f172a; --mute: #64748b;
-    --line: #e2e8f0; --in: #23805a; --out: #c2412d; --primary: #14302b;
-  }
-  [data-theme="dark"] {
-    --bg: #0f172a; --card: #1e293b; --ink: #f8fafc; --mute: #94a3b8;
-    --line: #334155; --in: #34d399; --out: #f87171; --primary: #34d399;
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); margin: 0; padding: 0; padding-bottom: 75px; }
-  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-  .header-left, .header-right-controls { display: flex; align-items: center; gap: 8px; }
-  button { cursor: pointer; font-family: inherit; }
-  .menu-hamburger-btn, .settings-top-btn, .mini-nav-btn { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 1rem; color: var(--ink); }
-  .mini-month-title { font-size: 0.95rem; font-weight: 600; margin: 0; }
-  .app-page-content { padding: 16px; max-width: 600px; margin: 0 auto; display: none; }
-  .app-page-content.active { display: block; }
-  section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-  h2 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
-  
-  .solde-main-box { text-align: center; padding: 12px; background: var(--bg); border-radius: 12px; }
-  .solde-title-label { font-size: 0.85rem; color: var(--mute); display: block; }
-  .solde-big-amount { font-size: 2rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
-  .solde-big-amount.neg { color: var(--out); }
-  
-  .solde-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  .detail-card { background: var(--bg); padding: 12px; border-radius: 10px; text-align: center; border: 1px solid var(--line); }
-  .detail-label { font-size: 0.8rem; color: var(--mute); display: block; }
-  .detail-amount { display: block; font-weight: 700; font-size: 1.05rem; margin-top: 4px; }
-  .expense-card .detail-amount { color: var(--out); }
-  .income-card .detail-amount { color: var(--in); }
+:root {
+  --bg: #eef3f0;
+  --card: #fff;
+  --ink: #14302b;
+  --mute: #5f7a73;
+  --line: #d5e0db;
+  --out: #c2412d;
+  --in: #23805a;
+  --btn: #14302b;
+  --btn-t: #fff;
+  box-sizing: border-box;
+}
 
-  .tog { display: flex; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 4px; margin-bottom: 12px; }
-  .tog button { flex: 1; border: 0; background: transparent; padding: 8px; border-radius: 8px; font-weight: 600; color: var(--mute); }
-  .tog button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  label { display: block; font-size: 0.85rem; color: var(--mute); margin-bottom: 4px; font-weight: 500; }
-  input, select { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); box-sizing: border-box; font-size: 1rem; margin-bottom: 10px; }
-  
-  .quick-amounts { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-  .quick-btn { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; font-weight: 600; color: var(--ink); cursor: pointer; }
-  
-  .go { width: 100%; background: var(--primary); color: #fff; border: 0; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1rem; margin-top: 6px; cursor: pointer; }
-  
-  .bottom-nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--line); display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
-  .bottom-nav-btn { background: none; border: 0; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: var(--mute); gap: 2px; }
-  .bottom-nav-btn.active { color: var(--primary); font-weight: 700; }
-  .bottom-nav-btn .nav-icon { font-size: 1.2rem; }
-  
-  ul#list { list-style: none; padding: 0; margin: 0; }
-  ul#list li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
-  ul#list li small { color: var(--mute); display: block; font-size: 0.8rem; }
-  .a.out { color: var(--out); font-weight: 700; }
-  .a.in { color: var(--in); font-weight: 700; }
+[data-theme="dark"] {
+  --bg: #0f1b18;
+  --card: #172623;
+  --ink: #e6f0ec;
+  --mute: #8fa9a1;
+  --line: #274039;
+  --out: #ef7b66;
+  --in: #4cc38a;
+  --btn: #e6f0ec;
+  --btn-t: #0f1b18;
+}
 
-  .sidebar-overlay, .modal-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
-  .sidebar-drawer { position: absolute; left: 0; top: 0; bottom: 0; width: 280px; background: var(--card); padding: 20px; box-shadow: 4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 10px; }
-  .side-btn { width: 100%; text-align: left; background: var(--bg); border: 1px solid var(--line); padding: 12px; border-radius: 10px; color: var(--ink); font-weight: 600; cursor: pointer; }
-  .modal-card { background: var(--card); padding: 20px; border-radius: 14px; width: 90%; max-width: 420px; border: 1px solid var(--line); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 system-ui, -apple-system, sans-serif; }
+main { max-width: 520px; margin: 0 auto; padding: 16px 16px 90px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; }
+.header-left { display: flex; align-items: center; gap: 10px; }
+.user-greeting-txt { font-weight: 700; font-size: 0.95rem; }
+.menu-hamburger-btn { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; cursor: pointer; font-weight: 700; font-size: 1.1rem; position: relative; }
+
+.header-right-controls { display: flex; align-items: center; gap: 8px; }
+.header-date-picker { display: flex; align-items: center; gap: 4px; }
+.mini-nav-btn { width: 26px; height: 26px; border: 1px solid var(--line); background: var(--bg); border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.mini-month-title { margin: 0; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.settings-top-btn { background: var(--card); border: 1px solid var(--line); border-radius: 10px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* BARRE DE NAVIGATION INFÉRIEURE */
+.bottom-nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 4px; z-index: 998; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
+.bottom-nav-btn { background: transparent; border: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.7rem; font-weight: 600; color: var(--mute); cursor: pointer; padding: 4px 0; }
+.bottom-nav-btn .nav-icon { font-size: 1.2rem; }
+.bottom-nav-btn.active { color: var(--in); }
+
+.modal-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+.modal-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; width: 100%; max-width: 400px; }
+
+.sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: flex-start; z-index: 999; backdrop-filter: blur(2px); }
+.sidebar-drawer { background: var(--card); border-right: 1px solid var(--line); width: 82%; max-width: 320px; height: 100%; padding: 20px; display: flex; flex-direction: column; }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 16px; }
+.sidebar-menu-items { display: flex; flex-direction: column; gap: 10px; }
+.side-btn { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; text-align: left; font-weight: 600; cursor: pointer; color: var(--ink); }
+
+.solde-main-box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; }
+.solde-title-label { color: var(--mute); font-size: 0.9rem; display:flex; justify-content:space-between; align-items:center; }
+.solde-big-amount { font-size: 2.2rem; font-weight: 800; margin-top: 6px; color: var(--ink); }
+
+.solde-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.detail-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; }
+.detail-label { font-size: 0.85rem; color: var(--mute); margin-bottom: 4px; }
+.detail-amount { font-size: 1.25rem; font-weight: 700; }
+.expense-card .detail-amount { color: var(--out); }
+.income-card .detail-amount { color: var(--in); }
+
+section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+h2 { margin: 0 0 12px; font-size: 1rem; }
+
+.tog { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+.tog button { padding: 10px; border: 0; background: transparent; cursor: pointer; font-weight: 600; }
+.tog button[aria-pressed=true] { background: var(--btn); color: var(--btn-t); }
+
+label { display: block; font-size: .85rem; color: var(--mute); margin: 10px 0 4px; }
+input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); }
+#amt { font-size: 1.5rem; font-weight: 700; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.go { width: 100%; margin-top: 16px; padding: 14px; border: 0; border-radius: 10px; background: var(--btn); color: var(--btn-t); font-weight: 700; cursor: pointer; }
+
+.auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+.auth-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px; width: 100%; max-width: 400px; }
+
+ul { list-style: none; margin: 0; padding: 0; }
+li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+li:first-child { border-top: 0; }
+li .m { flex: 1; min-width: 0; }
+li .m b { display: block; font-weight: 600; }
+li .m small { color: var(--mute); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+li .a { font-weight: 700; white-space: nowrap; }
+
+.notification-badge { position: absolute; top: -4px; right: -4px; background: var(--out); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 0.65rem; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+@media print {
+  body { background: #fff; color: #000; }
+  .bottom-nav-bar, .header-top, .sidebar-overlay, .modal-screen, #scrollTopBtn, button { display: none !important; }
+  main { max-width: 100%; padding: 0; }
+  section { border: 0; box-shadow: none; padding: 0; margin-bottom: 20px; }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <!-- ÉCRAN DE CONNEXION / INSCRIPTION -->
-  <div id="authScreen" style="position:fixed; inset:0; background:var(--bg); z-index:2000; display:flex; align-items:center; justify-content:center; padding:16px;">
-    <div style="background:var(--card); padding:24px; border-radius:14px; border:1px solid var(--line); width:100%; max-width:380px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-      <h2 id="authTitle" style="margin-top:0;">Connexion / Inscription</h2>
-      <label>Nom d'utilisateur</label>
-      <input id="authUser" type="text" placeholder="Ex: Zongo..." autocomplete="off">
-      <label style="margin-top:12px;">Mot de passe</label>
-      <input id="authPass" type="password" placeholder="••••••••">
-      <button class="go" id="authBtn">Se connecter</button>
-      <button id="authSwitch" type="button" style="width:100%; text-align:center; margin-top:12px; border:0; background:transparent; color:var(--in); font-weight:600; cursor:pointer;">Créer un compte</button>
-      <p id="authMsg" style="text-align:center; font-size:0.85rem; color:var(--out); margin-top:10px;"></p>
+  <button id="scrollTopBtn" title="Retour en haut" style="display:none; position:fixed; bottom:75px; right:20px; z-index:9999; background:var(--btn); color:var(--btn-t); border:0; border-radius:50%; width:45px; height:45px; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2);">↑</button>
+
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card" style="max-width: 400px; padding: 24px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; background: var(--bg); padding: 4px; border-radius: 10px; border: 1px solid var(--line);">
+        <button id="tabLoginBtn" type="button" style="padding: 10px; border:0; border-radius: 8px; font-weight: 700; cursor: pointer; background: var(--card); color: var(--ink);">Connexion</button>
+        <button id="tabRegisterBtn" type="button" style="padding: 10px; border:0; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; color: var(--mute);">Inscription</button>
+      </div>
+
+      <h2 id="authCardTitle" style="margin-top:0; font-size: 1.2rem; margin-bottom: 16px; text-align: center;">Gestion Financière Pro</h2>
+
+      <div id="formLoginView" style="display: flex; flex-direction: column; gap: 12px;">
+        <div><label for="loginNom">Nom</label><input id="loginNom" type="text" placeholder="Ex: Zongo"></div>
+        <div><label for="loginPrenom">Prénom</label><input id="loginPrenom" type="text" placeholder="Ex: Alfred"></div>
+        <div><label for="loginPass">Mot de passe</label><input id="loginPass" type="password" placeholder="••••••••"></div>
+        <button class="go" id="submitLoginBtn" style="margin-top: 8px; background: var(--in);">Se connecter</button>
+      </div>
+
+      <div id="formRegisterView" style="display: none; flex-direction: column; gap: 10px;">
+        <div><label for="regNom">Nom</label><input id="regNom" type="text" placeholder="Ex: Zongo"></div>
+        <div><label for="regPrenom">Prénom</label><input id="regPrenom" type="text" placeholder="Ex: Alfred"></div>
+        <div><label for="regEmail">Adresse Email</label><input id="regEmail" type="email" placeholder="mon@email.com"></div>
+        <div><label for="regPass">Créer un mot de passe</label><input id="regPass" type="password" placeholder="••••••••"></div>
+        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">S'inscrire</button>
+      </div>
+
+      <p id="authMsg" style="text-align:center; font-size:0.85rem; margin-top:14px; color:var(--out);"></p>
     </div>
   </div>
 
-  <!-- MENU LATÉRAL -->
-  <div id="sidebarOverlay" class="sidebar-overlay">
-    <aside class="sidebar-drawer">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <h3 style="margin:0;">Menu</h3>
-        <button id="closeSidebar" style="background:none; border:0; font-size:1.2rem; cursor:pointer;">✕</button>
+  <div id="infoModalScreen" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="text-align:center;">
+      <div id="infoModalIcon" style="font-size:3rem; margin-bottom:8px;">✅</div>
+      <h3 id="infoModalTitle" style="margin:0 0 8px; font-size:1.2rem; color:var(--in);">Message</h3>
+      <p id="infoModalMsg" style="font-size:0.9rem; color:var(--mute); margin-bottom:16px;"></p>
+      <button class="go" id="closeInfoModal" style="background:var(--in); margin-top:0;">OK</button>
+    </div>
+  </div>
+
+  <div id="billsModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:1.1rem;">🎯 Échéancier & Factures</h3>
+        <button id="closeBillsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
-      <button class="side-btn" id="navTheme">🌓 Mode Sombre / Clair</button>
-      <button class="side-btn" id="navReport">📄 Copier le rapport WhatsApp</button>
-      <button class="side-btn" id="navResetMonth">🗑️ Effacer les opérations du mois</button>
-      <button class="side-btn" id="navExportJson">💾 Exporter sauvegarde (.json)</button>
-      <button class="side-btn" id="navLogout" style="color:var(--out);">🚪 Déconnexion</button>
+      <div style="background:var(--bg); padding:12px; border-radius:10px; margin-bottom:14px; border:1px solid var(--line);">
+        <label style="margin-top:0;">Intitulé / Nom</label><input id="billClientName" type="text" placeholder="Facture...">
+        <label>Montant</label><input id="billAmt" type="text" inputmode="decimal" placeholder="0">
+        <label>Date d'échéance</label><input id="billDate" type="date">
+        <button class="go" id="saveNewBillBtn" style="background:var(--in); margin-top:10px;">Enregistrer</button>
+      </div>
+      <div id="billsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+  </div>
+
+  <div id="newProfileModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:6px;">👤</div>
+      <h3 style="margin:0 0 8px; font-size:1.1rem;">Créer un nouveau profil</h3>
+      <input id="newProfileInputName" type="text" placeholder="Nom du profil" style="margin-bottom:14px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button id="cancelNewProfileBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Annuler</button>
+        <button id="confirmNewProfileBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Créer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmResetModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="text-align:center;">
+      <div style="font-size:3rem; margin-bottom:8px;">⚠️</div>
+      <h3 style="margin:0 0 8px; font-size:1.2rem; color:var(--out);">Confirmation</h3>
+      <p id="resetModalText" style="font-size:0.9rem; color:var(--mute); margin-bottom:20px;"></p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button id="cancelResetBtn" style="background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">Annuler</button>
+        <button id="confirmResetBtn" style="background:var(--out); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dateModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="text-align:center;">
+      <h3 style="margin:0 0 10px; font-size:1.1rem;">📅 Sélectionner une période</h3>
+      <input id="customMonthInput" type="month" style="margin-bottom:14px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button id="closeDateModal" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Annuler</button>
+        <button id="applyDateModal" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Appliquer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
+    <aside class="sidebar-drawer" style="overflow-y: auto; max-height: 100vh; padding-bottom: 60px;">
+      <div class="sidebar-header" style="position: sticky; top: 0; background: var(--card); z-index: 10; padding-top: 10px; padding-bottom: 10px; display:flex; align-items:center; justify-content:space-between;">
+        <h3 style="margin:0;">Menu Principal</h3>
+        <button id="closeSidebar" class="side-btn" style="padding:4px 10px;">✕</button>
+      </div>
+      <div class="sidebar-menu-items" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+        
+        <div style="background:var(--bg); padding:10px; border-radius:10px; border:1px solid var(--line);">
+          <label style="margin-top:0; font-weight:700;">👤 Profil Actif</label>
+          <select id="profileSelect" style="margin-top:4px; font-weight:bold; margin-bottom:8px;"></select>
+          <button id="openNewProfileModalBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:6px; font-size:0.8rem; width:100%; font-weight:700; cursor:pointer;">+ Créer un nouveau profil</button>
+        </div>
+
+        <button class="side-btn" id="navBills">🎯 Échéancier <span id="menuNotificationBadge" style="display:none; background:var(--out); color:#fff; border-radius:10px; padding:2px 6px; font-size:0.7rem; float:right;">0</span></button>
+        <button class="side-btn" id="menuDirectExcelExport" style="background:var(--in); color:#fff;">📊 Exporter en Excel (.csv)</button>
+        <button class="side-btn" id="menuOpenReportPage">📄 Rapport & Impression PDF</button>
+        <button class="side-btn" id="navResetMonth">🗑️ Effacer le mois</button>
+        <button class="side-btn" id="navTheme">🌓 Changer de Thème</button>
+        <button class="side-btn" id="navLockScreen" style="background:var(--out); color:#fff;">🔒 Verrouiller</button>
+        <button class="side-btn" id="navLogout" style="color:var(--out);">🚪 Déconnexion</button>
+      </div>
     </aside>
   </div>
 
-  <!-- MODALE RAPPORT WHATSAPP -->
-  <div id="reportModal" class="modal-screen">
-    <div class="modal-card">
+  <div id="settingsModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
-        <h3 style="margin:0; font-size:1.1rem;">Rapport WhatsApp</h3>
-        <button id="closeReportModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
+        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres & Devises</h3>
+        <button id="closeSettingsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
-      <div id="modalReportContent" style="font-size:0.9rem; line-height:1.5; background:var(--bg); padding:10px; border-radius:8px; margin-bottom:14px; white-space:pre-line;"></div>
-      <button class="go" id="copyWhatsappBtn" style="background:var(--in); margin-top:0;">📋 Copier dans le presse-papier</button>
+      
+      <div style="margin-bottom:12px;">
+        <label>💱 Devise monétaire</label>
+        <select id="currencySelect" style="margin-top:4px;">
+          <option value="FCFA">FCFA (Franc CFA)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="USD">USD ($)</option>
+        </select>
+      </div>
+
+      <div style="background:var(--bg); padding:10px; border-radius:10px; border:1px solid var(--line); margin-bottom:14px;">
+        <label style="margin-top:0; font-weight:700;">🧮 Convertisseur (vers FCFA)</label>
+        <div class="row2" style="margin-top:6px;">
+          <input id="convAmt" type="text" inputmode="decimal" placeholder="Montant">
+          <select id="convCurr"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option></select>
+        </div>
+        <div id="convResult" style="font-weight:700; color:var(--in); margin-top:6px; font-size:0.9rem;">Résultat : 0 FCFA</div>
+        <button id="calcConvBtn" style="background:var(--btn); color:var(--btn-t); border:0; border-radius:8px; padding:6px 10px; font-size:0.8rem; margin-top:6px; cursor:pointer;">Calculer</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="side-btn" id="openHelpPage" style="text-align:center;">💡 Aide & Règlement</button>
+        <button class="side-btn" id="openContactPage" style="text-align:center;">📞 Contact</button>
+        <button class="side-btn" id="openTermsPage" style="text-align:center;">📜 Conditions</button>
+        <button class="side-btn" id="openAboutPage" style="text-align:center;">ℹ️ À propos</button>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button id="closeSettingsBottom" style="flex:1; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">← Retour</button>
+        <button id="saveSettingsBtn" style="flex:1; background:var(--in); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">💾 Enregistrer</button>
+      </div>
     </div>
   </div>
 
 <main id="appMain" style="display:none;">
-  <header>
+  <header class="header-top">
     <div class="header-left">
-      <button id="openSidebarBtn" class="menu-hamburger-btn">☰</button>
-      <span id="userGreeting" style="font-weight:700; font-size:0.95rem;">Compte</span>
+      <button id="openSidebarBtn" class="menu-hamburger-btn" title="Ouvrir le menu">☰<span id="headerNotificationBadge" class="notification-badge" style="display:none;">0</span></button>
+      <span id="userGreeting" class="user-greeting-txt">Gestion Financière Pro</span>
     </div>
     <div class="header-right-controls">
-      <div style="display:flex; align-items:center; gap:4px;">
+      <div class="header-date-picker">
         <button id="prevMonth" class="mini-nav-btn">‹</button>
-        <span id="monthLabel" class="mini-month-title"></span>
+        <h1 id="monthLabel" class="mini-month-title" title="Cliquer pour changer de date"></h1>
         <button id="nextMonth" class="mini-nav-btn">›</button>
       </div>
       <button id="navSettingsTop" class="settings-top-btn" title="Paramètres">⚙️</button>
     </div>
   </header>
 
-  <!-- PAGE 1 : ACCUEIL -->
-  <div id="pageHome" class="app-page-content active">
-    <section>
+  <!-- 1. PAGE ACCUEIL -->
+  <div id="pageHome" class="app-page-content">
+    <section class="solde-container-clean">
       <div class="solde-main-box">
-        <span class="solde-title-label">Solde principal du mois</span>
+        <div class="solde-title-label">
+          <span id="soldeBoxTitle">Solde Principal Global</span>
+          <button id="toggleHideBalance" style="background:none; border:0; cursor:pointer; font-size:1rem;" title="Masquer / Afficher">👁️</button>
+        </div>
         <div class="solde-big-amount" id="solde">0 FCFA</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+          <div id="healthIndicator" style="font-size:0.8rem; font-weight:600; color:var(--in);">🟢 Stable</div>
+          <div id="syncStatusIndicator" style="font-size:0.72rem; font-weight:600; color:var(--in);">🟢 Synchro Appareil</div>
+        </div>
       </div>
       <div class="solde-details-grid">
-        <div class="detail-card expense-card">
-          <span class="detail-label">Dépenses</span>
-          <span class="detail-amount" id="tOut">0 FCFA</span>
-        </div>
-        <div class="detail-card income-card">
-          <span class="detail-label">Revenus</span>
-          <span class="detail-amount" id="tIn">0 FCFA</span>
-        </div>
+        <div class="detail-card expense-card"><span class="detail-label">Total Dépenses</span><span class="detail-amount" id="tOut">0 FCFA</span></div>
+        <div class="detail-card income-card"><span class="detail-label">Total Revenus</span><span class="detail-amount" id="tIn">0 FCFA</span></div>
       </div>
     </section>
 
-    <section>
-      <h2>Nouvelle opération</h2>
-      <div class="tog">
+    <section id="operationSection">
+      <h2>Saisie d'une opération</h2>
+      <div class="tog" role="group">
         <button id="bOut" aria-pressed="true">Dépense</button>
         <button id="bIn" aria-pressed="false">Revenu</button>
       </div>
       <div class="row2">
-        <div><label>Montant</label><input id="amt" type="number" placeholder="0"></div>
-        <div><label>Compte</label><select id="accountSelectOp"></select></div>
+        <div><label for="amt">Montant</label><input id="amt" type="text" inputmode="decimal" placeholder="0"></div>
+        <div><label for="accountSelectOp">Compte</label><select id="accountSelectOp"></select></div>
       </div>
-      <div class="quick-amounts">
-        <button class="quick-btn" type="button" onclick="addQuickAmt(500)">+500F</button>
-        <button class="quick-btn" type="button" onclick="addQuickAmt(1000)">+1 000F</button>
-        <button class="quick-btn" type="button" onclick="addQuickAmt(5000)">+5 000F</button>
-        <button class="quick-btn" type="button" onclick="addQuickAmt(10000)">+10 000F</button>
+      <div class="row2" style="margin-top:8px;">
+        <div><label for="cat">Catégorie</label><select id="cat"></select></div>
+        <div><label for="tagLocation">Lieu / Tag</label><input id="tagLocation" type="text" maxlength="30" placeholder="Ex: Ouagadougou"></div>
       </div>
-      <div><label>Catégorie</label><select id="cat"></select></div>
-      <div class="row2">
-        <div><label>Note</label><input id="note" type="text" placeholder="Ex: Marché"></div>
-        <div><label>Date</label><input id="opDate" type="date"></div>
-      </div>
+      <div style="margin-top:8px;"><label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60" placeholder="Ex: Détails"></div>
       <button class="go" id="add">Enregistrer</button>
     </section>
   </div>
 
-  <!-- PAGE 2 : COMPTES -->
-  <div id="pageAccounts" class="app-page-content">
+  <!-- 2. PAGE COMPTES & DETTES -->
+  <div id="pageAccounts" class="app-page-content" style="display:none;">
     <section>
       <h2>💳 Comptes & Portefeuilles</h2>
-      <div style="display:flex; gap:8px;">
-        <input id="newAccountName" type="text" placeholder="Nouveau compte..." style="margin:0;">
-        <button id="submitAddAccount" style="background:var(--primary); color:#fff; border:0; border-radius:10px; padding:0 14px; font-weight:700;">Créer</button>
+      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:14px; border:1px solid var(--line);">
+        <label for="newAccountName" style="margin-top:0;">Ajouter un portefeuille</label>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <input id="newAccountName" type="text" placeholder="Nom..." style="flex:1;">
+          <button id="submitAddAccount" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">Créer</button>
+        </div>
       </div>
-      <div id="accountsListDetailed" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+      <div id="accountsListDetailed" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </section>
+
+    <section>
+      <h2>🤝 Prêts & Dettes Séparés</h2>
+      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:14px; border:1px solid var(--line);">
+        <label style="margin-top:0; font-weight:700;">Type</label>
+        <select id="debtTypeSelect" style="margin-bottom:8px;">
+          <option value="lent">🟢 Prêt accordé (On me doit)</option>
+          <option value="borrowed">🔴 Dette contractée (Je dois)</option>
+        </select>
+        <div class="row2">
+          <div><label style="margin-top:0;">Nom et Prénom</label><input id="debtPerson" type="text" placeholder="Nom"></div>
+          <div><label style="margin-top:0;">Profession</label><input id="debtProfession" type="text" placeholder="Métier"></div>
+        </div>
+        <div class="row2" style="margin-top:8px;">
+          <div><label style="margin-top:0;">Montant total</label><input id="debtAmt" type="text" inputmode="decimal" placeholder="0"></div>
+          <div><label style="margin-top:0;">Échéance</label><input id="debtDueDate" type="date"></div>
+        </div>
+        <div style="margin-top:8px;"><label style="margin-top:0;">Motif</label><input id="debtNote" type="text" placeholder="Raison"></div>
+        <button class="go" id="addDebtBtn" style="margin-top:10px; background:var(--in);">Enregistrer</button>
+      </div>
+
+      <h3 style="font-size:0.95rem; margin:14px 0 8px; color:var(--in);">🟢 Mes Prêts</h3>
+      <div id="lentList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+
+      <h3 style="font-size:0.95rem; margin:14px 0 8px; color:var(--out);">🔴 Mes Dettes</h3>
+      <div id="borrowedList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </section>
   </div>
 
-  <!-- PAGE 3 : HISTORIQUE -->
-  <div id="pageOperations" class="app-page-content">
+  <!-- 3. PAGE HISTORIQUE -->
+  <div id="pageOperations" class="app-page-content" style="display:none;">
     <section>
-      <h2>Historique des Opérations</h2>
-      <div class="row2" style="margin-bottom:8px;">
-        <div><label>Filtrer par compte</label><select id="filterAccount"><option value="all">Tous les comptes</option></select></div>
-        <div><label>Recherche</label><input id="searchQuery" type="text" placeholder="🔍 Mot clé..."></div>
+      <h2>Historique</h2>
+      <div style="display:flex; gap:6px; margin-bottom:10px;">
+        <button class="filter-op-btn active" data-filter="all" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--in); color:#fff; font-weight:700; cursor:pointer; font-size:0.8rem;">Tout</button>
+        <button class="filter-op-btn" data-filter="out" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-weight:700; cursor:pointer; font-size:0.8rem;">Dépenses</button>
+        <button class="filter-op-btn" data-filter="in" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-weight:700; cursor:pointer; font-size:0.8rem;">Revenus</button>
       </div>
+      <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off" style="margin-bottom:12px;">
       <ul id="list"></ul>
     </section>
   </div>
 
-  <!-- PAGE 4 : ANALYSES -->
-  <div id="pageAnalytics" class="app-page-content">
+  <!-- 4. PAGE ANALYSES -->
+  <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <h2 style="margin:0;">📊 Analyses</h2>
-        <select id="chartMode" style="width:auto; margin:0; padding:4px 8px; font-size:0.85rem;">
-          <option value="month">Ce mois</option>
-          <option value="year">Vue Annuelle</option>
-        </select>
-      </div>
-      <div style="max-width: 280px; margin: 0 auto;"><canvas id="expenseChart"></canvas></div>
+      <h2>📊 Bilans & Comparatifs</h2>
+      <div id="timeframeStatsBox" style="background:var(--bg); padding:12px; border-radius:10px; border:1px solid var(--line); font-size:0.9rem; line-height:1.6; margin-bottom:14px;"></div>
+      <div style="position: relative; height: 220px; width: 100%; margin-bottom: 20px;"><canvas id="expenseChart"></canvas></div>
+      
+      <h2 style="margin-top:20px;">🏢 Dépenses par Profil (Ce mois)</h2>
+      <div style="position: relative; height: 220px; width: 100%;"><canvas id="profilesComparisonChart"></canvas></div>
     </section>
   </div>
 
-  <!-- BARRE DE NAVIGATION -->
-  <nav class="bottom-nav-bar">
+  <!-- 5. PAGE OBJECTIFS -->
+  <div id="pageGoals" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">🎯 Objectifs</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <div style="background:var(--bg); padding:14px; border-radius:12px; border:1px solid var(--line); margin-bottom:14px;">
+        <label style="margin-top:0;">Nouvel objectif</label>
+        <input id="goalTitle" type="text" placeholder="Titre" style="margin-bottom:6px;">
+        <input id="goalTargetAmt" type="text" inputmode="decimal" placeholder="Montant cible" style="margin-bottom:6px;">
+        <button class="go" id="addGoalBtn" style="background:var(--in); margin-top:0;">Créer</button>
+      </div>
+      <div id="goalsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </section>
+  </div>
+
+  <!-- RAPPORT DU MOIS & IMPRESSION PDF -->
+  <div id="pageReportView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">📄 Reçu & Rapport Financier</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <div id="fullReportContentBody" style="font-size:0.92rem; line-height:1.6; margin-bottom:16px; background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button class="go" id="btnPrintReportPage" style="background:var(--btn); color:var(--btn-t); margin-top:0;">🖨️ Imprimer / PDF</button>
+        <button class="go" id="btnCloseReportPage" style="background:var(--in); margin-top:0;">Accueil</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAGES DÉDIÉES -->
+  <div id="pageContactView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">📞 Contact</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <p style="font-size:0.9rem;">Email : razagwendezongo@gmail.com | WhatsApp : 77086889</p>
+    </section>
+  </div>
+
+  <div id="pageTermsView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">📜 Conditions</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <p style="font-size:0.9rem;">Sécurité locale totale garantie.</p>
+    </section>
+  </div>
+
+  <div id="pageAboutView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">ℹ️ À propos</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <p style="font-size:0.9rem;">Gestion Financière Pro (v17.2).</p>
+    </section>
+  </div>
+
+  <div id="pageHelpView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">💡 Aide</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <p style="font-size:0.9rem;">Gérez vos profils, église (dîme/offrande), entreprise (ventes/services) et prêts séparément.</p>
+    </section>
+  </div>
+
+  <nav class="bottom-nav-bar" id="mainBottomNav">
     <button class="bottom-nav-btn active" data-target="pageHome"><span class="nav-icon">🏠</span><span>Accueil</span></button>
     <button class="bottom-nav-btn" data-target="pageAccounts"><span class="nav-icon">💳</span><span>Comptes</span></button>
     <button class="bottom-nav-btn" data-target="pageOperations"><span class="nav-icon">💸</span><span>Opérations</span></button>
     <button class="bottom-nav-btn" data-target="pageAnalytics"><span class="nav-icon">📊</span><span>Analyses</span></button>
+    <button class="bottom-nav-btn" data-target="pageGoals"><span class="nav-icon">🎯</span><span>Objectifs</span></button>
   </nav>
 </main>
 
 <script>
-const USERS_KEY = "gestion_finances_users_db";
-const CATS = {
-  out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Loisirs","Autre"],
-  in: ["Salaire","Ventes","Prime","Cadeau","Autre"]
+const DEFAULT_ICONS = {
+  "Nourriture": "🛒", "Transport": "🚗", "Essence": "⛽", "Crédit téléphone": "📱", 
+  "Internet": "🌐", "Logement": "🏠", "Électricité": "⚡", "Eau": "💧", 
+  "Santé": "💊", "École": "📚", "Famille": "👨👩👧👦", "Vêtements": "👕", 
+  "Loisirs": "🎉", "Épargne": "💰", "Autre": "📦",
+  "Salaire": "💵", "Prime": "🎁", "Aide familiale": "🤲", "Cadeau": "🎁", "Autre revenu": "💼",
+  "Dîme": "⛪", "Offrande": "🙏", "Ventes": "📈", "Services": "⚙️"
 };
 
-let currentUser = localStorage.getItem("current_user");
+const DEFAULT_PROFILES_CATS = {
+  "Dépenses personnelles": {
+    out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Famille","Vêtements","Loisirs","Épargne","Autre"],
+    in: ["Salaire","Prime","Aide familiale","Cadeau","Autre revenu"]
+  },
+  "Famille": {
+    out: ["Alimentation","Scolarité","Santé","Factures maison","Loisirs famille","Autre"],
+    in: ["Revenus conjoints","Aide","Autre"]
+  },
+  "Église": {
+    out: ["Aide sociale","Entretien temple","Événements","Autre"],
+    in: ["Dîme", "Offrande", "Action de grâce", "Dons spéciaux", "Quêtes"]
+  },
+  "Entreprise": {
+    out: ["Loyer","Salaires","Fournitures","Transport","Autre"],
+    in: ["Ventes", "Services", "Commissions", "Apport", "Autre"]
+  },
+  "Éleveurs": {
+    out: ["Aliment bétail","Soins vétérinaires","Matériel","Transport","Autre"],
+    in: ["Vente animaux","Vente sous-produits","Autre"]
+  }
+};
+
+let currentUserKey = localStorage.getItem("current_user_key");
+const USERS_KEY = "gestion_financiere_pro_db_v1";
+
 const $ = id => document.getElementById(id);
-const today = () => new Date().toISOString().slice(0, 10);
+const pad = n => String(n).padStart(2, "0");
+const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
 
-let S = {
-  tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal' }], cur: "FCFA", theme: "light"
+let S = { 
+  tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }],
+  bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles"
 };
+
+let chartInstance = null;
+let profileChartInstance = null;
+let currentOpFilter = 'all';
+let hideBalanceActive = false;
+let month = today().slice(0, 7), type = "out";
+
+async function hashPassword(password) {
+  const msgBuffer = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 function loadUserData() {
-  if (!currentUser) return;
+  if (!currentUserKey) return;
   try {
     const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-    if (db[currentUser]) S = Object.assign(S, db[currentUser]);
+    if (db[currentUserKey]) { S = Object.assign(S, db[currentUserKey].data); }
   } catch (e) {}
 }
 
 function save() {
-  if (!currentUser) return;
+  if (!currentUserKey) return;
   try {
     const db = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-    db[currentUser] = S;
-    localStorage.setItem(USERS_KEY, JSON.stringify(db));
+    if (db[currentUserKey]) {
+      db[currentUserKey].data = S;
+      localStorage.setItem(USERS_KEY, JSON.stringify(db));
+    }
   } catch (e) {}
 }
 
-const money = n => Math.round(n).toLocaleString("fr-FR") + " " + S.cur;
-
-let month = today().slice(0, 7), type = "out", myChart = null;
-
-$("opDate").value = today();
-if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+const getIcon = c => DEFAULT_ICONS[c] || "📌";
+const money = n => hideBalanceActive ? "••••••" : (Math.round(n).toLocaleString("fr-FR") + " " + (S.cur || "FCFA"));
 
 function checkAuth() {
-  if (currentUser) {
+  if (currentUserKey) {
     loadUserData();
     $("authScreen").style.display = "none";
     $("appMain").style.display = "block";
-    $("userGreeting").textContent = currentUser;
+    const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+    const uInfo = usersDb[currentUserKey];
+    $("userGreeting").textContent = (uInfo && uInfo.prenom && uInfo.nom) ? `${uInfo.prenom} ${uInfo.nom}` : "Gestion Financière Pro";
+    renderProfilesSelect();
     setType("out");
+    checkDueReminders();
     render();
   } else {
     $("authScreen").style.display = "flex";
@@ -271,207 +570,582 @@ function checkAuth() {
   }
 }
 
-$("authSwitch").onclick = () => {
-  const title = $("authTitle");
-  if (title.textContent.includes("Connexion")) {
-    title.textContent = "Créer un compte";
-    $("authBtn").textContent = "S'inscrire";
-    $("authSwitch").textContent = "Déjà un compte ? Se connecter";
-  } else {
-    title.textContent = "Connexion / Inscription";
-    $("authBtn").textContent = "Se connecter";
-    $("authSwitch").textContent = "Créer un compte";
-  }
-};
+function showPage(pageId) {
+  document.querySelectorAll(".app-page-content").forEach(p => p.style.display = "none");
+  $(pageId).style.display = "block";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (pageId === 'pageAnalytics') { updateChart(); updateProfilesComparisonChart(); updateTimeframeStats(); }
+  if (pageId === 'pageGoals') renderGoals();
+}
 
-$("authBtn").onclick = () => {
-  let u = $("authUser").value.trim();
-  let p = $("authPass").value;
-  if (!u || !p) { $("authMsg").textContent = "Remplissez tous les champs"; return; }
-  currentUser = u;
-  localStorage.setItem("current_user", u);
-  $("authMsg").textContent = "";
-  checkAuth();
-};
+function showInfoModal(title, msg, icon = "✅") {
+  $("infoModalTitle").textContent = title;
+  $("infoModalMsg").textContent = msg;
+  $("infoModalIcon").textContent = icon;
+  $("infoModalScreen").style.display = "flex";
+}
+$("closeInfoModal").onclick = () => { $("infoModalScreen").style.display = "none"; };
 
-$("navLogout").onclick = () => {
-  localStorage.removeItem("current_user");
-  currentUser = null;
-  location.reload();
+window.onscroll = () => {
+  if (window.scrollY > 200) $("scrollTopBtn").style.display = "block";
+  else $("scrollTopBtn").style.display = "none";
 };
-
-window.addQuickAmt = (val) => {
-  let current = parseFloat($("amt").value) || 0;
-  $("amt").value = current + val;
-};
+$("scrollTopBtn").onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
 document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".bottom-nav-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".app-page-content").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
-    const target = btn.getAttribute("data-target");
-    $(target).classList.add("active");
-    if (target === "pageAnalytics") renderChart();
+    showPage(btn.getAttribute("data-target"));
   };
 });
 
-$("openSidebarBtn").onclick = () => $("sidebarOverlay").style.display = "flex";
-$("closeSidebar").onclick = () => $("sidebarOverlay").style.display = "none";
-$("sidebarOverlay").onclick = e => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
-$("navSettingsTop").onclick = () => $("sidebarOverlay").style.display = "flex";
+function checkDueReminders() {
+  const curDate = today();
+  let dueCount = 0;
+  if (S.bills) dueCount += S.bills.filter(b => b.due === curDate).length;
+  if (S.debts) dueCount += S.debts.filter(d => d.dueDate === curDate).length;
+
+  const menuBadge = $("menuNotificationBadge");
+  const headerBadge = $("headerNotificationBadge");
+  if (dueCount > 0) {
+    if (menuBadge) { menuBadge.textContent = dueCount; menuBadge.style.display = "inline-block"; }
+    if (headerBadge) { headerBadge.textContent = dueCount; headerBadge.style.display = "flex"; }
+  } else {
+    if (menuBadge) menuBadge.style.display = "none";
+    if (headerBadge) headerBadge.style.display = "none";
+  }
+}
+
+$("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
+$("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
+$("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
+
+$("navSettingsTop").onclick = () => {
+  $("currencySelect").value = S.cur || "FCFA";
+  $("settingsModal").style.display = "flex";
+};
+$("closeSettingsModal").onclick = $("closeSettingsBottom").onclick = () => { $("settingsModal").style.display = "none"; };
+
+$("saveSettingsBtn").onclick = () => {
+  S.cur = $("currencySelect").value;
+  save(); render(); $("settingsModal").style.display = "none";
+  showInfoModal("Paramètres", "Enregistré avec succès !");
+};
+
+$("calcConvBtn").onclick = () => {
+  const amt = parseFloat($("convAmt").value);
+  const curr = $("convCurr").value;
+  if (isNaN(amt) || amt <= 0) { alert("Montant invalide."); return; }
+  const rate = curr === 'EUR' ? 655.957 : 600;
+  const res = Math.round(amt * rate);
+  $("convResult").textContent = `Résultat : ${res.toLocaleString("fr-FR")} FCFA`;
+};
+
+$("monthLabel").onclick = () => {
+  $("customMonthInput").value = month;
+  $("dateModal").style.display = "flex";
+};
+$("closeDateModal").onclick = () => { $("dateModal").style.display = "none"; };
+$("applyDateModal").onclick = () => {
+  const val = $("customMonthInput").value;
+  if (val) { month = val; $("dateModal").style.display = "none"; render(); }
+};
+$("prevMonth").onclick = () => {
+  let [y, m] = month.split("-").map(Number);
+  m--; if (m < 1) { m = 12; y--; }
+  month = `${y}-${pad(m)}`;
+  render();
+};
+$("nextMonth").onclick = () => {
+  let [y, m] = month.split("-").map(Number);
+  m++; if (m > 12) { m = 1; y++; }
+  month = `${y}-${pad(m)}`;
+  render();
+};
+
+$("toggleHideBalance").onclick = () => {
+  hideBalanceActive = !hideBalanceActive;
+  render();
+};
+
+function getAllProfiles() {
+  const defaults = Object.keys(DEFAULT_PROFILES_CATS);
+  const customs = Object.keys(S.customProfiles || {});
+  return [...defaults, ...customs];
+}
+
+function renderProfilesSelect() {
+  const sel = $("profileSelect");
+  if (!sel) return;
+  const profiles = getAllProfiles();
+  sel.replaceChildren(...profiles.map(p => new Option(p, p)));
+  if (!profiles.includes(S.activeProfile)) S.activeProfile = profiles[0];
+  sel.value = S.activeProfile;
+}
+
+$("profileSelect").onchange = (e) => {
+  S.activeProfile = e.target.value;
+  save(); setType("out"); render();
+};
+
+$("openNewProfileModalBtn").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  $("newProfileInputName").value = "";
+  $("newProfileModal").style.display = "flex";
+};
+$("cancelNewProfileBtn").onclick = () => { $("newProfileModal").style.display = "none"; };
+$("confirmNewProfileBtn").onclick = () => {
+  const name = $("newProfileInputName").value.trim();
+  if (!name) { alert("Entrez un nom."); return; }
+  if (getAllProfiles().includes(name)) { alert("Ce profil existe déjà."); return; }
+  
+  if (!S.customProfiles) S.customProfiles = {};
+  S.customProfiles[name] = { out: ["Nourriture", "Transport", "Divers", "Autre"], in: ["Revenu", "Don", "Autre"] };
+  S.activeProfile = name;
+  save();
+  $("newProfileModal").style.display = "none";
+  renderProfilesSelect();
+  setType("out");
+  render();
+  showInfoModal("Profil", `Profil "${name}" créé avec son propre compte !`);
+};
+
+$("navBills").onclick = () => { $("sidebarOverlay").style.display = "none"; renderBills(); $("billsModal").style.display = "flex"; };
+$("closeBillsModal").onclick = () => { $("billsModal").style.display = "none"; };
+$("saveNewBillBtn").onclick = () => {
+  const client = $("billClientName").value.trim();
+  const amt = parseFloat($("billAmt").value);
+  const due = $("billDate").value;
+  if (!client || !(amt > 0) || !due) { alert("Remplissez tous les champs."); return; }
+  if (!S.bills) S.bills = [];
+  S.bills.push({ id: Date.now(), client, amt, due });
+  save();
+  $("billClientName").value = ""; $("billAmt").value = ""; $("billDate").value = "";
+  renderBills(); checkDueReminders();
+  showInfoModal("Échéance", "Échéance enregistrée !");
+};
+function renderBills() {
+  const box = $("billsList"); box.replaceChildren();
+  if (!S.bills || !S.bills.length) { box.innerHTML = '<div style="color:var(--mute);">Aucune échéance.</div>'; return; }
+  S.bills.forEach(b => {
+    const isToday = b.due === today();
+    const card = document.createElement("div");
+    card.style.cssText = `background:var(--bg); border:1px solid ${isToday?'var(--out)':'var(--line)'}; border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;`;
+    card.innerHTML = `<div><b>${b.client}</b><small style="color:${isToday?'var(--out)':'var(--mute)'};">${b.due} ${isToday?'(AUJOURD\'HUI !)':''}</small></div><div style="font-weight:700; color:var(--out);">${money(b.amt)}</div>`;
+    box.append(card);
+  });
+}
+
+$("openHelpPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageHelpView"); };
+$("openContactPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageContactView"); };
+$("openTermsPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageTermsView"); };
+$("openAboutPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageAboutView"); };
+
+document.querySelectorAll(".backToHomeBtn").forEach(b => { b.onclick = () => showPage("pageHome"); });
+$("menuOpenReportPage").onclick = () => { $("sidebarOverlay").style.display = "none"; buildReportPageContent(); showPage("pageReportView"); };
+
+$("menuDirectExcelExport").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  if (!S.tx.length) { alert("Aucune opération à exporter."); return; }
+  let csvContent = "\uFEFFID;Profil;Type;Montant;Categorie;Compte;Date;Note\r\n";
+  S.tx.forEach(t => {
+    csvContent += `${t.id};${t.profile || 'Dépenses personnelles'};${t.type};${t.amt};${t.cat};${t.accountId || ''};${t.date};"${t.note || ''}"\r\n`;
+  });
+  const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "gestion_financiere_pro_" + today() + ".csv");
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  showInfoModal("Export", "Export Excel réussi !");
+};
 
 $("navTheme").onclick = () => {
   S.theme = S.theme === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", S.theme);
   save(); $("sidebarOverlay").style.display = "none";
 };
+if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
 $("navResetMonth").onclick = () => {
-  if (confirm("Effacer les opérations de ce mois ?")) {
-    S.tx = S.tx.filter(t => !t.date.startsWith(month));
-    save(); render(); $("sidebarOverlay").style.display = "none";
-  }
-};
-
-$("navExportJson").onclick = () => {
-  let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(S));
-  let a = document.createElement('a'); a.href = dataStr; a.download = "sauvegarde_" + currentUser + ".json";
-  a.click(); $("sidebarOverlay").style.display = "none";
-};
-
-$("navReport").onclick = () => {
   $("sidebarOverlay").style.display = "none";
-  let monthTx = S.tx.filter(t => t.date.startsWith(month));
-  let o = monthTx.filter(t => t.type === 'out').reduce((s,t) => s + t.amt, 0);
-  let i = monthTx.filter(t => t.type === 'in').reduce((s,t) => s + t.amt, 0);
-  let text = `📊 *Rapport Financier - ${month}* (${currentUser})\n\n📥 Revenus : ${money(i)}\n📤 Dépenses : ${money(o)}\n💰 Solde : ${money(i - o)}`;
-  $("modalReportContent").textContent = text;
-  $("reportModal").style.display = "flex";
+  $("resetModalText").textContent = `Effacer les opérations de ${month} pour "${S.activeProfile}" ?`;
+  $("confirmResetModal").style.display = "flex";
 };
-$("closeReportModal").onclick = () => $("reportModal").style.display = "none";
-$("copyWhatsappBtn").onclick = () => {
-  navigator.clipboard.writeText($("modalReportContent").textContent);
-  alert("Rapport copié dans le presse-papier !");
-  $("reportModal").style.display = "none";
+$("cancelResetBtn").onclick = () => { $("confirmResetModal").style.display = "none"; };
+$("confirmResetBtn").onclick = () => {
+  S.tx = S.tx.filter(t => !(t.date.startsWith(month) && (t.profile || 'Dépenses personnelles') === S.activeProfile));
+  save(); render();
+  $("confirmResetModal").style.display = "none";
+  showInfoModal("Suppression", "Opérations du mois effacées.");
+};
+
+$("navLockScreen").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  currentUserKey = null;
+  localStorage.removeItem("current_user_key");
+  checkAuth();
+};
+$("navLogout").onclick = () => {
+  localStorage.removeItem("current_user_key");
+  currentUserKey = null;
+  location.reload();
+};
+
+$("tabLoginBtn").onclick = () => {
+  $("formLoginView").style.display = "flex"; $("formRegisterView").style.display = "none";
+  $("tabLoginBtn").style.background = "var(--card)"; $("tabLoginBtn").style.color = "var(--ink)";
+  $("tabRegisterBtn").style.background = "transparent"; $("tabRegisterBtn").style.color = "var(--mute)";
+  $("authCardTitle").textContent = "Connexion";
+  $("authMsg").textContent = "";
+};
+$("tabRegisterBtn").onclick = () => {
+  $("formRegisterView").style.display = "flex"; $("formLoginView").style.display = "none";
+  $("tabRegisterBtn").style.background = "var(--card)"; $("tabRegisterBtn").style.color = "var(--ink)";
+  $("tabLoginBtn").style.background = "transparent"; $("tabLoginBtn").style.color = "var(--mute)";
+  $("authCardTitle").textContent = "Inscription";
+  $("authMsg").textContent = "";
+};
+
+$("submitLoginBtn").onclick = async () => {
+  const nom = $("loginNom").value.trim().toLowerCase();
+  const prenom = $("loginPrenom").value.trim().toLowerCase();
+  const p = $("loginPass").value;
+  if (!nom || !prenom || !p) { $("authMsg").textContent = "Remplissez tous les champs."; return; }
+
+  const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+  let foundKey = null;
+  for (const [key, user] of Object.entries(usersDb)) {
+    if (user.nom.toLowerCase() === nom && user.prenom.toLowerCase() === prenom) { foundKey = key; break; }
+  }
+  if (!foundKey) { $("authMsg").textContent = "Utilisateur introuvable."; return; }
+
+  const hashed = await hashPassword(p);
+  if (usersDb[foundKey].passHash !== hashed) { $("authMsg").textContent = "Mot de passe incorrect."; return; }
+
+  currentUserKey = foundKey;
+  localStorage.setItem("current_user_key", foundKey);
+  checkAuth();
+};
+
+$("submitRegisterBtn").onclick = async () => {
+  const nom = $("regNom").value.trim();
+  const prenom = $("regPrenom").value.trim();
+  const email = $("regEmail").value.trim();
+  const p = $("regPass").value;
+  if (!nom || !prenom || !email || !p) { $("authMsg").textContent = "Remplissez tous les champs."; return; }
+
+  const hashed = await hashPassword(p);
+  const accountKey = nom.toLowerCase() + "_" + prenom.toLowerCase();
+  const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+
+  if (!usersDb[accountKey]) {
+    usersDb[accountKey] = {
+      nom, prenom, email, passHash: hashed,
+      data: { tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }], bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles" }
+    };
+    localStorage.setItem(USERS_KEY, JSON.stringify(usersDb));
+  }
+
+  currentUserKey = accountKey;
+  localStorage.setItem("current_user_key", accountKey);
+  checkAuth();
+};
+
+$("add").onclick = () => {
+  let rawVal = $("amt").value.trim().replace(/\s/g, "").replace(",", ".");
+  let amt = parseFloat(rawVal);
+  if (isNaN(amt) || !(amt > 0)) {
+    showInfoModal("Erreur", "Montant invalide.", "❌");
+    return;
+  }
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: today(), accountId: $("accountSelectOp").value, profile: S.activeProfile });
+  save(); $("amt").value = ""; $("note").value = "";
+  render();
+  showInfoModal("Succès", type === 'out' ? "Dépense enregistrée !" : "Revenu enregistré !");
 };
 
 function setType(t) {
   type = t;
   $("bOut").setAttribute("aria-pressed", t === "out");
   $("bIn").setAttribute("aria-pressed", t === "in");
-  $("cat").replaceChildren(...CATS[t].map(c => new Option(c, c)));
+  
+  let catsList;
+  if (DEFAULT_PROFILES_CATS[S.activeProfile]) {
+    catsList = DEFAULT_PROFILES_CATS[S.activeProfile][t];
+  } else if (S.customProfiles && S.customProfiles[S.activeProfile]) {
+    catsList = S.customProfiles[S.activeProfile][t];
+  } else {
+    catsList = ["Nourriture", "Autre"];
+  }
+  $("cat").replaceChildren(...catsList.map(c => new Option(getIcon(c) + " " + c, c)));
 }
 $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
 
-$("prevMonth").onclick = () => { let d = new Date(month + "-01"); d.setMonth(d.getMonth() - 1); month = d.toISOString().slice(0, 7); render(); };
-$("nextMonth").onclick = () => { let d = new Date(month + "-01"); d.setMonth(d.getMonth() + 1); month = d.toISOString().slice(0, 7); render(); };
+function renderAccountsList() {
+  const detailedBox = $("accountsListDetailed"), selectOp = $("accountSelectOp");
+  if (!detailedBox) return; detailedBox.replaceChildren(); selectOp.replaceChildren();
+  
+  S.accounts.forEach(acc => {
+    const card = document.createElement("div");
+    card.style.cssText = "background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;";
+    card.innerHTML = `<b>💳 ${acc.name}</b>`;
+    detailedBox.append(card);
+    selectOp.append(new Option(acc.name, acc.id));
+  });
+}
 
-$("add").onclick = () => {
-  let amt = parseFloat($("amt").value);
-  if (!(amt > 0)) { alert("Entrez un montant valide"); return; }
-  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value, date: $("opDate").value \vert{}\vert{} today(), accountId: $("accountSelectOp").value });
-  save(); $("amt").value = ""; $("note").value = "";
-  render(); alert("Opération enregistrée !");
+$("addGoalBtn").onclick = () => {
+  const title = $("goalTitle").value.trim();
+  const targetAmt = parseFloat($("goalTargetAmt").value);
+  if (!title || isNaN(targetAmt) || !(targetAmt > 0)) { alert("Entrez un titre et montant valide."); return; }
+  if (!S.goals) S.goals = [];
+  S.goals.push({ id: Date.now(), title, targetAmt, currentAmt: 0 });
+  save(); $("goalTitle").value = ""; $("goalTargetAmt").value = "";
+  renderGoals();
+  showInfoModal("Objectif", "Objectif créé !");
 };
 
-$("submitAddAccount").onclick = () => {
-  let name = $("newAccountName").value.trim();
-  if (!name) return;
-  S.accounts.push({ id: 'acc_' + Date.now(), name });
-  save(); $("newAccountName").value = ""; render();
+function renderGoals() {
+  const box = $("goalsList"); if (!box) return; box.replaceChildren();
+  if (!S.goals || !S.goals.length) { box.innerHTML = '<div style="color:var(--mute);">Aucun objectif.</div>'; return; }
+  S.goals.forEach(g => {
+    const pct = Math.min(Math.round((g.currentAmt / g.targetAmt) * 100), 100);
+    const card = document.createElement("div");
+    card.style.cssText = "background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;";
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <b>🎯 ${g.title}</b><span>${money(g.currentAmt)} / ${money(g.targetAmt)}</span>
+      </div>
+      <div style="background:var(--line); border-radius:4px; height:8px; overflow:hidden; margin-bottom:8px;">
+        <div style="width:${pct}%; background:var(--in); height:100%;"></div>
+      </div>
+      <button onclick="addGoalFund(${g.id})" style="background:var(--btn); color:var(--btn-t); border:0; border-radius:6px; padding:4px 8px; font-size:0.8rem; cursor:pointer;">+ Ajouter</button>
+    `;
+    box.append(card);
+  });
+}
+window.addGoalFund = id => {
+  const g = S.goals.find(x => x.id === id);
+  if (!g) return;
+  const amt = parseFloat(prompt(`Montant à ajouter pour "${g.title}" :`));
+  if (!isNaN(amt) && amt > 0) { g.currentAmt += amt; save(); renderGoals(); showInfoModal("Objectif", "Fonds ajoutés !"); }
 };
 
-$("searchQuery").oninput = render;
-$("filterAccount").onchange = render;
-$("chartMode").onchange = renderChart;
+$("addDebtBtn").onclick = () => {
+  const type = $("debtTypeSelect").value;
+  const person = $("debtPerson").value.trim();
+  const profession = $("debtProfession").value.trim();
+  const amt = parseFloat($("debtAmt").value);
+  const dueDate = $("debtDueDate").value;
+  const note = $("debtNote").value.trim();
+  
+  if (!person || !(amt > 0)) { alert("Remplissez le nom et le montant."); return; }
+  if (!S.debts) S.debts = [];
+  S.debts.push({
+    id: Date.now(), person, profession, totalAmt: amt, paidAmt: 0, type, dueDate, note,
+    history: [{ date: new Date().toLocaleString("fr-FR"), amt, action: type === 'lent' ? "Prêt" : "Dette" }]
+  });
+  save();
+  $("debtPerson").value = ""; $("debtProfession").value = ""; $("debtAmt").value = ""; $("debtDueDate").value = ""; $("debtNote").value = "";
+  renderDebts(); checkDueReminders();
+  showInfoModal("Prêts & Dettes", "Enregistré !");
+};
+
+function renderDebts() {
+  const lentBox = $("lentList"); const borrowedBox = $("borrowedList");
+  if (!lentBox || !borrowedBox) return;
+  lentBox.replaceChildren(); borrowedBox.replaceChildren();
+
+  const lents = (S.debts || []).filter(d => d.type === 'lent');
+  const borrowed = (S.debts || []).filter(d => d.type === 'borrowed');
+
+  if (!lents.length) lentBox.innerHTML = '<div style="color:var(--mute); font-size:0.8rem;">Aucun prêt.</div>';
+  if (!borrowed.length) borrowedBox.innerHTML = '<div style="color:var(--mute); font-size:0.8rem;">Aucune dette.</div>';
+
+  lents.forEach(d => {
+    const remaining = d.totalAmt - d.paidAmt;
+    const isToday = d.dueDate === today();
+    const card = document.createElement("div");
+    card.style.cssText = `background:var(--bg); border:1px solid ${isToday?'var(--out)':'var(--line)'}; border-radius:10px; padding:10px;`;
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <b>🟢 ${d.person} (${d.profession || 'N/A'})</b><span style="color:var(--in);">Reste : ${money(remaining)}</span>
+      </div>
+      <small style="color:${isToday?'var(--out)':'var(--mute)'};">Échéance : ${d.dueDate || 'Aucune'} ${isToday?'(AUJOURD\'HUI !)':''}</small><br>
+      <button onclick="payDebtPart(${d.id})" style="background:var(--in); color:#fff; border:0; border-radius:6px; padding:4px 8px; font-size:0.75rem; margin-top:4px; cursor:pointer;">Remboursement</button>
+    `;
+    lentBox.append(card);
+  });
+
+  borrowed.forEach(d => {
+    const remaining = d.totalAmt - d.paidAmt;
+    const isToday = d.dueDate === today();
+    const card = document.createElement("div");
+    card.style.cssText = `background:var(--bg); border:1px solid ${isToday?'var(--out)':'var(--line)'}; border-radius:10px; padding:10px;`;
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <b>🔴 ${d.person} (${d.profession || 'N/A'})</b><span style="color:var(--out);">Reste : ${money(remaining)}</span>
+      </div>
+      <small style="color:${isToday?'var(--out)':'var(--mute)'};">Échéance : ${d.dueDate || 'Aucune'} ${isToday?'(AUJOURD\'HUI !)':''}</small><br>
+      <button onclick="payDebtPart(${d.id})" style="background:var(--out); color:#fff; border:0; border-radius:6px; padding:4px 8px; font-size:0.75rem; margin-top:4px; cursor:pointer;">Règlement</button>
+    `;
+    borrowedBox.append(card);
+  });
+}
+
+window.payDebtPart = id => {
+  const d = S.debts.find(x => x.id === id);
+  if (!d) return;
+  const pAmt = parseFloat(prompt(`Versement pour ${d.person} :`));
+  if (!isNaN(pAmt) && pAmt > 0) {
+    d.paidAmt += pAmt;
+    d.history.push({ date: new Date().toLocaleString("fr-FR"), amt: pAmt, action: "Règlement" });
+    save(); renderDebts();
+    showInfoModal("Règlement", "Règlement enregistré !");
+  }
+};
+
+function updateTimeframeStats() {
+  const box = $("timeframeStatsBox"); if (!box) return;
+  const currDay = today(), currMonth = month, currYear = month.slice(0, 4);
+
+  const profileTx = S.tx.filter(t => (t.profile || 'Dépenses personnelles') === S.activeProfile);
+  const mProf = profileTx.filter(t => t.date.startsWith(currMonth));
+  const dAll = S.tx.filter(t => t.date === currDay);
+  const mAll = S.tx.filter(t => t.date.startsWith(currMonth));
+  const yAll = S.tx.filter(t => t.date.startsWith(currYear));
+
+  const calc = list => {
+    const inVal = list.filter(t => t.type === 'in').reduce((s, t) => s + t.amt, 0);
+    const outVal = list.filter(t => t.type === 'out').reduce((s, t) => s + t.amt, 0);
+    return { inVal, outVal, net: inVal - outVal };
+  };
+
+  const mp = calc(mProf), da = calc(dAll), ma = calc(mAll), ya = calc(yAll);
+
+  box.innerHTML = `
+    <b>📌 Profil [${S.activeProfile}] (${currMonth}) :</b><br>
+    • Revenus : ${money(mp.inVal)} | Dépenses : ${money(mp.outVal)} | Net : <b style="color:${mp.net>=0?'var(--in)':'var(--out)'}">${money(mp.net)}</b><br><br>
+    <b>🌐 Consolidé Global :</b><br>
+    • Jour (${currDay}) - Net : ${money(da.net)}<br>
+    • Mois (${currMonth}) - Net Global : <b style="color:${ma.net>=0?'var(--in)':'var(--out)'}">${money(ma.net)}</b><br>
+    • Année (${currYear}) - Net Annuel : <b>${money(ya.net)}</b>
+  `;
+}
+
+function updateChart() {
+  const ctx = $("expenseChart"); if (!ctx) return;
+  const monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out' && (t.profile || 'Dépenses personnelles') === S.activeProfile);
+  const catTotals = {};
+  monthTx.forEach(t => { catTotals[t.cat] = (catTotals[t.cat] || 0) + t.amt; });
+  const labels = Object.keys(catTotals), data = Object.values(catTotals);
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels: labels.length ? labels : ['Aucune'], datasets: [{ data: labels.length ? data : [1], backgroundColor: ['#c2412d', '#23805a', '#5f7a73', '#e67e22', '#3498db', '#9b59b6'] }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+  });
+}
+
+function updateProfilesComparisonChart() {
+  const ctx = $("profilesComparisonChart"); if (!ctx) return;
+  const profiles = getAllProfiles();
+  const profileExpenses = profiles.map(prof => {
+    return S.tx.filter(t => t.date.startsWith(month) && t.type === 'out' && (t.profile || 'Dépenses personnelles') === prof)
+               .reduce((s, t) => s + t.amt, 0);
+  });
+
+  if (profileChartInstance) profileChartInstance.destroy();
+  profileChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: profiles, datasets: [{ data: profileExpenses, backgroundColor: '#c2412d' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+function buildReportPageContent() {
+  const mTx = S.tx.filter(t => t.date.startsWith(month) && (t.profile || 'Dépenses personnelles') === S.activeProfile);
+  const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  const totalOut = sum("out"), totalIn = sum("in"), net = totalIn - totalOut;
+
+  const allMTx = S.tx.filter(t => t.date.startsWith(month));
+  const sumAll = k => allMTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  const globalOut = sumAll("out"), globalIn = sumAll("in"), globalNet = globalIn - globalOut;
+
+  $("fullReportContentBody").innerHTML = `
+    <h3 style="margin-top:0; border-bottom:2px solid var(--line); padding-bottom:6px;">🧾 GESTION FINANCIÈRE PRO</h3>
+    <p><b>📅 Période :</b> ${month} | <b>Profil :</b> ${S.activeProfile}</p>
+    <hr style="border:0; border-top:1px solid var(--line); margin:10px 0;">
+    <p>• Revenus du profil : <span style="color:var(--in); font-weight:700;">${money(totalIn)}</span></p>
+    <p>• Dépenses du profil : <span style="color:var(--out); font-weight:700;">${money(totalOut)}</span></p>
+    <p>• Solde du profil : <b>${money(net)}</b></p>
+    <hr style="border:0; border-top:1px solid var(--line); margin:10px 0;">
+    <p><b>🌐 BILAN GLOBAL CONSOLIDÉ :</b></p>
+    <p>• Global Revenus : ${money(globalIn)} | Global Dépenses : ${money(globalOut)}</p>
+    <p>• <b>Solde Principal Global :</b> <b>${money(globalNet)}</b></p>
+  `;
+}
+$("btnPrintReportPage").onclick = () => window.print();
+$("btnCloseReportPage").onclick = () => showPage("pageHome");
+
+document.querySelectorAll(".filter-op-btn").forEach(btn => {
+  btn.onclick = (e) => {
+    document.querySelectorAll(".filter-op-btn").forEach(b => { b.style.background = "var(--bg); b.style.color = "var(--ink)"; });
+    e.target.style.background = "var(--in)"; e.target.style.color = "#fff";
+    currentOpFilter = e.target.getAttribute("data-filter");
+    render();
+  };
+});
 
 function render() {
   $("monthLabel").textContent = month;
 
-  let selectOp = $("accountSelectOp"), filterAcc = $("filterAccount");
-  selectOp.replaceChildren(...S.accounts.map(acc => new Option(acc.name, acc.id)));
-  
-  let currentFilter = filterAcc.value;
-  filterAcc.replaceChildren(new Option("Tous les comptes", "all"), ...S.accounts.map(acc => new Option(acc.name, acc.id)));
-  filterAcc.value = currentFilter;
+  const profileTx = S.tx.filter(t => (t.profile || 'Dépenses personnelles') === S.activeProfile);
+  const monthProfileTx = profileTx.filter(t => t.date.startsWith(month));
+  const sumProf = k => monthProfileTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  const oProf = sumProf("out"), iProf = sumProf("in"), netProf = iProf - oProf;
 
-  $("accountsListDetailed").replaceChildren(...S.accounts.map(acc => {
-    let div = document.createElement("div");
-    div.style.cssText = "background:var(--bg); padding:10px; border-radius:8px; display:flex; justify-content:space-between;";
-    div.innerHTML = `<b>💳 ${acc.name}</b>`;
-    return div;
-  }));
+  $("soldeBoxTitle").textContent = `Solde Du Profil (${S.activeProfile})`;
+  $("tOut").textContent = money(oProf);
+  $("tIn").textContent = money(iProf);
+  $("solde").textContent = money(netProf);
 
-  let monthTx = S.tx.filter(t => t.date.startsWith(month));
-  let o = monthTx.filter(t => t.type === 'out').reduce((s,t) => s + t.amt, 0);
-  let i = monthTx.filter(t => t.type === 'in').reduce((s,t) => s + t.amt, 0);
-  let net = i - o;
+  renderAccountsList();
+  renderDebts();
 
-  $("tOut").textContent = money(o);
-  $("tIn").textContent = money(i);
-  let soldeEl = $("solde");
-  soldeEl.textContent = money(net);
-  soldeEl.classList.toggle("neg", net < 0);
+  const ul = $("list");
+  if (ul) {
+    ul.replaceChildren();
+    let filteredTx = monthProfileTx;
+    if (currentOpFilter !== 'all') filteredTx = monthProfileTx.filter(t => t.type === currentOpFilter);
 
-  let ul = $("list");
-  let query = $("searchQuery").value.toLowerCase();
-  let accFilter = filterAcc.value;
-
-  let filtered = monthTx.filter(t => {
-    let matchQuery = t.cat.toLowerCase().includes(query) || (t.note && t.note.toLowerCase().includes(query));
-    let matchAcc = (accFilter === "all" || t.accountId === accFilter);
-    return matchQuery && matchAcc;
-  });
-
-  ul.replaceChildren();
-  if (!filtered.length) {
-    ul.innerHTML = '<li style="text-align:center; color:var(--mute); padding:15px;">Aucune opération</li>';
-  } else {
-    filtered.forEach(t => {
-      let li = document.createElement("li");
-      li.innerHTML = `<div><b>${t.cat}</b><small>${t.date} ${t.note ? '· ' + t.note : ''}</small></div><div class="a ${t.type}">${t.type === 'out' ? '-' : '+'}${money(t.amt)}</div>`;
-      ul.append(li);
-    });
+    if (!filteredTx.length) { ul.innerHTML = '<li style="text-align:center; padding:15px; color:var(--mute);">Aucune opération ce mois-ci.</li>'; }
+    else {
+      filteredTx.forEach(t => {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat}</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a" style="color:${t.type==='out'?'var(--out)':'var(--in)'}">${t.type === 'out' ? '-' : '+'}${money(t.amt)}</div>`;
+        ul.append(li);
+      });
+    }
   }
-}
-
-function renderChart() {
-  let ctx = $("expenseChart").getContext('2d');
-  let mode = $("chartMode").value;
-  let labels = [], dataValues = [];
-
-  if (mode === "month") {
-    let monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
-    let totals = {};
-    monthTx.forEach(t => totals[t.cat] = (totals[t.cat] || 0) + t.amt);
-    labels = Object.keys(totals);
-    dataValues = Object.values(totals);
-  } else {
-    let year = month.slice(0, 4);
-    let yearTx = S.tx.filter(t => t.date.startsWith(year) && t.type === 'out');
-    let monthlyTotals = { "01": 0, "02": 0, "03": 0, "04": 0, "05": 0, "06": 0, "07": 0, "08": 0, "09": 0, "10": 0, "11": 0, "12": 0 };
-    yearTx.forEach(t => {
-      let mKey = t.date.slice(5, 7);
-      monthlyTotals[mKey] = (monthlyTotals[mKey] || 0) + t.amt;
-    });
-    labels = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
-    dataValues = Object.values(monthlyTotals);
-  }
-
-  if (myChart) myChart.destroy();
-  myChart = new Chart(ctx, {
-    type: mode === "month" ? 'doughnut' : 'bar',
-    data: {
-      labels: labels,
-      datasets: [{ data: dataValues, backgroundColor: ['#c2412d','#23805a','#3b82f6','#eab308','#a855f7','#ec4899','#10b981','#6366f1'] }]
-    },
-    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } }
-  });
 }
 
 checkAuth();
+
+// Enregistrement du Service Worker pour installation mobile PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log("Service Worker enregistré avec succès !"))
+      .catch((err) => console.log("Erreur Service Worker :", err));
+  });
+}
 </script>
 </body>
 </html>
