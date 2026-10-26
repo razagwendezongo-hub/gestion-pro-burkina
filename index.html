@@ -1096,7 +1096,7 @@ $("btnCloseReportPage").onclick = () => showPage("pageHome");
 
 document.querySelectorAll(".filter-op-btn").forEach(btn => {
   btn.onclick = (e) => {
-    document.querySelectorAll(".filter-op-btn").forEach(b => { b.style.background = "var(--bg); b.style.color = "var(--ink)"; });
+    document.querySelectorAll(".filter-op-btn").forEach(b => { b.style.background = "var(--bg)"; b.style.color = "var(--ink)"; });
     e.target.style.background = "var(--in)"; e.target.style.color = "#fff";
     currentOpFilter = e.target.getAttribute("data-filter");
     render();
