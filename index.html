@@ -63,14 +63,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .sidebar-menu-items { display: flex; flex-direction: column; gap: 10px; }
 .side-btn { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; text-align: left; font-weight: 600; cursor: pointer; color: var(--ink); }
 
-.solde-main-box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; }
+/* AJUSTEMENT FLUIDE DES COLONNES DE MONTANTS (AUCUN DÉBORDEMENT) */
+.solde-main-box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; overflow: hidden; }
 .solde-title-label { color: var(--mute); font-size: 0.9rem; display:flex; justify-content:space-between; align-items:center; }
-.solde-big-amount { font-size: 2.2rem; font-weight: 800; margin-top: 6px; color: var(--ink); }
+.solde-big-amount { font-size: clamp(1.5rem, 6vw, 2.2rem); font-weight: 800; margin-top: 6px; color: var(--ink); word-break: break-all; overflow-wrap: break-word; }
 
 .solde-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.detail-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; }
+.detail-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; overflow: hidden; }
 .detail-label { font-size: 0.85rem; color: var(--mute); margin-bottom: 4px; }
-.detail-amount { font-size: 1.25rem; font-weight: 700; }
+.detail-amount { font-size: clamp(1rem, 4vw, 1.25rem); font-weight: 700; word-break: break-all; overflow-wrap: break-word; }
 .expense-card .detail-amount { color: var(--out); }
 .income-card .detail-amount { color: var(--in); }
 
@@ -215,6 +216,9 @@ li .a { font-weight: 700; white-space: nowrap; }
           <select id="profileSelect" style="margin-top:4px; font-weight:bold; margin-bottom:8px;"></select>
           <button id="openNewProfileModalBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:6px; font-size:0.8rem; width:100%; font-weight:700; cursor:pointer;">+ Créer un nouveau profil</button>
         </div>
+
+        <!-- BOUTON D'INSTALLATION MOBILE PWA -->
+        <button class="side-btn" id="installPwaBtn" style="background:var(--in); color:#fff; display:none; text-align:center;">📱 Installer l'Application sur l'écran d'accueil</button>
 
         <button class="side-btn" id="navBills">🎯 Échéancier <span id="menuNotificationBadge" style="display:none; background:var(--out); color:#fff; border-radius:10px; padding:2px 6px; font-size:0.7rem; float:right;">0</span></button>
         <button class="side-btn" id="menuDirectExcelExport" style="background:var(--in); color:#fff;">📊 Exporter en Excel (.csv)</button>
@@ -422,44 +426,66 @@ li .a { font-weight: 700; white-space: nowrap; }
     </section>
   </div>
 
-  <!-- PAGES DÉDIÉES -->
+  <!-- PAGES DÉDIÉES ENRICHIES (VOCABULAIRE SOUTENU) -->
   <div id="pageContactView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">📞 Contact</h2>
+        <h2 style="margin:0;">📞 Contactez-nous</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem;">Email : razagwendezongo@gmail.com | WhatsApp : 77086889</p>
+      <p style="font-size:0.9rem; line-height:1.6;">Pour toute assistance technique, suggestion d'amélioration ou partenariat stratégique, veuillez adresser vos correspondances aux coordonnées officielles ci-dessous :</p>
+      <div style="background:var(--bg); padding:12px; border-radius:10px; border:1px solid var(--line); margin-top:10px; font-size:0.9rem;">
+        <p style="margin:4px 0;"><b>📧 Courrier électronique :</b> razagwendezongo@gmail.com</p>
+        <p style="margin:4px 0;"><b>📱 Canal Direct / WhatsApp :</b> +226 77 08 68 89</p>
+        <p style="margin:4px 0;"><b>📍 Siège opérationnel :</b> Ouagadougou, Burkina Faso</p>
+      </div>
     </section>
   </div>
 
   <div id="pageTermsView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">📜 Conditions</h2>
+        <h2 style="margin:0;">📜 Conditions d'Utilisation</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem;">Sécurité locale totale garantie.</p>
+      <p style="font-size:0.9rem; line-height:1.6;">En accédant à l'application <b>Gestion Financière Pro</b>, l'utilisateur consent sans réserve aux dispositions suivantes :</p>
+      <ul style="font-size:0.85rem; color:var(--mute); display:flex; flex-direction:column; gap:8px; margin-top:10px; padding-left:15px; list-style:disc;">
+        <li><b>Confidentialité intégrale :</b> L'ensemble des données financières, flux de trésorerie et profils sont stockés exclusivement dans la mémoire locale sécurisée de votre terminal (« localStorage »). Aucune transmission à des serveurs tiers n'est effectuée.</li>
+        <li><b>Responsabilité de l'utilisateur :</b> L'intégrité des informations saisies relève de la responsabilité exclusive de l'utilisateur. Il est fortement recommandé d'effectuer des exportations périodiques (au format CSV) afin d'archiver vos registres.</li>
+        <li><b>Propriété intellectuelle :</b> Tous les modules, interfaces et scripts constitutifs de cette application obéissent aux législations en vigueur sur la protection des œuvres logicielles.</li>
+      </ul>
     </section>
   </div>
 
   <div id="pageAboutView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">ℹ️ À propos</h2>
+        <h2 style="margin:0;">ℹ️ À Propos</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem;">Gestion Financière Pro (v17.2).</p>
+      <p style="font-size:0.9rem; line-height:1.6;"><b>Gestion Financière Pro (Édition Ultime v17.2)</b> est une solution logicielle innovante de pointe, conçue pour optimiser la comptabilité domestique, associative et entrepreneuriale.</p>
+      <p style="font-size:0.9rem; line-height:1.6;">Développée avec rigueur pour répondre aux exigences des utilisateurs en quête d'autonomie financière, cette application allie ergonomie moderne, rapidité d'exécution et sécurité cryptographique hors pair.</p>
     </section>
   </div>
 
   <div id="pageHelpView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">💡 Aide</h2>
+        <h2 style="margin:0;">💡 Aide & Règlement</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem;">Gérez vos profils, église (dîme/offrande), entreprise (ventes/services) et prêts séparément.</p>
+      <p style="font-size:0.9rem; line-height:1.6;">Ce guide méthodologique vous éclaire sur l'utilisation optimale de l'écosystème :</p>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px; font-size:0.88rem;">
+        <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--line);">
+          <b>1. Gestion Multi-Profils :</b> Basculez aisément entre vos différents secteurs d'activité (Dépenses personnelles, Entreprise, Église, Élevage, etc.) pour cloisonner rigoureusement vos finances.
+        </div>
+        <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--line);">
+          <b>2. Suivi des Prêts et Dettes :</b> Enregistrez minutieusement chaque créance ou dette contractée afin d'honorer vos échéances en toute quiétude grâce aux alertes intégrées.
+        </div>
+        <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--line);">
+          <b>3. Analyse Graphique :</b> Consultez les rapports mensuels et graphiques croisés pour identifier rapidement vos postes de dépenses prioritaires.
+        </div>
+      </div>
     </section>
   </div>
 
@@ -522,6 +548,15 @@ let profileChartInstance = null;
 let currentOpFilter = 'all';
 let hideBalanceActive = false;
 let month = today().slice(0, 7), type = "out";
+
+// Gestionnaire d'installation PWA
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = $("installPwaBtn");
+  if (btn) btn.style.display = "block";
+});
 
 async function hashPassword(password) {
   const msgBuffer = new TextEncoder().encode(password);
@@ -620,6 +655,20 @@ function checkDueReminders() {
 $("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
 $("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
 $("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
+
+// Clic sur le bouton d'installation PWA
+$("installPwaBtn").onclick = async () => {
+  if (!deferredPrompt) {
+    showInfoModal("Installation", "L'application est déjà installée ou votre navigateur ne supporte pas l'installation directe.", "ℹ️");
+    return;
+  }
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    $("installPwaBtn").style.display = "none";
+  }
+  deferredPrompt = null;
+};
 
 $("navSettingsTop").onclick = () => {
   $("currencySelect").value = S.cur || "FCFA";
@@ -1138,7 +1187,7 @@ function render() {
 
 checkAuth();
 
-// Enregistrement du Service Worker pour installation mobile PWA
+// Enregistrement du Service Worker pour PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
