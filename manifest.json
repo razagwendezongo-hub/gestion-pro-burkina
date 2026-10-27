@@ -1,15 +1,16 @@
 {
-  "name": "Gestion Financière Pro",
-  "short_name": "GestFin",
-  "start_url": "index.html",
+  "name": "Gestion Financière Pro - Édition Ultime",
+  "short_name": "Gestion Pro",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#eef3f0",
+  "background_color": "#14302b",
   "theme_color": "#14302b",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135706.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "icon-512.png",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
