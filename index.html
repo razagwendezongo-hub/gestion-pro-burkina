@@ -124,6 +124,7 @@ li .a { font-weight: 700; white-space: nowrap; }
 
       <h2 id="authCardTitle" style="margin-top:0; font-size: 1.2rem; margin-bottom: 16px; text-align: center;">Gestion Financière Pro</h2>
 
+      <!-- Formulaire de Connexion -->
       <div id="formLoginView" style="display: flex; flex-direction: column; gap: 12px;">
         <div><label for="loginNom">Nom</label><input id="loginNom" type="text" placeholder="Ex: Zongo"></div>
         <div><label for="loginPrenom">Prénom</label><input id="loginPrenom" type="text" placeholder="Ex: Alfred"></div>
@@ -131,12 +132,20 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button class="go" id="submitLoginBtn" style="margin-top: 8px; background: var(--in);">Se connecter</button>
       </div>
 
+      <!-- Formulaire d'Inscription (Étape 1 : Saisie Email & Infos) -->
       <div id="formRegisterView" style="display: none; flex-direction: column; gap: 10px;">
         <div><label for="regNom">Nom</label><input id="regNom" type="text" placeholder="Ex: Zongo"></div>
         <div><label for="regPrenom">Prénom</label><input id="regPrenom" type="text" placeholder="Ex: Alfred"></div>
         <div><label for="regEmail">Adresse Email</label><input id="regEmail" type="email" placeholder="mon@email.com"></div>
         <div><label for="regPass">Créer un mot de passe</label><input id="regPass" type="password" placeholder="••••••••"></div>
-        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">S'inscrire</button>
+        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">Recevoir le code de vérification</button>
+      </div>
+
+      <!-- Étape 2 : Saisie du Code de Vérification (Masqué par défaut) -->
+      <div id="formVerificationView" style="display: none; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <p style="font-size: 0.85rem; color: var(--mute); text-align: center; margin: 0;">Entrez le code à 6 chiffres envoyé à votre adresse e-mail :</p>
+        <div><label for="regCodeSaisi">Code de vérification</label><input id="regCodeSaisi" type="text" placeholder="Ex: 489123" maxlength="6"></div>
+        <button class="go" id="submitVerifyCodeBtn" style="margin-top: 6px; background: var(--in);">Valider le code et créer le compte</button>
       </div>
 
       <p id="authMsg" style="text-align:center; font-size:0.85rem; margin-top:14px; color:var(--out);"></p>
@@ -217,7 +226,6 @@ li .a { font-weight: 700; white-space: nowrap; }
           <button id="openNewProfileModalBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:6px; font-size:0.8rem; width:100%; font-weight:700; cursor:pointer;">+ Créer un nouveau profil</button>
         </div>
 
-        <!-- BOUTON D'INSTALLATION MOBILE PWA -->
         <button class="side-btn" id="installPwaBtn" style="background:var(--in); color:#fff; display:none; text-align:center;">📱 Installer l'Application sur l'écran d'accueil</button>
 
         <button class="side-btn" id="navBills">🎯 Échéancier <span id="menuNotificationBadge" style="display:none; background:var(--out); color:#fff; border-radius:10px; padding:2px 6px; font-size:0.7rem; float:right;">0</span></button>
@@ -426,7 +434,6 @@ li .a { font-weight: 700; white-space: nowrap; }
     </section>
   </div>
 
-  <!-- PAGES DÉDIÉES ENRICHIES (VOCABULAIRE SOUTENU) -->
   <div id="pageContactView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -450,9 +457,8 @@ li .a { font-weight: 700; white-space: nowrap; }
       </div>
       <p style="font-size:0.9rem; line-height:1.6;">En accédant à l'application <b>Gestion Financière Pro</b>, l'utilisateur consent sans réserve aux dispositions suivantes :</p>
       <ul style="font-size:0.85rem; color:var(--mute); display:flex; flex-direction:column; gap:8px; margin-top:10px; padding-left:15px; list-style:disc;">
-        <li><b>Confidentialité intégrale :</b> L'ensemble des données financières, flux de trésorerie et profils sont stockés exclusivement dans la mémoire locale sécurisée de votre terminal (« localStorage »). Aucune transmission à des serveurs tiers n'est effectuée.</li>
-        <li><b>Responsabilité de l'utilisateur :</b> L'intégrité des informations saisies relève de la responsabilité exclusive de l'utilisateur. Il est fortement recommandé d'effectuer des exportations périodiques (au format CSV) afin d'archiver vos registres.</li>
-        <li><b>Propriété intellectuelle :</b> Tous les modules, interfaces et scripts constitutifs de cette application obéissent aux législations en vigueur sur la protection des œuvres logicielles.</li>
+        <li><b>Confidentialité intégrale :</b> L'ensemble des données financières, flux de trésorerie et profils sont stockés exclusivement dans la mémoire locale sécurisée de votre terminal (« localStorage »).</li>
+        <li><b>Responsabilité de l'utilisateur :</b> L'intégrité des informations saisies relève de la responsabilité exclusive de l'utilisateur.</li>
       </ul>
     </section>
   </div>
@@ -463,8 +469,7 @@ li .a { font-weight: 700; white-space: nowrap; }
         <h2 style="margin:0;">ℹ️ À Propos</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem; line-height:1.6;"><b>Gestion Financière Pro (Édition Ultime v17.2)</b> est une solution logicielle innovante de pointe, conçue pour optimiser la comptabilité domestique, associative et entrepreneuriale.</p>
-      <p style="font-size:0.9rem; line-height:1.6;">Développée avec rigueur pour répondre aux exigences des utilisateurs en quête d'autonomie financière, cette application allie ergonomie moderne, rapidité d'exécution et sécurité cryptographique hors pair.</p>
+      <p style="font-size:0.9rem; line-height:1.6;"><b>Gestion Financière Pro (Édition Ultime v17.2)</b> est une solution logicielle innovante de pointe, conçue pour optimiser la comptabilité.</p>
     </section>
   </div>
 
@@ -474,18 +479,7 @@ li .a { font-weight: 700; white-space: nowrap; }
         <h2 style="margin:0;">💡 Aide & Règlement</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem; line-height:1.6;">Ce guide méthodologique vous éclaire sur l'utilisation optimale de l'écosystème :</p>
-      <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px; font-size:0.88rem;">
-        <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--line);">
-          <b>1. Gestion Multi-Profils :</b> Basculez aisément entre vos différents secteurs d'activité (Dépenses personnelles, Entreprise, Église, Élevage, etc.) pour cloisonner rigoureusement vos finances.
-        </div>
-        <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--line);">
-          <b>2. Suivi des Prêts et Dettes :</b> Enregistrez minutieusement chaque créance ou dette contractée afin d'honorer vos échéances en toute quiétude grâce aux alertes intégrées.
-        </div>
-        <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--line);">
-          <b>3. Analyse Graphique :</b> Consultez les rapports mensuels et graphiques croisés pour identifier rapidement vos postes de dépenses prioritaires.
-        </div>
-      </div>
+      <p style="font-size:0.9rem; line-height:1.6;">Ce guide méthodologique vous éclaire sur l'utilisation optimale de l'écosystème.</p>
     </section>
   </div>
 
@@ -497,6 +491,9 @@ li .a { font-weight: 700; white-space: nowrap; }
     <button class="bottom-nav-btn" data-target="pageGoals"><span class="nav-icon">🎯</span><span>Objectifs</span></button>
   </nav>
 </main>
+
+<!-- SDK officiel EmailJS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
 const DEFAULT_ICONS = {
@@ -548,6 +545,61 @@ let profileChartInstance = null;
 let currentOpFilter = 'all';
 let hideBalanceActive = false;
 let month = today().slice(0, 7), type = "out";
+
+// Données temporaires d'inscription en attente de validation du code
+let tempRegData = null;
+
+// ==========================================
+// CONFIGURATION ET FONCTIONS EMAILJS
+// ==========================================
+function genererCodeVerification() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+async function envoyerCodeVerificationEmail(emailDestinataire) {
+    const code = genererCodeVerification();
+    
+    // Stockage temporaire (valide 5 minutes)
+    localStorage.setItem('temp_verification_code', code);
+    localStorage.setItem('temp_verification_expire', Date.now() + 5 * 60 * 1000);
+
+    const parametresEmail = {
+        email: emailDestinataire, 
+        passcode: code,           
+        time: "5 minutes"
+    };
+
+    try {
+        await emailjs.send('service_fxs3mug', 'template_u56u5jz', parametresEmail, {
+            publicKey: 'jLxh0MKr4Ev3PCepR',
+        });
+        showInfoModal("E-mail envoyé", `Un code de vérification à 6 chiffres a été envoyé à ${emailDestinataire}.`);
+        return true;
+    } catch (error) {
+        console.error("Erreur lors de l'envoi de l'e-mail :", error);
+        showInfoModal("Erreur", "Impossible d'envoyer l'e-mail de vérification. Vérifiez votre connexion.", "❌");
+        return false;
+    }
+}
+
+function verifierCodeSaisi(codeUtilisateur) {
+    const codeStocke = localStorage.getItem('temp_verification_code');
+    const expiration = localStorage.getItem('temp_verification_expire');
+
+    if (!codeStocke || Date.now() > expiration) {
+        alert("Le code a expiré ou est invalide. Veuillez en demander un nouveau.");
+        return false;
+    }
+
+    if (codeUtilisateur === codeStocke) {
+        localStorage.removeItem('temp_verification_code');
+        localStorage.removeItem('temp_verification_expire');
+        return true;
+    } else {
+        alert("Code incorrect. Veuillez réessayer.");
+        return false;
+    }
+}
 
 // Gestionnaire d'installation PWA
 let deferredPrompt = null;
@@ -656,7 +708,6 @@ $("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"
 $("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
 $("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
 
-// Clic sur le bouton d'installation PWA
 $("installPwaBtn").onclick = async () => {
   if (!deferredPrompt) {
     showInfoModal("Installation", "L'application est déjà installée ou votre navigateur ne supporte pas l'installation directe.", "ℹ️");
@@ -664,9 +715,7 @@ $("installPwaBtn").onclick = async () => {
   }
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') {
-    $("installPwaBtn").style.display = "none";
-  }
+  if (outcome === 'accepted') { $("installPwaBtn").style.display = "none"; }
   deferredPrompt = null;
 };
 
@@ -845,14 +894,19 @@ $("navLogout").onclick = () => {
 };
 
 $("tabLoginBtn").onclick = () => {
-  $("formLoginView").style.display = "flex"; $("formRegisterView").style.display = "none";
+  $("formLoginView").style.display = "flex"; 
+  $("formRegisterView").style.display = "none";
+  $("formVerificationView").style.display = "none";
   $("tabLoginBtn").style.background = "var(--card)"; $("tabLoginBtn").style.color = "var(--ink)";
   $("tabRegisterBtn").style.background = "transparent"; $("tabRegisterBtn").style.color = "var(--mute)";
   $("authCardTitle").textContent = "Connexion";
   $("authMsg").textContent = "";
 };
+
 $("tabRegisterBtn").onclick = () => {
-  $("formRegisterView").style.display = "flex"; $("formLoginView").style.display = "none";
+  $("formRegisterView").style.display = "flex"; 
+  $("formLoginView").style.display = "none";
+  $("formVerificationView").style.display = "none";
   $("tabRegisterBtn").style.background = "var(--card)"; $("tabRegisterBtn").style.color = "var(--ink)";
   $("tabLoginBtn").style.background = "transparent"; $("tabLoginBtn").style.color = "var(--mute)";
   $("authCardTitle").textContent = "Inscription";
@@ -880,20 +934,65 @@ $("submitLoginBtn").onclick = async () => {
   checkAuth();
 };
 
+// ÉTAPE 1 : Validation des champs d'inscription et envoi du code par e-mail
 $("submitRegisterBtn").onclick = async () => {
   const nom = $("regNom").value.trim();
   const prenom = $("regPrenom").value.trim();
   const email = $("regEmail").value.trim();
   const p = $("regPass").value;
-  if (!nom || !prenom || !email || !p) { $("authMsg").textContent = "Remplissez tous les champs."; return; }
+  
+  if (!nom || !prenom || !email || !p) { 
+    $("authMsg").textContent = "Remplissez tous les champs."; 
+    return; 
+  }
 
-  const hashed = await hashPassword(p);
-  const accountKey = nom.toLowerCase() + "_" + prenom.toLowerCase();
+  // Sauvegarde temporaire des données d'inscription
+  tempRegData = { nom, prenom, email, pass: p };
+
+  $("authMsg").textContent = "Envoi du code en cours...";
+  const success = await envoyerCodeVerificationEmail(email);
+
+  if (success) {
+    $("authMsg").textContent = "";
+    // Masquer le formulaire d'inscription et afficher le champ de saisie du code
+    $("formRegisterView").style.display = "none";
+    $("formVerificationView").style.display = "flex";
+    $("authCardTitle").textContent = "Vérification de l'e-mail";
+  } else {
+    $("authMsg").textContent = "Échec de l'envoi du code.";
+  }
+};
+
+// ÉTAPE 2 : Validation du code à 6 chiffres saisi par l'utilisateur et création effective du compte
+$("submitVerifyCodeBtn").onclick = async () => {
+  const codeSaisi = $("regCodeSaisi").value.trim();
+  if (!codeSaisi || codeSaisi.length !== 6) {
+    $("authMsg").textContent = "Veuillez entrer un code valide à 6 chiffres.";
+    return;
+  }
+
+  const estValide = verifierCodeSaisi(codeSaisi);
+  if (!estValide) {
+    $("authMsg").textContent = "Code incorrect ou expiré.";
+    return;
+  }
+
+  if (!tempRegData) {
+    $("authMsg").textContent = "Erreur de session. Veuillez recommencer l'inscription.";
+    return;
+  }
+
+  // Création définitive du compte sécurisé
+  const hashed = await hashPassword(tempRegData.pass);
+  const accountKey = tempRegData.nom.toLowerCase() + "_" + tempRegData.prenom.toLowerCase();
   const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
 
   if (!usersDb[accountKey]) {
     usersDb[accountKey] = {
-      nom, prenom, email, passHash: hashed,
+      nom: tempRegData.nom, 
+      prenom: tempRegData.prenom, 
+      email: tempRegData.email, 
+      passHash: hashed,
       data: { tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }], bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles" }
     };
     localStorage.setItem(USERS_KEY, JSON.stringify(usersDb));
@@ -901,6 +1000,7 @@ $("submitRegisterBtn").onclick = async () => {
 
   currentUserKey = accountKey;
   localStorage.setItem("current_user_key", accountKey);
+  tempRegData = null;
   checkAuth();
 };
 
