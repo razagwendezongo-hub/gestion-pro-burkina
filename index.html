@@ -132,18 +132,18 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button class="go" id="submitLoginBtn" style="margin-top: 8px; background: var(--in);">Se connecter</button>
       </div>
 
-      <!-- Formulaire d'Inscription (Étape 1 : Saisie Email & Infos) -->
+      <!-- Formulaire d'Inscription (Étape 1 : Numéro WhatsApp) -->
       <div id="formRegisterView" style="display: none; flex-direction: column; gap: 10px;">
         <div><label for="regNom">Nom</label><input id="regNom" type="text" placeholder="Ex: Zongo"></div>
         <div><label for="regPrenom">Prénom</label><input id="regPrenom" type="text" placeholder="Ex: Alfred"></div>
-        <div><label for="regEmail">Adresse Email</label><input id="regEmail" type="email" placeholder="mon@email.com"></div>
+        <div><label for="regWhatsApp">Numéro WhatsApp</label><input id="regWhatsApp" type="tel" placeholder="+22677086889"></div>
         <div><label for="regPass">Créer un mot de passe</label><input id="regPass" type="password" placeholder="••••••••"></div>
-        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">Recevoir le code de vérification</button>
+        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">Recevoir le code par WhatsApp</button>
       </div>
 
       <!-- Étape 2 : Saisie du Code de Vérification (Masqué par défaut) -->
       <div id="formVerificationView" style="display: none; flex-direction: column; gap: 10px; margin-top: 10px;">
-        <p style="font-size: 0.85rem; color: var(--mute); text-align: center; margin: 0;">Entrez le code à 6 chiffres envoyé à votre adresse e-mail :</p>
+        <p style="font-size: 0.85rem; color: var(--mute); text-align: center; margin: 0;">Entrez le code à 6 chiffres reçu sur WhatsApp :</p>
         <div><label for="regCodeSaisi">Code de vérification</label><input id="regCodeSaisi" type="text" placeholder="Ex: 489123" maxlength="6"></div>
         <button class="go" id="submitVerifyCodeBtn" style="margin-top: 6px; background: var(--in);">Valider le code et créer le compte</button>
       </div>
@@ -492,9 +492,6 @@ li .a { font-weight: 700; white-space: nowrap; }
   </nav>
 </main>
 
-<!-- SDK officiel EmailJS -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
 <script>
 const DEFAULT_ICONS = {
   "Nourriture": "🛒", "Transport": "🚗", "Essence": "⛽", "Crédit téléphone": "📱", 
@@ -546,40 +543,37 @@ let currentOpFilter = 'all';
 let hideBalanceActive = false;
 let month = today().slice(0, 7), type = "out";
 
-// Données temporaires d'inscription en attente de validation du code
+// Données temporaires d'inscription en attente de validation du code WhatsApp
 let tempRegData = null;
 
 // ==========================================
-// CONFIGURATION ET FONCTIONS EMAILJS
+// FONCTIONS DE VÉRIFICATION VIA WHATSAPP
 // ==========================================
 function genererCodeVerification() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function envoyerCodeVerificationEmail(emailDestinataire) {
+function envoyerCodeVerificationWhatsApp(numeroDestinataire) {
     const code = genererCodeVerification();
     
     // Stockage temporaire (valide 5 minutes)
     localStorage.setItem('temp_verification_code', code);
     localStorage.setItem('temp_verification_expire', Date.now() + 5 * 60 * 1000);
 
-    const parametresEmail = {
-        email: emailDestinataire, 
-        passcode: code,           
-        time: "5 minutes"
-    };
-
-    try {
-        await emailjs.send('service_fxs3mug', 'template_u56u5jz', parametresEmail, {
-            publicKey: 'jLxh0MKr4Ev3PCepR',
-        });
-        showInfoModal("E-mail envoyé", `Un code de vérification à 6 chiffres a été envoyé à ${emailDestinataire}.`);
-        return true;
-    } catch (error) {
-        console.error("Erreur lors de l'envoi de l'e-mail :", error);
-        showInfoModal("Erreur", "Impossible d'envoyer l'e-mail de vérification. Vérifiez votre connexion.", "❌");
-        return false;
-    }
+    // Nettoyage du numéro (suppression des espaces, tirets, etc.)
+    const numeroPropre = numeroDestinataire.replace(/\D/g, '');
+    
+    // Message pré-rempli pour WhatsApp
+    const message = `Votre code de vérification pour Gestion Financière Pro est : *${code}*. (Valide 5 minutes)`;
+    
+    // Lien officiel de l'API WhatsApp (wa.me)
+    const urlWhatsApp = `https://wa.me/${numeroPropre}?text=${encodeURIComponent(message)}`;
+    
+    // Ouvrir WhatsApp dans un nouvel onglet
+    window.open(urlWhatsApp, '_blank');
+    
+    showInfoModal("WhatsApp", "WhatsApp va s'ouvrir pour vous envoyer votre code de vérification. Revenez ensuite valider le code ici.", "📱");
+    return true;
 }
 
 function verifierCodeSaisi(codeUtilisateur) {
@@ -934,36 +928,33 @@ $("submitLoginBtn").onclick = async () => {
   checkAuth();
 };
 
-// ÉTAPE 1 : Validation des champs d'inscription et envoi du code par e-mail
-$("submitRegisterBtn").onclick = async () => {
+// ÉTAPE 1 : Validation des champs d'inscription et ouverture de WhatsApp pour le code
+$("submitRegisterBtn").onclick = () => {
   const nom = $("regNom").value.trim();
   const prenom = $("regPrenom").value.trim();
-  const email = $("regEmail").value.trim();
+  const whatsapp = $("regWhatsApp").value.trim();
   const p = $("regPass").value;
   
-  if (!nom || !prenom || !email || !p) { 
+  if (!nom || !prenom || !whatsapp || !p) { 
     $("authMsg").textContent = "Remplissez tous les champs."; 
     return; 
   }
 
   // Sauvegarde temporaire des données d'inscription
-  tempRegData = { nom, prenom, email, pass: p };
+  tempRegData = { nom, prenom, whatsapp, pass: p };
 
-  $("authMsg").textContent = "Envoi du code en cours...";
-  const success = await envoyerCodeVerificationEmail(email);
+  $("authMsg").textContent = "";
+  const success = envoyerCodeVerificationWhatsApp(whatsapp);
 
   if (success) {
-    $("authMsg").textContent = "";
     // Masquer le formulaire d'inscription et afficher le champ de saisie du code
     $("formRegisterView").style.display = "none";
     $("formVerificationView").style.display = "flex";
-    $("authCardTitle").textContent = "Vérification de l'e-mail";
-  } else {
-    $("authMsg").textContent = "Échec de l'envoi du code.";
+    $("authCardTitle").textContent = "Vérification WhatsApp";
   }
 };
 
-// ÉTAPE 2 : Validation du code à 6 chiffres saisi par l'utilisateur et création effective du compte
+// ÉTAPE 2 : Validation du code à 6 chiffres et création définitive du compte
 $("submitVerifyCodeBtn").onclick = async () => {
   const codeSaisi = $("regCodeSaisi").value.trim();
   if (!codeSaisi || codeSaisi.length !== 6) {
@@ -991,7 +982,7 @@ $("submitVerifyCodeBtn").onclick = async () => {
     usersDb[accountKey] = {
       nom: tempRegData.nom, 
       prenom: tempRegData.prenom, 
-      email: tempRegData.email, 
+      whatsapp: tempRegData.whatsapp, 
       passHash: hashed,
       data: { tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }], bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles" }
     };
@@ -1245,7 +1236,7 @@ $("btnCloseReportPage").onclick = () => showPage("pageHome");
 
 document.querySelectorAll(".filter-op-btn").forEach(btn => {
   btn.onclick = (e) => {
-    document.querySelectorAll(".filter-op-btn").forEach(b => { b.style.background = "var(--bg)"; b.style.color = "var(--ink)"; });
+    document.querySelectorAll(".filter-op-btn").forEach(b => { b.style.background = "var(--bg); b.style.color = "var(--ink)"; });
     e.target.style.background = "var(--in)"; e.target.style.color = "#fff";
     currentOpFilter = e.target.getAttribute("data-filter");
     render();
