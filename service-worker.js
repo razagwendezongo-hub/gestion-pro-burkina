@@ -2,7 +2,6 @@ const CACHE_NAME = 'gestion-pro-v18-cache';
 const urlsToCache = [
   './index.html',
   './manifest.json',
-  './icon-512.png',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
@@ -37,10 +36,12 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Retourne la ressource du cache si elle existe, sinon va chercher sur le réseau
         if (response) {
           return response;
         }
         return fetch(event.request).catch(() => {
+          // Si le réseau échoue et que c'est une page HTML, retourne l'index principal
           if (event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
