@@ -3,21 +3,30 @@ function genererCodeVerification() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Envoi du code (par Email ou WhatsApp)
-function envoyerCodeVerification(destinataire, canal = 'email') {
+// Envoi d'un VRAI e-mail via EmailJS
+async function envoyerCodeVerificationEmail(emailDestinataire) {
     const code = genererCodeVerification();
     
     // Stockage temporaire (valide 5 minutes)
     localStorage.setItem('temp_verification_code', code);
     localStorage.setItem('temp_verification_expire', Date.now() + 5 * 60 * 1000);
 
-    if (canal === 'email') {
-        console.log(`Code Email pour ${destinataire} : ${code}`);
-        alert(`Un code de vérification a été envoyé à votre email : ${destinataire}\n(Code de test : ${code})`);
-    } else if (canal === 'whatsapp') {
-        const message = encodeURIComponent(`Votre code de vérification Gestion Financière Pro est : ${code}`);
-        const urlWhatsApp = `https://wa.me/${destinataire}?text=${message}`;
-        window.open(urlWhatsApp, '_blank');
+    const parametresEmail = {
+        email: emailDestinataire, // Correspond à l'e-mail du destinataire dans votre template
+        passcode: code,           // Correspond au code à 6 chiffres dans votre template
+        time: "5 minutes"
+    };
+
+    try {
+        await emailjs.send('service_fxs3mug', 'template_u56u5jz', parametresEmail, {
+            publicKey: 'jLxh0MKr4Ev3PCepR',
+        });
+        alert(`Un e-mail contenant votre code de vérification a été envoyé à ${emailDestinataire}. Vérifiez votre boîte de réception !`);
+        return true;
+    } catch (error) {
+        console.error("Erreur lors de l'envoi de l'e-mail :", error);
+        alert("Impossible d'envoyer l'e-mail de vérification. Veuillez réessayer.");
+        return false;
     }
 }
 
