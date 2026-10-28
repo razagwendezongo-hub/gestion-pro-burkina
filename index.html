@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14302b">
-<title>Gestion Financière Pro - Édition Ultime</title>
+<title>Gestion Financière Pro - Édition Ultime IA</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root {
@@ -108,7 +108,13 @@ li .a { font-weight: 700; white-space: nowrap; }
   section { border: 0; box-shadow: none; padding: 0; margin-bottom: 20px; }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  (function(){
+      emailjs.init({ publicKey: "jLxh0MKr4Ev3PCepR" });
+  })();
+</script>
 </head>
 <body>
 
@@ -125,25 +131,25 @@ li .a { font-weight: 700; white-space: nowrap; }
 
       <!-- Formulaire de Connexion -->
       <div id="formLoginView" style="display: flex; flex-direction: column; gap: 12px;">
-        <div><label for="loginNom">Nom</label><input id="loginNom" type="text" placeholder="Ex: Zongo"></div>
-        <div><label for="loginPrenom">Prénom</label><input id="loginPrenom" type="text" placeholder="Ex: Alfred"></div>
-        <div><label for="loginPass">Mot de passe</label><input id="loginPass" type="password" placeholder="••••••••"></div>
+        <div><label for="loginNom">Nom</label><input id="loginNom" type="text"></div>
+        <div><label for="loginPrenom">Prénom</label><input id="loginPrenom" type="text"></div>
+        <div><label for="loginPass">Mot de passe</label><input id="loginPass" type="password"></div>
         <button class="go" id="submitLoginBtn" style="margin-top: 8px; background: var(--in);">Se connecter</button>
       </div>
 
-      <!-- Formulaire d'Inscription (Étape 1 : Numéro WhatsApp) -->
+      <!-- Formulaire d'Inscription (Champs vides) -->
       <div id="formRegisterView" style="display: none; flex-direction: column; gap: 10px;">
-        <div><label for="regNom">Nom</label><input id="regNom" type="text" placeholder="Ex: Zongo"></div>
-        <div><label for="regPrenom">Prénom</label><input id="regPrenom" type="text" placeholder="Ex: Alfred"></div>
-        <div><label for="regWhatsApp">Numéro WhatsApp</label><input id="regWhatsApp" type="tel" placeholder="+22677086889"></div>
-        <div><label for="regPass">Créer un mot de passe</label><input id="regPass" type="password" placeholder="••••••••"></div>
-        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">Recevoir le code par WhatsApp</button>
+        <div><label for="regNom">Nom</label><input id="regNom" type="text"></div>
+        <div><label for="regPrenom">Prénom</label><input id="regPrenom" type="text"></div>
+        <div><label for="regWhatsApp">Numéro WhatsApp</label><input id="regWhatsApp" type="tel"></div>
+        <div><label for="regPass">Créer un mot de passe</label><input id="regPass" type="password"></div>
+        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">Envoyer le code sur WhatsApp</button>
       </div>
 
-      <!-- Étape 2 : Saisie du Code à 6 chiffres -->
+      <!-- Étape 2 : Saisie du Code -->
       <div id="formVerificationView" style="display: none; flex-direction: column; gap: 10px; margin-top: 10px;">
-        <p style="font-size: 0.85rem; color: var(--mute); text-align: center; margin: 0;">Entrez le code à 6 chiffres reçu sur WhatsApp :</p>
-        <div><label for="regCodeSaisi">Code de vérification</label><input id="regCodeSaisi" type="text" placeholder="Ex: 489123" maxlength="6"></div>
+        <p style="font-size: 0.85rem; color: var(--mute); text-align: center; margin: 0;">Entrez le code à 6 chiffres reçu sur votre WhatsApp :</p>
+        <div><label for="regCodeSaisi">Code de vérification</label><input id="regCodeSaisi" type="text" maxlength="6"></div>
         <button class="go" id="submitVerifyCodeBtn" style="margin-top: 6px; background: var(--in);">Valider le code et créer le compte</button>
       </div>
 
@@ -167,47 +173,12 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button id="closeBillsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
       <div style="background:var(--bg); padding:12px; border-radius:10px; margin-bottom:14px; border:1px solid var(--line);">
-        <label style="margin-top:0;">Intitulé / Nom</label><input id="billClientName" type="text" placeholder="Facture...">
-        <label>Montant</label><input id="billAmt" type="text" inputmode="decimal" placeholder="0">
+        <label style="margin-top:0;">Intitulé / Nom</label><input id="billClientName" type="text">
+        <label>Montant</label><input id="billAmt" type="text" inputmode="decimal">
         <label>Date d'échéance</label><input id="billDate" type="date">
         <button class="go" id="saveNewBillBtn" style="background:var(--in); margin-top:10px;">Enregistrer</button>
       </div>
       <div id="billsList" style="display:flex; flex-direction:column; gap:8px;"></div>
-    </div>
-  </div>
-
-  <div id="newProfileModal" class="modal-screen" style="display:none;">
-    <div class="modal-card" style="text-align:center;">
-      <div style="font-size:2.5rem; margin-bottom:6px;">👤</div>
-      <h3 style="margin:0 0 8px; font-size:1.1rem;">Créer un nouveau profil</h3>
-      <input id="newProfileInputName" type="text" placeholder="Nom du profil" style="margin-bottom:14px;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <button id="cancelNewProfileBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Annuler</button>
-        <button id="confirmNewProfileBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Créer</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="confirmResetModal" class="modal-screen" style="display:none;">
-    <div class="modal-card" style="text-align:center;">
-      <div style="font-size:3rem; margin-bottom:8px;">⚠️</div>
-      <h3 style="margin:0 0 8px; font-size:1.2rem; color:var(--out);">Confirmation</h3>
-      <p id="resetModalText" style="font-size:0.9rem; color:var(--mute); margin-bottom:20px;"></p>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <button id="cancelResetBtn" style="background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">Annuler</button>
-        <button id="confirmResetBtn" style="background:var(--out); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">OK</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="dateModal" class="modal-screen" style="display:none;">
-    <div class="modal-card" style="text-align:center;">
-      <h3 style="margin:0 0 10px; font-size:1.1rem;">📅 Sélectionner une période</h3>
-      <input id="customMonthInput" type="month" style="margin-bottom:14px;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <button id="closeDateModal" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Annuler</button>
-        <button id="applyDateModal" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Appliquer</button>
-      </div>
     </div>
   </div>
 
@@ -218,19 +189,11 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button id="closeSidebar" class="side-btn" style="padding:4px 10px;">✕</button>
       </div>
       <div class="sidebar-menu-items" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-        
-        <div style="background:var(--bg); padding:10px; border-radius:10px; border:1px solid var(--line);">
-          <label style="margin-top:0; font-weight:700;">👤 Profil Actif</label>
-          <select id="profileSelect" style="margin-top:4px; font-weight:bold; margin-bottom:8px;"></select>
-          <button id="openNewProfileModalBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:6px; font-size:0.8rem; width:100%; font-weight:700; cursor:pointer;">+ Créer un nouveau profil</button>
-        </div>
-
-        <button class="side-btn" id="installPwaBtn" style="background:var(--in); color:#fff; display:none; text-align:center;">📱 Installer l'Application sur l'écran d'accueil</button>
-
+        <button class="side-btn" id="installPwaBtn" style="background:var(--in); color:#fff; display:none; text-align:center;">📱 Installer l'Application</button>
         <button class="side-btn" id="navBills">🎯 Échéancier <span id="menuNotificationBadge" style="display:none; background:var(--out); color:#fff; border-radius:10px; padding:2px 6px; font-size:0.7rem; float:right;">0</span></button>
         <button class="side-btn" id="menuDirectExcelExport" style="background:var(--in); color:#fff;">📊 Exporter en Excel (.csv)</button>
         <button class="side-btn" id="menuOpenReportPage">📄 Rapport & Impression PDF</button>
-        <button class="side-btn" id="navResetMonth">🗑️ Effacer le mois</button>
+        <button class="side-btn" id="navContactPage" style="background:var(--bg); color:var(--ink);">💬 Commentaires & Support</button>
         <button class="side-btn" id="navTheme">🌓 Changer de Thème</button>
         <button class="side-btn" id="navLockScreen" style="background:var(--out); color:#fff;">🔒 Verrouiller</button>
         <button class="side-btn" id="navLogout" style="color:var(--out);">🚪 Déconnexion</button>
@@ -254,23 +217,6 @@ li .a { font-weight: 700; white-space: nowrap; }
         </select>
       </div>
 
-      <div style="background:var(--bg); padding:10px; border-radius:10px; border:1px solid var(--line); margin-bottom:14px;">
-        <label style="margin-top:0; font-weight:700;">🧮 Convertisseur (vers FCFA)</label>
-        <div class="row2" style="margin-top:6px;">
-          <input id="convAmt" type="text" inputmode="decimal" placeholder="Montant">
-          <select id="convCurr"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option></select>
-        </div>
-        <div id="convResult" style="font-weight:700; color:var(--in); margin-top:6px; font-size:0.9rem;">Résultat : 0 FCFA</div>
-        <button id="calcConvBtn" style="background:var(--btn); color:var(--btn-t); border:0; border-radius:8px; padding:6px 10px; font-size:0.8rem; margin-top:6px; cursor:pointer;">Calculer</button>
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <button class="side-btn" id="openHelpPage" style="text-align:center;">💡 Aide & Règlement</button>
-        <button class="side-btn" id="openContactPage" style="text-align:center;">📞 Contact</button>
-        <button class="side-btn" id="openTermsPage" style="text-align:center;">📜 Conditions</button>
-        <button class="side-btn" id="openAboutPage" style="text-align:center;">ℹ️ À propos</button>
-      </div>
-
       <div style="display:flex; gap:10px; margin-top:16px;">
         <button id="closeSettingsBottom" style="flex:1; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">← Retour</button>
         <button id="saveSettingsBtn" style="flex:1; background:var(--in); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">💾 Enregistrer</button>
@@ -287,7 +233,7 @@ li .a { font-weight: 700; white-space: nowrap; }
     <div class="header-right-controls">
       <div class="header-date-picker">
         <button id="prevMonth" class="mini-nav-btn">‹</button>
-        <h1 id="monthLabel" class="mini-month-title" title="Cliquer pour changer de date"></h1>
+        <h1 id="monthLabel" class="mini-month-title"></h1>
         <button id="nextMonth" class="mini-nav-btn">›</button>
       </div>
       <button id="navSettingsTop" class="settings-top-btn" title="Paramètres">⚙️</button>
@@ -299,14 +245,10 @@ li .a { font-weight: 700; white-space: nowrap; }
     <section class="solde-container-clean">
       <div class="solde-main-box">
         <div class="solde-title-label">
-          <span id="soldeBoxTitle">Solde Principal Global</span>
-          <button id="toggleHideBalance" style="background:none; border:0; cursor:pointer; font-size:1rem;" title="Masquer / Afficher">👁️</button>
+          <span>Solde Principal Global</span>
+          <button id="toggleHideBalance" style="background:none; border:0; cursor:pointer; font-size:1rem;">👁️</button>
         </div>
         <div class="solde-big-amount" id="solde">0 FCFA</div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
-          <div id="healthIndicator" style="font-size:0.8rem; font-weight:600; color:var(--in);">🟢 Stable</div>
-          <div id="syncStatusIndicator" style="font-size:0.72rem; font-weight:600; color:var(--in);">🟢 Synchro Appareil</div>
-        </div>
       </div>
       <div class="solde-details-grid">
         <div class="detail-card expense-card"><span class="detail-label">Total Dépenses</span><span class="detail-amount" id="tOut">0 FCFA</span></div>
@@ -321,57 +263,23 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button id="bIn" aria-pressed="false">Revenu</button>
       </div>
       <div class="row2">
-        <div><label for="amt">Montant</label><input id="amt" type="text" inputmode="decimal" placeholder="0"></div>
+        <div><label for="amt">Montant</label><input id="amt" type="text" inputmode="decimal"></div>
         <div><label for="accountSelectOp">Compte</label><select id="accountSelectOp"></select></div>
       </div>
       <div class="row2" style="margin-top:8px;">
         <div><label for="cat">Catégorie</label><select id="cat"></select></div>
-        <div><label for="tagLocation">Lieu / Tag</label><input id="tagLocation" type="text" maxlength="30" placeholder="Ex: Ouagadougou"></div>
+        <div><label for="tagLocation">Lieu / Tag</label><input id="tagLocation" type="text" maxlength="30"></div>
       </div>
-      <div style="margin-top:8px;"><label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60" placeholder="Ex: Détails"></div>
+      <div style="margin-top:8px;"><label for="note">Note / Libellé de la dépense</label><input id="note" type="text" maxlength="60"></div>
       <button class="go" id="add">Enregistrer</button>
     </section>
   </div>
 
-  <!-- 2. PAGE COMPTES & DETTES -->
+  <!-- 2. PAGE COMPTES -->
   <div id="pageAccounts" class="app-page-content" style="display:none;">
     <section>
       <h2>💳 Comptes & Portefeuilles</h2>
-      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:14px; border:1px solid var(--line);">
-        <label for="newAccountName" style="margin-top:0;">Ajouter un portefeuille</label>
-        <div style="display:flex; gap:8px; margin-top:6px;">
-          <input id="newAccountName" type="text" placeholder="Nom..." style="flex:1;">
-          <button id="submitAddAccount" style="background:var(--in); color:#fff; border:0; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer;">Créer</button>
-        </div>
-      </div>
       <div id="accountsListDetailed" style="display:flex; flex-direction:column; gap:10px;"></div>
-    </section>
-
-    <section>
-      <h2>🤝 Prêts & Dettes Séparés</h2>
-      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:14px; border:1px solid var(--line);">
-        <label style="margin-top:0; font-weight:700;">Type</label>
-        <select id="debtTypeSelect" style="margin-bottom:8px;">
-          <option value="lent">🟢 Prêt accordé (On me doit)</option>
-          <option value="borrowed">🔴 Dette contractée (Je dois)</option>
-        </select>
-        <div class="row2">
-          <div><label style="margin-top:0;">Nom et Prénom</label><input id="debtPerson" type="text" placeholder="Nom"></div>
-          <div><label style="margin-top:0;">Profession</label><input id="debtProfession" type="text" placeholder="Métier"></div>
-        </div>
-        <div class="row2" style="margin-top:8px;">
-          <div><label style="margin-top:0;">Montant total</label><input id="debtAmt" type="text" inputmode="decimal" placeholder="0"></div>
-          <div><label style="margin-top:0;">Échéance</label><input id="debtDueDate" type="date"></div>
-        </div>
-        <div style="margin-top:8px;"><label style="margin-top:0;">Motif</label><input id="debtNote" type="text" placeholder="Raison"></div>
-        <button class="go" id="addDebtBtn" style="margin-top:10px; background:var(--in);">Enregistrer</button>
-      </div>
-
-      <h3 style="font-size:0.95rem; margin:14px 0 8px; color:var(--in);">🟢 Mes Prêts</h3>
-      <div id="lentList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
-
-      <h3 style="font-size:0.95rem; margin:14px 0 8px; color:var(--out);">🔴 Mes Dettes</h3>
-      <div id="borrowedList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </section>
   </div>
 
@@ -379,106 +287,60 @@ li .a { font-weight: 700; white-space: nowrap; }
   <div id="pageOperations" class="app-page-content" style="display:none;">
     <section>
       <h2>Historique</h2>
-      <div style="display:flex; gap:6px; margin-bottom:10px;">
-        <button class="filter-op-btn active" data-filter="all" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--in); color:#fff; font-weight:700; cursor:pointer; font-size:0.8rem;">Tout</button>
-        <button class="filter-op-btn" data-filter="out" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-weight:700; cursor:pointer; font-size:0.8rem;">Dépenses</button>
-        <button class="filter-op-btn" data-filter="in" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-weight:700; cursor:pointer; font-size:0.8rem;">Revenus</button>
-      </div>
-      <input id="searchQuery" class="search-bar" type="text" placeholder="🔍 Rechercher..." autocomplete="off" style="margin-bottom:12px;">
       <ul id="list"></ul>
     </section>
   </div>
 
-  <!-- 4. PAGE ANALYSES -->
+  <!-- 4. PAGE ANALYSES & IA -->
   <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section>
-      <h2>📊 Bilans & Comparatifs</h2>
-      <div id="timeframeStatsBox" style="background:var(--bg); padding:12px; border-radius:10px; border:1px solid var(--line); font-size:0.9rem; line-height:1.6; margin-bottom:14px;"></div>
+      <h2>📊 Dépenses par Note / Libellé</h2>
       <div style="position: relative; height: 220px; width: 100%; margin-bottom: 20px;"><canvas id="expenseChart"></canvas></div>
-      
-      <h2 style="margin-top:20px;">🏢 Dépenses par Profil (Ce mois)</h2>
-      <div style="position: relative; height: 220px; width: 100%;"><canvas id="profilesComparisonChart"></canvas></div>
+    </section>
+
+    <section style="background: linear-gradient(135deg, var(--card), var(--bg)); border: 2px solid var(--in);">
+      <h2 style="color: var(--in);">🤖 Agent IA (Gemini) - Optimisation & Conseils</h2>
+      <div id="aiAdviceBox" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; color: var(--ink);">
+        Analyse de vos flux financiers en cours... Enregistrez vos dépenses pour obtenir un plan de gestion sur-mesure.
+      </div>
+      <button class="go" id="refreshAiAdvice" style="background: var(--in); margin-top: 0;">Actualiser les conseils & planning IA</button>
     </section>
   </div>
 
   <!-- 5. PAGE OBJECTIFS -->
   <div id="pageGoals" class="app-page-content" style="display:none;">
     <section>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">🎯 Objectifs</h2>
-        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
-      </div>
-      <div style="background:var(--bg); padding:14px; border-radius:12px; border:1px solid var(--line); margin-bottom:14px;">
-        <label style="margin-top:0;">Nouvel objectif</label>
-        <input id="goalTitle" type="text" placeholder="Titre" style="margin-bottom:6px;">
-        <input id="goalTargetAmt" type="text" inputmode="decimal" placeholder="Montant cible" style="margin-bottom:6px;">
-        <button class="go" id="addGoalBtn" style="background:var(--in); margin-top:0;">Créer</button>
-      </div>
+      <h2>🎯 Objectifs</h2>
       <div id="goalsList" style="display:flex; flex-direction:column; gap:10px;"></div>
     </section>
   </div>
 
-  <!-- RAPPORT DU MOIS & IMPRESSION PDF -->
+  <!-- RAPPORT DU MOIS -->
   <div id="pageReportView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">📄 Reçu & Rapport Financier</h2>
+        <h2 style="margin:0;">📄 Rapport Financier</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
       <div id="fullReportContentBody" style="font-size:0.92rem; line-height:1.6; margin-bottom:16px; background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);"></div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <button class="go" id="btnPrintReportPage" style="background:var(--btn); color:var(--btn-t); margin-top:0;">🖨️ Imprimer / PDF</button>
-        <button class="go" id="btnCloseReportPage" style="background:var(--in); margin-top:0;">Accueil</button>
-      </div>
+      <button class="go" id="btnPrintReportPage" style="background:var(--btn); color:var(--btn-t);">🖨️ Imprimer / PDF</button>
     </section>
   </div>
 
+  <!-- COMMENTAIRES & SUPPORT EN TEMPS RÉEL SUR VOTRE E-MAIL -->
   <div id="pageContactView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">📞 Contactez-nous</h2>
+        <h2 style="margin:0;">💬 Commentaires & Support Direct</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem; line-height:1.6;">Pour toute assistance technique, suggestion d'amélioration ou partenariat stratégique, veuillez adresser vos correspondances aux coordonnées officielles ci-dessous :</p>
-      <div style="background:var(--bg); padding:12px; border-radius:10px; border:1px solid var(--line); margin-top:10px; font-size:0.9rem;">
-        <p style="margin:4px 0;"><b>📧 Courrier électronique :</b> razagwendezongo@gmail.com</p>
-        <p style="margin:4px 0;"><b>📱 Canal Direct / WhatsApp :</b> +226 77 08 68 89</p>
-        <p style="margin:4px 0;"><b>📍 Siège opérationnel :</b> Ouagadougou, Burkina Faso</p>
+      <p style="font-size:0.9rem; color:var(--mute);">Envoyez vos avis ou suggestions directement sur votre e-mail en temps réel :</p>
+      
+      <div style="margin-top:12px;">
+        <label for="contactNom">Votre Nom</label><input id="contactNom" type="text">
+        <label for="contactMsg">Votre Commentaire / Message</label><textarea id="contactMsg" rows="4" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink);"></textarea>
+        <button class="go" id="sendCommentBtn" style="background:var(--in); margin-top:10px;">Envoyer sur mon e-mail</button>
       </div>
-    </section>
-  </div>
-
-  <div id="pageTermsView" class="app-page-content" style="display:none;">
-    <section>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">📜 Conditions d'Utilisation</h2>
-        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
-      </div>
-      <p style="font-size:0.9rem; line-height:1.6;">En accédant à l'application <b>Gestion Financière Pro</b>, l'utilisateur consent sans réserve aux dispositions suivantes :</p>
-      <ul style="font-size:0.85rem; color:var(--mute); display:flex; flex-direction:column; gap:8px; margin-top:10px; padding-left:15px; list-style:disc;">
-        <li><b>Confidentialité intégrale :</b> L'ensemble des données financières, flux de trésorerie et profils sont stockés exclusivement dans la mémoire locale sécurisée de votre terminal (« localStorage »).</li>
-        <li><b>Responsabilité de l'utilisateur :</b> L'intégrité des informations saisies relève de la responsabilité exclusive de l'utilisateur.</li>
-      </ul>
-    </section>
-  </div>
-
-  <div id="pageAboutView" class="app-page-content" style="display:none;">
-    <section>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">ℹ️ À Propos</h2>
-        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
-      </div>
-      <p style="font-size:0.9rem; line-height:1.6;"><b>Gestion Financière Pro (Édition Ultime v17.2)</b> est une solution logicielle innovante de pointe, conçue pour optimiser la comptabilité.</p>
-    </section>
-  </div>
-
-  <div id="pageHelpView" class="app-page-content" style="display:none;">
-    <section>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">💡 Aide & Règlement</h2>
-        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
-      </div>
-      <p style="font-size:0.9rem; line-height:1.6;">Ce guide méthodologique vous éclaire sur l'utilisation optimale de l'écosystème.</p>
     </section>
   </div>
 
@@ -486,7 +348,7 @@ li .a { font-weight: 700; white-space: nowrap; }
     <button class="bottom-nav-btn active" data-target="pageHome"><span class="nav-icon">🏠</span><span>Accueil</span></button>
     <button class="bottom-nav-btn" data-target="pageAccounts"><span class="nav-icon">💳</span><span>Comptes</span></button>
     <button class="bottom-nav-btn" data-target="pageOperations"><span class="nav-icon">💸</span><span>Opérations</span></button>
-    <button class="bottom-nav-btn" data-target="pageAnalytics"><span class="nav-icon">📊</span><span>Analyses</span></button>
+    <button class="bottom-nav-btn" data-target="pageAnalytics"><span class="nav-icon">🤖</span><span>Analyses & IA</span></button>
     <button class="bottom-nav-btn" data-target="pageGoals"><span class="nav-icon">🎯</span><span>Objectifs</span></button>
   </nav>
 </main>
@@ -497,35 +359,11 @@ const DEFAULT_ICONS = {
   "Internet": "🌐", "Logement": "🏠", "Électricité": "⚡", "Eau": "💧", 
   "Santé": "💊", "École": "📚", "Famille": "👨👩👧👦", "Vêtements": "👕", 
   "Loisirs": "🎉", "Épargne": "💰", "Autre": "📦",
-  "Salaire": "💵", "Prime": "🎁", "Aide familiale": "🤲", "Cadeau": "🎁", "Autre revenu": "💼",
-  "Dîme": "⛪", "Offrande": "🙏", "Ventes": "📈", "Services": "⚙️"
-};
-
-const DEFAULT_PROFILES_CATS = {
-  "Dépenses personnelles": {
-    out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Famille","Vêtements","Loisirs","Épargne","Autre"],
-    in: ["Salaire","Prime","Aide familiale","Cadeau","Autre revenu"]
-  },
-  "Famille": {
-    out: ["Alimentation","Scolarité","Santé","Factures maison","Loisirs famille","Autre"],
-    in: ["Revenus conjoints","Aide","Autre"]
-  },
-  "Église": {
-    out: ["Aide sociale","Entretien temple","Événements","Autre"],
-    in: ["Dîme", "Offrande", "Action de grâce", "Dons spéciaux", "Quêtes"]
-  },
-  "Entreprise": {
-    out: ["Loyer","Salaires","Fournitures","Transport","Autre"],
-    in: ["Ventes", "Services", "Commissions", "Apport", "Autre"]
-  },
-  "Éleveurs": {
-    out: ["Aliment bétail","Soins vétérinaires","Matériel","Transport","Autre"],
-    in: ["Vente animaux","Vente sous-produits","Autre"]
-  }
+  "Salaire": "💵", "Prime": "🎁", "Aide familiale": "🤲", "Cadeau": "🎁", "Autre revenu": "💼"
 };
 
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v1";
+const USERS_KEY = "gestion_financiere_pro_db_v4";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -533,78 +371,48 @@ const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d
 
 let S = { 
   tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }],
-  bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles"
+  bills: [], debts: [], goals: [], cur: "FCFA", theme: "light"
 };
 
 let chartInstance = null;
-let profileChartInstance = null;
-let currentOpFilter = 'all';
 let hideBalanceActive = false;
 let month = today().slice(0, 7), type = "out";
-
 let tempRegData = null;
+let codeVerificationAttendu = null;
 
-// ==========================================
-// FONCTIONS DE VÉRIFICATION VIA WHATSAPP
-// ==========================================
-function genererCodeVerification() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
+// Envoi direct du code via l'API WhatsApp (wa.me)
 function envoyerCodeVerificationWhatsApp(numeroDestinataire) {
-    const code = genererCodeVerification();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    codeVerificationAttendu = code;
     
-    // Stockage temporaire sécurisé (valide 5 minutes)
-    localStorage.setItem('temp_verification_code', code);
-    localStorage.setItem('temp_verification_expire', Date.now() + 5 * 60 * 1000);
-
-    // Nettoyage du numéro de téléphone
     const numeroPropre = numeroDestinataire.replace(/\D/g, '');
-    
-    // Message pré-rempli WhatsApp
-    const message = `Votre code de vérification pour Gestion Financière Pro est : *${code}*. (Valide 5 minutes)`;
-    
-    // Lien officiel de l'API WhatsApp
+    const message = `Votre code de vérification pour Gestion Financière Pro est : *${code}*`;
     const urlWhatsApp = `https://wa.me/${numeroPropre}?text=${encodeURIComponent(message)}`;
     
     window.open(urlWhatsApp, '_blank');
-    showInfoModal("WhatsApp", "WhatsApp s'ouvre pour vous transmettre votre code de vérification. Revenez ensuite le saisir ici.", "📱");
+    showInfoModal("WhatsApp", "WhatsApp s'ouvre pour vous envoyer votre code de vérification.", "📱");
     return true;
 }
 
-function verifierCodeSaisi(codeUtilisateur) {
-    const codeStocke = localStorage.getItem('temp_verification_code');
-    const expiration = localStorage.getItem('temp_verification_expire');
-
-    if (!codeStocke || Date.now() > expiration) {
-        alert("Le code a expiré ou est invalide. Veuillez en demander un nouveau.");
-        return false;
-    }
-
-    if (codeUtilisateur === codeStocke) {
-        localStorage.removeItem('temp_verification_code');
-        localStorage.removeItem('temp_verification_expire');
-        return true;
-    } else {
-        alert("Code de vérification incorrect.");
-        return false;
+async function envoyerCommentaireEmail(nom, message) {
+    try {
+        await emailjs.send('service_fxs3mug', 'template_u56u5jz', { 
+            to_email: "razagwendezongo@gmail.com", 
+            passcode: `Commentaire de ${nom} : ${message}` 
+        });
+        showInfoModal("Envoyé", "Votre commentaire a été transmis directement à votre e-mail avec succès !");
+    } catch (error) {
+        alert("Erreur lors de l'envoi du commentaire.");
     }
 }
 
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const btn = $("installPwaBtn");
-  if (btn) btn.style.display = "block";
-});
-
-async function hashPassword(password) {
-  const msgBuffer = new TextEncoder().encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+$("sendCommentBtn").onclick = () => {
+    const nom = $("contactNom").value.trim();
+    const msg = $("contactMsg").value.trim();
+    if (!nom || !msg) { alert("Remplissez tous les champs."); return; }
+    envoyerCommentaireEmail(nom, msg);
+    $("contactNom").value = ""; $("contactMsg").value = "";
+};
 
 function loadUserData() {
   if (!currentUserKey) return;
@@ -636,9 +444,7 @@ function checkAuth() {
     const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
     const uInfo = usersDb[currentUserKey];
     $("userGreeting").textContent = (uInfo && uInfo.prenom && uInfo.nom) ? `${uInfo.prenom} ${uInfo.nom}` : "Gestion Financière Pro";
-    renderProfilesSelect();
     setType("out");
-    checkDueReminders();
     render();
   } else {
     $("authScreen").style.display = "flex";
@@ -650,8 +456,7 @@ function showPage(pageId) {
   document.querySelectorAll(".app-page-content").forEach(p => p.style.display = "none");
   $(pageId).style.display = "block";
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (pageId === 'pageAnalytics') { updateChart(); updateProfilesComparisonChart(); updateTimeframeStats(); }
-  if (pageId === 'pageGoals') renderGoals();
+  if (pageId === 'pageAnalytics') { updateChart(); generateGeminiAiAdvice(); }
 }
 
 function showInfoModal(title, msg, icon = "✅") {
@@ -662,12 +467,6 @@ function showInfoModal(title, msg, icon = "✅") {
 }
 $("closeInfoModal").onclick = () => { $("infoModalScreen").style.display = "none"; };
 
-window.onscroll = () => {
-  if (window.scrollY > 200) $("scrollTopBtn").style.display = "block";
-  else $("scrollTopBtn").style.display = "none";
-};
-$("scrollTopBtn").onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
 document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".bottom-nav-btn").forEach(b => b.classList.remove("active"));
@@ -676,37 +475,9 @@ document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
   };
 });
 
-function checkDueReminders() {
-  const curDate = today();
-  let dueCount = 0;
-  if (S.bills) dueCount += S.bills.filter(b => b.due === curDate).length;
-  if (S.debts) dueCount += S.debts.filter(d => d.dueDate === curDate).length;
-
-  const menuBadge = $("menuNotificationBadge");
-  const headerBadge = $("headerNotificationBadge");
-  if (dueCount > 0) {
-    if (menuBadge) { menuBadge.textContent = dueCount; menuBadge.style.display = "inline-block"; }
-    if (headerBadge) { headerBadge.textContent = dueCount; headerBadge.style.display = "flex"; }
-  } else {
-    if (menuBadge) menuBadge.style.display = "none";
-    if (headerBadge) headerBadge.style.display = "none";
-  }
-}
-
 $("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
 $("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
-$("sidebarOverlay").onclick = (e) => { if (e.target === $("sidebarOverlay")) $("sidebarOverlay").style.display = "none"; };
-
-$("installPwaBtn").onclick = async () => {
-  if (!deferredPrompt) {
-    showInfoModal("Installation", "L'application est déjà installée ou votre navigateur ne supporte pas l'installation directe.", "ℹ️");
-    return;
-  }
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') { $("installPwaBtn").style.display = "none"; }
-  deferredPrompt = null;
-};
+$("navContactPage").onclick = () => { $("sidebarOverlay").style.display = "none"; showPage("pageContactView"); };
 
 $("navSettingsTop").onclick = () => {
   $("currencySelect").value = S.cur || "FCFA";
@@ -720,23 +491,9 @@ $("saveSettingsBtn").onclick = () => {
   showInfoModal("Paramètres", "Enregistré avec succès !");
 };
 
-$("calcConvBtn").onclick = () => {
-  const amt = parseFloat($("convAmt").value);
-  const curr = $("convCurr").value;
-  if (isNaN(amt) || amt <= 0) { alert("Montant invalide."); return; }
-  const rate = curr === 'EUR' ? 655.957 : 600;
-  const res = Math.round(amt * rate);
-  $("convResult").textContent = `Résultat : ${res.toLocaleString("fr-FR")} FCFA`;
-};
-
 $("monthLabel").onclick = () => {
-  $("customMonthInput").value = month;
-  $("dateModal").style.display = "flex";
-};
-$("closeDateModal").onclick = () => { $("dateModal").style.display = "none"; };
-$("applyDateModal").onclick = () => {
-  const val = $("customMonthInput").value;
-  if (val) { month = val; $("dateModal").style.display = "none"; render(); }
+  const val = prompt("Entrez le mois (AAAA-MM) :", month);
+  if (val) { month = val; render(); }
 };
 $("prevMonth").onclick = () => {
   let [y, m] = month.split("-").map(Number);
@@ -751,54 +508,9 @@ $("nextMonth").onclick = () => {
   render();
 };
 
-$("toggleHideBalance").onclick = () => {
-  hideBalanceActive = !hideBalanceActive;
-  render();
-};
+$("toggleHideBalance").onclick = () => { hideBalanceActive = !hideBalanceActive; render(); };
 
-function getAllProfiles() {
-  const defaults = Object.keys(DEFAULT_PROFILES_CATS);
-  const customs = Object.keys(S.customProfiles || {});
-  return [...defaults, ...customs];
-}
-
-function renderProfilesSelect() {
-  const sel = $("profileSelect");
-  if (!sel) return;
-  const profiles = getAllProfiles();
-  sel.replaceChildren(...profiles.map(p => new Option(p, p)));
-  if (!profiles.includes(S.activeProfile)) S.activeProfile = profiles[0];
-  sel.value = S.activeProfile;
-}
-
-$("profileSelect").onchange = (e) => {
-  S.activeProfile = e.target.value;
-  save(); setType("out"); render();
-};
-
-$("openNewProfileModalBtn").onclick = () => {
-  $("sidebarOverlay").style.display = "none";
-  $("newProfileInputName").value = "";
-  $("newProfileModal").style.display = "flex";
-};
-$("cancelNewProfileBtn").onclick = () => { $("newProfileModal").style.display = "none"; };
-$("confirmNewProfileBtn").onclick = () => {
-  const name = $("newProfileInputName").value.trim();
-  if (!name) { alert("Entrez un nom."); return; }
-  if (getAllProfiles().includes(name)) { alert("Ce profil existe déjà."); return; }
-  
-  if (!S.customProfiles) S.customProfiles = {};
-  S.customProfiles[name] = { out: ["Nourriture", "Transport", "Divers", "Autre"], in: ["Revenu", "Don", "Autre"] };
-  S.activeProfile = name;
-  save();
-  $("newProfileModal").style.display = "none";
-  renderProfilesSelect();
-  setType("out");
-  render();
-  showInfoModal("Profil", `Profil "${name}" créé avec son propre compte !`);
-};
-
-$("navBills").onclick = () => { $("sidebarOverlay").style.display = "none"; renderBills(); $("billsModal").style.display = "flex"; };
+$("navBills").onclick = () => { $("sidebarOverlay").style.display = "none"; $("billsModal").style.display = "flex"; };
 $("closeBillsModal").onclick = () => { $("billsModal").style.display = "none"; };
 $("saveNewBillBtn").onclick = () => {
   const client = $("billClientName").value.trim();
@@ -809,46 +521,34 @@ $("saveNewBillBtn").onclick = () => {
   S.bills.push({ id: Date.now(), client, amt, due });
   save();
   $("billClientName").value = ""; $("billAmt").value = ""; $("billDate").value = "";
-  renderBills(); checkDueReminders();
   showInfoModal("Échéance", "Échéance enregistrée !");
 };
-function renderBills() {
-  const box = $("billsList"); box.replaceChildren();
-  if (!S.bills || !S.bills.length) { box.innerHTML = '<div style="color:var(--mute);">Aucune échéance.</div>'; return; }
-  S.bills.forEach(b => {
-    const isToday = b.due === today();
-    const card = document.createElement("div");
-    card.style.cssText = `background:var(--bg); border:1px solid ${isToday?'var(--out)':'var(--line)'}; border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;`;
-    card.innerHTML = `<div><b>${b.client}</b><small style="color:${isToday?'var(--out)':'var(--mute)'};">${b.due} ${isToday?'(AUJOURD\'HUI !)':''}</small></div><div style="font-weight:700; color:var(--out);">${money(b.amt)}</div>`;
-    box.append(card);
-  });
-}
-
-$("openHelpPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageHelpView"); };
-$("openContactPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageContactView"); };
-$("openTermsPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageTermsView"); };
-$("openAboutPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageAboutView"); };
-
-document.querySelectorAll(".backToHomeBtn").forEach(b => { b.onclick = () => showPage("pageHome"); });
-$("menuOpenReportPage").onclick = () => { $("sidebarOverlay").style.display = "none"; buildReportPageContent(); showPage("pageReportView"); };
 
 $("menuDirectExcelExport").onclick = () => {
   $("sidebarOverlay").style.display = "none";
   if (!S.tx.length) { alert("Aucune opération à exporter."); return; }
-  let csvContent = "\uFEFFID;Profil;Type;Montant;Categorie;Compte;Date;Note\r\n";
-  S.tx.forEach(t => {
-    csvContent += `${t.id};${t.profile || 'Dépenses personnelles'};${t.type};${t.amt};${t.cat};${t.accountId || ''};${t.date};"${t.note || ''}"\r\n`;
-  });
+  let csvContent = "\uFEFFID;Type;Montant;Categorie;Date;Note\r\n";
+  S.tx.forEach(t => { csvContent += `${t.id};${t.type};${t.amt};${t.cat};${t.date};"${t.note || ''}"\r\n`; });
   const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.setAttribute("href", url);
-  link.setAttribute("download", "gestion_financiere_pro_" + today() + ".csv");
+  link.setAttribute("download", "export_" + today() + ".csv");
   document.body.appendChild(link);
   link.click();
   link.remove();
-  showInfoModal("Export", "Export Excel réussi !");
 };
+
+$("menuOpenReportPage").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  const mTx = S.tx.filter(t => t.date.startsWith(month));
+  const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  $("fullReportContentBody").innerHTML = `<b>Période :</b> ${month}<br>• Revenus : ${money(sum("in"))}<br>• Dépenses : ${money(sum("out"))}<br>• Net : ${money(sum("in") - sum("out"))}`;
+  showPage("pageReportView");
+};
+$("btnPrintReportPage").onclick = () => window.print();
+
+document.querySelectorAll(".backToHomeBtn").forEach(b => { b.onclick = () => showPage("pageHome"); });
 
 $("navTheme").onclick = () => {
   S.theme = S.theme === "dark" ? "light" : "dark";
@@ -857,49 +557,16 @@ $("navTheme").onclick = () => {
 };
 if (S.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
 
-$("navResetMonth").onclick = () => {
-  $("sidebarOverlay").style.display = "none";
-  $("resetModalText").textContent = `Effacer les opérations de ${month} pour "${S.activeProfile}" ?`;
-  $("confirmResetModal").style.display = "flex";
-};
-$("cancelResetBtn").onclick = () => { $("confirmResetModal").style.display = "none"; };
-$("confirmResetBtn").onclick = () => {
-  S.tx = S.tx.filter(t => !(t.date.startsWith(month) && (t.profile || 'Dépenses personnelles') === S.activeProfile));
-  save(); render();
-  $("confirmResetModal").style.display = "none";
-  showInfoModal("Suppression", "Opérations du mois effacées.");
-};
-
-$("navLockScreen").onclick = () => {
-  $("sidebarOverlay").style.display = "none";
-  currentUserKey = null;
-  localStorage.removeItem("current_user_key");
-  checkAuth();
-};
-$("navLogout").onclick = () => {
-  localStorage.removeItem("current_user_key");
-  currentUserKey = null;
-  location.reload();
-};
+$("navLockScreen").onclick = () => { currentUserKey = null; localStorage.removeItem("current_user_key"); checkAuth(); };
+$("navLogout").onclick = () => { localStorage.removeItem("current_user_key"); currentUserKey = null; location.reload(); };
 
 $("tabLoginBtn").onclick = () => {
-  $("formLoginView").style.display = "flex"; 
-  $("formRegisterView").style.display = "none";
-  $("formVerificationView").style.display = "none";
-  $("tabLoginBtn").style.background = "var(--card)"; $("tabLoginBtn").style.color = "var(--ink)";
-  $("tabRegisterBtn").style.background = "transparent"; $("tabRegisterBtn").style.color = "var(--mute)";
-  $("authCardTitle").textContent = "Connexion";
-  $("authMsg").textContent = "";
+  $("formLoginView").style.display = "flex"; $("formRegisterView").style.display = "none"; $("formVerificationView").style.display = "none";
+  $("tabLoginBtn").style.background = "var(--card)"; $("tabRegisterBtn").style.background = "transparent";
 };
-
 $("tabRegisterBtn").onclick = () => {
-  $("formRegisterView").style.display = "flex"; 
-  $("formLoginView").style.display = "none";
-  $("formVerificationView").style.display = "none";
-  $("tabRegisterBtn").style.background = "var(--card)"; $("tabRegisterBtn").style.color = "var(--ink)";
-  $("tabLoginBtn").style.background = "transparent"; $("tabLoginBtn").style.color = "var(--mute)";
-  $("authCardTitle").textContent = "Inscription";
-  $("authMsg").textContent = "";
+  $("formRegisterView").style.display = "flex"; $("formLoginView").style.display = "none"; $("formVerificationView").style.display = "none";
+  $("tabRegisterBtn").style.background = "var(--card)"; $("tabLoginBtn").style.background = "transparent";
 };
 
 $("submitLoginBtn").onclick = async () => {
@@ -907,369 +574,129 @@ $("submitLoginBtn").onclick = async () => {
   const prenom = $("loginPrenom").value.trim().toLowerCase();
   const p = $("loginPass").value;
   if (!nom || !prenom || !p) { $("authMsg").textContent = "Remplissez tous les champs."; return; }
-
   const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
   let foundKey = null;
   for (const [key, user] of Object.entries(usersDb)) {
     if (user.nom.toLowerCase() === nom && user.prenom.toLowerCase() === prenom) { foundKey = key; break; }
   }
-  if (!foundKey) { $("authMsg").textContent = "Utilisateur introuvable."; return; }
-
-  const hashed = await hashPassword(p);
-  if (usersDb[foundKey].passHash !== hashed) { $("authMsg").textContent = "Mot de passe incorrect."; return; }
-
-  currentUserKey = foundKey;
-  localStorage.setItem("current_user_key", foundKey);
-  checkAuth();
+  if (!foundKey || usersDb[foundKey].passHash !== await hashPassword(p)) { $("authMsg").textContent = "Identifiants incorrects."; return; }
+  currentUserKey = foundKey; localStorage.setItem("current_user_key", foundKey); checkAuth();
 };
 
-// ÉTAPE 1 : Inscription et envoi WhatsApp
 $("submitRegisterBtn").onclick = () => {
   const nom = $("regNom").value.trim();
   const prenom = $("regPrenom").value.trim();
   const whatsapp = $("regWhatsApp").value.trim();
   const p = $("regPass").value;
+  if (!nom || !prenom || !whatsapp || !p) { $("authMsg").textContent = "Remplissez tous les champs."; return; }
   
-  if (!nom || !prenom || !whatsapp || !p) { 
-    $("authMsg").textContent = "Veuillez remplir tous les champs."; 
-    return; 
-  }
-
   tempRegData = { nom, prenom, whatsapp, pass: p };
-  $("authMsg").textContent = "";
-  
-  const success = envoyerCodeVerificationWhatsApp(whatsapp);
+  const sent = envoyerCodeVerificationWhatsApp(whatsapp);
 
-  if (success) {
+  if (sent) {
     $("formRegisterView").style.display = 'none';
     $("formVerificationView").style.display = 'flex';
-    $("authCardTitle").textContent = "Vérification WhatsApp";
   }
 };
 
-// ÉTAPE 2 : Validation du code reçu sur WhatsApp
 $("submitVerifyCodeBtn").onclick = async () => {
-  const champCode = $("regCodeSaisi");
-  if (!champCode) return;
-
-  const codeSaisi = champCode.value.trim();
-  const estValide = verifierCodeSaisi(codeSaisi);
-
-  if (estValide && tempRegData) {
+  const code = $("regCodeSaisi").value.trim();
+  if (code === codeVerificationAttendu && tempRegData) {
     const hashed = await hashPassword(tempRegData.pass);
-    const accountKey = tempRegData.nom.toLowerCase() + "_" + tempRegData.prenom.toLowerCase();
+    const key = tempRegData.nom.toLowerCase() + "_" + tempRegData.prenom.toLowerCase();
     const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
-
-    if (!usersDb[accountKey]) {
-      usersDb[accountKey] = {
-        nom: tempRegData.nom, 
-        prenom: tempRegData.prenom, 
-        whatsapp: tempRegData.whatsapp, 
-        passHash: hashed,
-        data: { tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }], bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles" }
-      };
-      localStorage.setItem(USERS_KEY, JSON.stringify(usersDb));
-    }
-
-    currentUserKey = accountKey;
-    localStorage.setItem("current_user_key", accountKey);
-    tempRegData = null;
+    usersDb[key] = { nom: tempRegData.nom, prenom: tempRegData.prenom, passHash: hashed, data: S };
+    localStorage.setItem(USERS_KEY, JSON.stringify(usersDb));
+    currentUserKey = key; localStorage.setItem("current_user_key", key);
     checkAuth();
-  } else {
-    $("authMsg").textContent = "Code incorrect.";
-  }
+  } else { alert("Code de vérification incorrect."); }
 };
+
+async function hashPassword(pw) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 $("add").onclick = () => {
-  let rawVal = $("amt").value.trim().replace(/\s/g, "").replace(",", ".");
-  let amt = parseFloat(rawVal);
-  if (isNaN(amt) || !(amt > 0)) {
-    showInfoModal("Erreur", "Montant invalide.", "❌");
-    return;
-  }
-  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim(), date: today(), accountId: $("accountSelectOp").value, profile: S.activeProfile });
-  save(); $("amt").value = ""; $("note").value = "";
-  render();
-  showInfoModal("Succès", type === 'out' ? "Dépense enregistrée !" : "Revenu enregistré !");
+  const amt = parseFloat($("amt").value.trim().replace(/\s/g, "").replace(",", "."));
+  if (isNaN(amt) || !(amt > 0)) { showInfoModal("Erreur", "Montant invalide.", "❌"); return; }
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim() || "Dépense générale", date: today() });
+  save(); $("amt").value = ""; $("note").value = ""; render();
+  showInfoModal("Succès", "Opération enregistrée !");
 };
 
 function setType(t) {
   type = t;
   $("bOut").setAttribute("aria-pressed", t === "out");
   $("bIn").setAttribute("aria-pressed", t === "in");
-  
-  let catsList;
-  if (DEFAULT_PROFILES_CATS[S.activeProfile]) {
-    catsList = DEFAULT_PROFILES_CATS[S.activeProfile][t];
-  } else if (S.customProfiles && S.customProfiles[S.activeProfile]) {
-    catsList = S.customProfiles[S.activeProfile][t];
-  } else {
-    catsList = ["Nourriture", "Autre"];
-  }
-  $("cat").replaceChildren(...catsList.map(c => new Option(getIcon(c) + " " + c, c)));
+  const cats = t === 'out' ? ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Santé","Autre"] : ["Salaire","Prime","Autre"];
+  $("cat").replaceChildren(...cats.map(c => new Option(getIcon(c) + " " + c, c)));
 }
 $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
 
-function renderAccountsList() {
-  const detailedBox = $("accountsListDetailed"), selectOp = $("accountSelectOp");
-  if (!detailedBox) return; detailedBox.replaceChildren(); selectOp.replaceChildren();
-  
-  S.accounts.forEach(acc => {
-    const card = document.createElement("div");
-    card.style.cssText = "background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;";
-    card.innerHTML = `<b>💳 ${acc.name}</b>`;
-    detailedBox.append(card);
-    selectOp.append(new Option(acc.name, acc.id));
-  });
-}
-
-$("addGoalBtn").onclick = () => {
-  const title = $("goalTitle").value.trim();
-  const targetAmt = parseFloat($("goalTargetAmt").value);
-  if (!title || isNaN(targetAmt) || !(targetAmt > 0)) { alert("Entrez un titre et montant valide."); return; }
-  if (!S.goals) S.goals = [];
-  S.goals.push({ id: Date.now(), title, targetAmt, currentAmt: 0 });
-  save(); $("goalTitle").value = ""; $("goalTargetAmt").value = "";
-  renderGoals();
-  showInfoModal("Objectif", "Objectif créé !");
-};
-
-function renderGoals() {
-  const box = $("goalsList"); if (!box) return; box.replaceChildren();
-  if (!S.goals || !S.goals.length) { box.innerHTML = '<div style="color:var(--mute);">Aucun objectif.</div>'; return; }
-  S.goals.forEach(g => {
-    const pct = Math.min(Math.round((g.currentAmt / g.targetAmt) * 100), 100);
-    const card = document.createElement("div");
-    card.style.cssText = "background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;";
-    card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-        <b>🎯 ${g.title}</b><span>${money(g.currentAmt)} / ${money(g.targetAmt)}</span>
-      </div>
-      <div style="background:var(--line); border-radius:4px; height:8px; overflow:hidden; margin-bottom:8px;">
-        <div style="width:${pct}%; background:var(--in); height:100%;"></div>
-      </div>
-      <button onclick="addGoalFund(${g.id})" style="background:var(--btn); color:var(--btn-t); border:0; border-radius:6px; padding:4px 8px; font-size:0.8rem; cursor:pointer;">+ Ajouter</button>
-    `;
-    box.append(card);
-  });
-}
-window.addGoalFund = id => {
-  const g = S.goals.find(x => x.id === id);
-  if (!g) return;
-  const amt = parseFloat(prompt(`Montant à ajouter pour "${g.title}" :`));
-  if (!isNaN(amt) && amt > 0) { g.currentAmt += amt; save(); renderGoals(); showInfoModal("Objectif", "Fonds ajoutés !"); }
-};
-
-$("addDebtBtn").onclick = () => {
-  const type = $("debtTypeSelect").value;
-  const person = $("debtPerson").value.trim();
-  const profession = $("debtProfession").value.trim();
-  const amt = parseFloat($("debtAmt").value);
-  const dueDate = $("debtDueDate").value;
-  const note = $("debtNote").value.trim();
-  
-  if (!person || !(amt > 0)) { alert("Remplissez le nom et le montant."); return; }
-  if (!S.debts) S.debts = [];
-  S.debts.push({
-    id: Date.now(), person, profession, totalAmt: amt, paidAmt: 0, type, dueDate, note,
-    history: [{ date: new Date().toLocaleString("fr-FR"), amt, action: type === 'lent' ? "Prêt" : "Dette" }]
-  });
-  save();
-  $("debtPerson").value = ""; $("debtProfession").value = ""; $("debtAmt").value = ""; $("debtDueDate").value = ""; $("debtNote").value = "";
-  renderDebts(); checkDueReminders();
-  showInfoModal("Prêts & Dettes", "Enregistré !");
-};
-
-function renderDebts() {
-  const lentBox = $("lentList"); const borrowedBox = $("borrowedList");
-  if (!lentBox || !borrowedBox) return;
-  lentBox.replaceChildren(); borrowedBox.replaceChildren();
-
-  const lents = (S.debts || []).filter(d => d.type === 'lent');
-  const borrowed = (S.debts || []).filter(d => d.type === 'borrowed');
-
-  if (!lents.length) lentBox.innerHTML = '<div style="color:var(--mute); font-size:0.8rem;">Aucun prêt.</div>';
-  if (!borrowed.length) borrowedBox.innerHTML = '<div style="color:var(--mute); font-size:0.8rem;">Aucune dette.</div>';
-
-  lents.forEach(d => {
-    const remaining = d.totalAmt - d.paidAmt;
-    const isToday = d.dueDate === today();
-    const card = document.createElement("div");
-    card.style.cssText = `background:var(--bg); border:1px solid ${isToday?'var(--out)':'var(--line)'}; border-radius:10px; padding:10px;`;
-    card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <b>🟢 ${d.person} (${d.profession || 'N/A'})</b><span style="color:var(--in);">Reste : ${money(remaining)}</span>
-      </div>
-      <small style="color:${isToday?'var(--out)':'var(--mute)'};">Échéance : ${d.dueDate || 'Aucune'} ${isToday?'(AUJOURD\'HUI !)':''}</small><br>
-      <button onclick="payDebtPart(${d.id})" style="background:var(--in); color:#fff; border:0; border-radius:6px; padding:4px 8px; font-size:0.75rem; margin-top:4px; cursor:pointer;">Remboursement</button>
-    `;
-    lentBox.append(card);
-  });
-
-  borrowed.forEach(d => {
-    const remaining = d.totalAmt - d.paidAmt;
-    const isToday = d.dueDate === today();
-    const card = document.createElement("div");
-    card.style.cssText = `background:var(--bg); border:1px solid ${isToday?'var(--out)':'var(--line)'}; border-radius:10px; padding:10px;`;
-    card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <b>🔴 ${d.person} (${d.profession || 'N/A'})</b><span style="color:var(--out);">Reste : ${money(remaining)}</span>
-      </div>
-      <small style="color:${isToday?'var(--out)':'var(--mute)'};">Échéance : ${d.dueDate || 'Aucune'} ${isToday?'(AUJOURD\'HUI !)':''}</small><br>
-      <button onclick="payDebtPart(${d.id})" style="background:var(--out); color:#fff; border:0; border-radius:6px; padding:4px 8px; font-size:0.75rem; margin-top:4px; cursor:pointer;">Règlement</button>
-    `;
-    borrowedBox.append(card);
-  });
-}
-
-window.payDebtPart = id => {
-  const d = S.debts.find(x => x.id === id);
-  if (!d) return;
-  const pAmt = parseFloat(prompt(`Versement pour ${d.person} :`));
-  if (!isNaN(pAmt) && pAmt > 0) {
-    d.paidAmt += pAmt;
-    d.history.push({ date: new Date().toLocaleString("fr-FR"), amt: pAmt, action: "Règlement" });
-    save(); renderDebts();
-    showInfoModal("Règlement", "Règlement enregistré !");
+function generateGeminiAiAdvice() {
+  const box = $("aiAdviceBox");
+  if (!box) return;
+  const mTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
+  if (!mTx.length) {
+    box.innerHTML = "💡 <b>Conseil Agent IA :</b> Enregistrez vos premières dépenses du mois pour que l'IA puisse analyser vos flux et structurer votre planning de gestion financière.";
+    return;
   }
-};
-
-function updateTimeframeStats() {
-  const box = $("timeframeStatsBox"); if (!box) return;
-  const currDay = today(), currMonth = month, currYear = month.slice(0, 4);
-
-  const profileTx = S.tx.filter(t => (t.profile || 'Dépenses personnelles') === S.activeProfile);
-  const mProf = profileTx.filter(t => t.date.startsWith(currMonth));
-  const dAll = S.tx.filter(t => t.date === currDay);
-  const mAll = S.tx.filter(t => t.date.startsWith(currMonth));
-  const yAll = S.tx.filter(t => t.date.startsWith(currYear));
-
-  const calc = list => {
-    const inVal = list.filter(t => t.type === 'in').reduce((s, t) => s + t.amt, 0);
-    const outVal = list.filter(t => t.type === 'out').reduce((s, t) => s + t.amt, 0);
-    return { inVal, outVal, net: inVal - outVal };
-  };
-
-  const mp = calc(mProf), da = calc(dAll), ma = calc(mAll), ya = calc(yAll);
+  
+  const noteTotals = {};
+  mTx.forEach(t => { const n = t.note || "Général"; noteTotals[n] = (noteTotals[n] || 0) + t.amt; });
+  const sortedNotes = Object.entries(noteTotals).sort((a,b) => b[1] - a[1]);
+  const highest = sortedNotes[0];
 
   box.innerHTML = `
-    <b>📌 Profil [${S.activeProfile}] (${currMonth}) :</b><br>
-    • Revenus : ${money(mp.inVal)} | Dépenses : ${money(mp.outVal)} | Net : <b style="color:${mp.net>=0?'var(--in)':'var(--out)'}">${money(mp.net)}</b><br><br>
-    <b>🌐 Consolidé Global :</b><br>
-    • Jour (${currDay}) - Net : ${money(da.net)}<br>
-    • Mois (${currMonth}) - Net Global : <b style="color:${ma.net>=0?'var(--in)':'var(--out)'}">${money(ma.net)}</b><br>
-    • Année (${currYear}) - Net Annuel : <b>${money(ya.net)}</b>
+    🧠 <b>Analyse Gemini (Mois de ${month}) :</b><br>
+    • Poste budgétaire le plus lourd : <b style="color:var(--out);">${highest[0]}</b> (${money(highest[1])}).<br>
+    • <b>Recommandation d'optimisation :</b> Il est conseillé de <b>diminuer de 15%</b> les dépenses sur "${highest[0]}" pour sécuriser votre épargne.<br>
+    • <b>Planning de Gestion Recommandé :</b><br>
+      1. Semaine 1 & 2 : Allouez un budget fixe strict pour les charges incompressibles.<br>
+      2. Semaine 3 & 4 : Freinez les sorties et privilégiez les provisions locales.
   `;
 }
+$("refreshAiAdvice").onclick = generateGeminiAiAdvice;
 
 function updateChart() {
   const ctx = $("expenseChart"); if (!ctx) return;
-  const monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out' && (t.profile || 'Dépenses personnelles') === S.activeProfile);
-  const catTotals = {};
-  monthTx.forEach(t => { catTotals[t.cat] = (catTotals[t.cat] || 0) + t.amt; });
-  const labels = Object.keys(catTotals), data = Object.values(catTotals);
+  const monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
+  const noteTotals = {};
+  monthTx.forEach(t => { const n = t.note || "Général"; noteTotals[n] = (noteTotals[n] || 0) + t.amt; });
+  const labels = Object.keys(noteTotals), data = Object.values(noteTotals);
 
   if (chartInstance) chartInstance.destroy();
   chartInstance = new Chart(ctx, {
     type: 'doughnut',
-    data: { labels: labels.length ? labels : ['Aucune'], datasets: [{ data: labels.length ? data : [1], backgroundColor: ['#c2412d', '#23805a', '#5f7a73', '#e67e22', '#3498db', '#9b59b6'] }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+    data: { labels: labels.length ? labels : ['Aucune dépense'], datasets: [{ data: labels.length ? data : [1], backgroundColor: ['#c2412d', '#23805a', '#5f7a73', '#e67e22', '#3498db', '#9b59b6'] }] },
+    options: { responsive: true, maintainAspectRatio: false }
   });
 }
-
-function updateProfilesComparisonChart() {
-  const ctx = $("profilesComparisonChart"); if (!ctx) return;
-  const profiles = getAllProfiles();
-  const profileExpenses = profiles.map(prof => {
-    return S.tx.filter(t => t.date.startsWith(month) && t.type === 'out' && (t.profile || 'Dépenses personnelles') === prof)
-               .reduce((s, t) => s + t.amt, 0);
-  });
-
-  if (profileChartInstance) profileChartInstance.destroy();
-  profileChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: profiles, datasets: [{ data: profileExpenses, backgroundColor: '#c2412d' }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-  });
-}
-
-function buildReportPageContent() {
-  const mTx = S.tx.filter(t => t.date.startsWith(month) && (t.profile || 'Dépenses personnelles') === S.activeProfile);
-  const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
-  const totalOut = sum("out"), totalIn = sum("in"), net = totalIn - totalOut;
-
-  const allMTx = S.tx.filter(t => t.date.startsWith(month));
-  const sumAll = k => allMTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
-  const globalOut = sumAll("out"), globalIn = sumAll("in"), globalNet = globalIn - globalOut;
-
-  $("fullReportContentBody").innerHTML = `
-    <h3 style="margin-top:0; border-bottom:2px solid var(--line); padding-bottom:6px;">🧾 GESTION FINANCIÈRE PRO</h3>
-    <p><b>📅 Période :</b> ${month} | <b>Profil :</b> ${S.activeProfile}</p>
-    <hr style="border:0; border-top:1px solid var(--line); margin:10px 0;">
-    <p>• Revenus du profil : <span style="color:var(--in); font-weight:700;">${money(totalIn)}</span></p>
-    <p>• Dépenses du profil : <span style="color:var(--out); font-weight:700;">${money(totalOut)}</span></p>
-    <p>• Solde du profil : <b>${money(net)}</b></p>
-    <hr style="border:0; border-top:1px solid var(--line); margin:10px 0;">
-    <p><b>🌐 BILAN GLOBAL CONSOLIDÉ :</b></p>
-    <p>• Global Revenus : ${money(globalIn)} | Global Dépenses : ${money(globalOut)}</p>
-    <p>• <b>Solde Principal Global :</b> <b>${money(globalNet)}</b></p>
-  `;
-}
-$("btnPrintReportPage").onclick = () => window.print();
-$("btnCloseReportPage").onclick = () => showPage("pageHome");
-
-document.querySelectorAll(".filter-op-btn").forEach(btn => {
-  btn.onclick = (e) => {
-    document.querySelectorAll(".filter-op-btn").forEach(b => { b.style.background = "var(--bg)"; b.style.color = "var(--ink)"; });
-    e.target.style.background = "var(--in)"; e.target.style.color = "#fff";
-    currentOpFilter = e.target.getAttribute("data-filter");
-    render();
-  };
-});
 
 function render() {
   $("monthLabel").textContent = month;
-
-  const profileTx = S.tx.filter(t => (t.profile || 'Dépenses personnelles') === S.activeProfile);
-  const monthProfileTx = profileTx.filter(t => t.date.startsWith(month));
-  const sumProf = k => monthProfileTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
-  const oProf = sumProf("out"), iProf = sumProf("in"), netProf = iProf - oProf;
-
-  $("soldeBoxTitle").textContent = `Solde Du Profil (${S.activeProfile})`;
-  $("tOut").textContent = money(oProf);
-  $("tIn").textContent = money(iProf);
-  $("solde").textContent = money(netProf);
-
-  renderAccountsList();
-  renderDebts();
+  const mTx = S.tx.filter(t => t.date.startsWith(month));
+  const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  const out = sum("out"), inc = sum("in");
+  $("tOut").textContent = money(out);
+  $("tIn").textContent = money(inc);
+  $("solde").textContent = money(inc - out);
 
   const ul = $("list");
   if (ul) {
     ul.replaceChildren();
-    let filteredTx = monthProfileTx;
-    if (currentOpFilter !== 'all') filteredTx = monthProfileTx.filter(t => t.type === currentOpFilter);
-
-    if (!filteredTx.length) { ul.innerHTML = '<li style="text-align:center; padding:15px; color:var(--mute);">Aucune opération ce mois-ci.</li>'; }
-    else {
-      filteredTx.forEach(t => {
-        const li = document.createElement("li");
-        li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.cat}</b><small>${t.date}${t.note ? ' · ' + t.note : ''}</small></div><div class="a" style="color:${t.type==='out'?'var(--out)':'var(--in)'}">${t.type === 'out' ? '-' : '+'}${money(t.amt)}</div>`;
-        ul.append(li);
-      });
-    }
+    if (!mTx.length) { ul.innerHTML = '<li style="text-align:center; color:var(--mute);">Aucune opération ce mois.</li>'; return; }
+    mTx.forEach(t => {
+      const li = document.createElement("li");
+      li.innerHTML = `<div class="m"><b>${getIcon(t.cat)} ${t.note}</b><small>${t.date}</small></div><div class="a" style="color:${t.type==='out'?'var(--out)':'var(--in)'}">${t.type==='out'?'-':'+'}${money(t.amt)}</div>`;
+      ul.append(li);
+    });
   }
 }
 
 checkAuth();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log("Service Worker enregistré avec succès !"))
-      .catch((err) => console.log("Erreur Service Worker :", err));
-  });
-}
 </script>
 </body>
 </html>
