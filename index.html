@@ -331,11 +331,17 @@ li .a { font-weight: 700; white-space: nowrap; }
     </section>
   </div>
 
-  <!-- 4. PAGE ANALYSES & IA -->
+  <!-- 4. PAGE ANALYSES, BILANS & IA -->
   <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section>
-      <h2>📊 Dépenses par Profil & Note</h2>
+      <h2>📊 Bilans & Comparatifs</h2>
+      <div id="timeframeStatsBox" style="background:var(--bg); padding:12px; border-radius:10px; border:1px solid var(--line); font-size:0.9rem; line-height:1.6; margin-bottom:14px;"></div>
+      
+      <h2>🏢 Dépenses par Note / Libellé</h2>
       <div style="position: relative; height: 220px; width: 100%; margin-bottom: 20px;"><canvas id="expenseChart"></canvas></div>
+      
+      <h2 style="margin-top:20px;">🏢 Comparatif par Profil (Ce mois)</h2>
+      <div style="position: relative; height: 220px; width: 100%;"><canvas id="profilesComparisonChart"></canvas></div>
     </section>
 
     <section style="background: linear-gradient(135deg, var(--card), var(--bg)); border: 2px solid var(--in);">
@@ -422,7 +428,7 @@ const DEFAULT_PROFILES_CATS = {
 };
 
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v5";
+const USERS_KEY = "gestion_financiere_pro_db_v6";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -434,6 +440,7 @@ let S = {
 };
 
 let chartInstance = null;
+let profileChartInstance = null;
 let hideBalanceActive = false;
 let month = today().slice(0, 7), type = "out";
 let tempRegData = null;
@@ -515,7 +522,7 @@ function showPage(pageId) {
   document.querySelectorAll(".app-page-content").forEach(p => p.style.display = "none");
   $(pageId).style.display = "block";
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (pageId === 'pageAnalytics') { updateChart(); generateGeminiAiAdvice(); }
+  if (pageId === 'pageAnalytics') { updateChart(); updateProfilesComparisonChart(); updateTimeframeStats(); generateGeminiAiAdvice(); }
   if (pageId === 'pageGoals') renderGoals();
 }
 
@@ -755,7 +762,6 @@ function setType(t) {
 $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
 
-// Gestion des prêts et dettes
 $("addDebtBtn").onclick = () => {
   const type = $("debtTypeSelect").value;
   const person = $("debtPerson").value.trim();
@@ -810,6 +816,34 @@ function renderGoals() {
   });
 }
 
+function updateTimeframeStats() {
+  const box = $("timeframeStatsBox"); if (!box) return;
+  const currDay = today(), currMonth = month, currYear = month.slice(0, 4);
+
+  const profileTx = S.tx.filter(t => (t.profile || 'Dépenses personnelles') === S.activeProfile);
+  const mProf = profileTx.filter(t => t.date.startsWith(currMonth));
+  const dAll = S.tx.filter(t => t.date === currDay);
+  const mAll = S.tx.filter(t => t.date.startsWith(currMonth));
+  const yAll = S.tx.filter(t => t.date.startsWith(currYear));
+
+  const calc = list => {
+    const inVal = list.filter(t => t.type === 'in').reduce((s, t) => s + t.amt, 0);
+    const outVal = list.filter(t => t.type === 'out').reduce((s, t) => s + t.amt, 0);
+    return { inVal, outVal, net: inVal - outVal };
+  };
+
+  const mp = calc(mProf), da = calc(dAll), ma = calc(mAll), ya = calc(yAll);
+
+  box.innerHTML = `
+    <b>📌 Profil [${S.activeProfile}] (${currMonth}) :</b><br>
+    • Revenus : ${money(mp.inVal)} | Dépenses : ${money(mp.outVal)} | Net : <b style="color:${mp.net>=0?'var(--in)':'var(--out)'}">${money(mp.net)}</b><br><br>
+    <b>🌐 Consolidé Global :</b><br>
+    • Jour (${currDay}) - Net : ${money(da.net)}<br>
+    • Mois (${currMonth}) - Net Global : <b style="color:${ma.net>=0?'var(--in)':'var(--out)'}">${money(ma.net)}</b><br>
+    • Année (${currYear}) - Net Annuel : <b>${money(ya.net)}</b>
+  `;
+}
+
 function generateGeminiAiAdvice() {
   const box = $("aiAdviceBox");
   if (!box) return;
@@ -847,6 +881,22 @@ function updateChart() {
     type: 'doughnut',
     data: { labels: labels.length ? labels : ['Aucune dépense'], datasets: [{ data: labels.length ? data : [1], backgroundColor: ['#c2412d', '#23805a', '#5f7a73', '#e67e22', '#3498db', '#9b59b6'] }] },
     options: { responsive: true, maintainAspectRatio: false }
+  });
+}
+
+function updateProfilesComparisonChart() {
+  const ctx = $("profilesComparisonChart"); if (!ctx) return;
+  const profiles = getAllProfiles();
+  const profileExpenses = profiles.map(prof => {
+    return S.tx.filter(t => t.date.startsWith(month) && t.type === 'out' && (t.profile || 'Dépenses personnelles') === prof)
+               .reduce((s, t) => s + t.amt, 0);
+  });
+
+  if (profileChartInstance) profileChartInstance.destroy();
+  profileChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: profiles, datasets: [{ data: profileExpenses, backgroundColor: '#c2412d' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
   });
 }
 
