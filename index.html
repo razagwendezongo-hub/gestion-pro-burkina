@@ -137,7 +137,7 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button class="go" id="submitLoginBtn" style="margin-top: 8px; background: var(--in);">Se connecter</button>
       </div>
 
-      <!-- Formulaire d'Inscription (Champs vides) -->
+      <!-- Formulaire d'Inscription -->
       <div id="formRegisterView" style="display: none; flex-direction: column; gap: 10px;">
         <div><label for="regNom">Nom</label><input id="regNom" type="text"></div>
         <div><label for="regPrenom">Prénom</label><input id="regPrenom" type="text"></div>
@@ -182,6 +182,18 @@ li .a { font-weight: 700; white-space: nowrap; }
     </div>
   </div>
 
+  <div id="newProfileModal" class="modal-screen" style="display:none;">
+    <div class="modal-card" style="text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:6px;">👤</div>
+      <h3 style="margin:0 0 8px; font-size:1.1rem;">Créer un nouveau profil</h3>
+      <input id="newProfileInputName" type="text" style="margin-bottom:14px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button id="cancelNewProfileBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Annuler</button>
+        <button id="confirmNewProfileBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:10px; font-weight:700; cursor:pointer;">Créer</button>
+      </div>
+    </div>
+  </div>
+
   <div id="sidebarOverlay" class="sidebar-overlay" style="display:none;">
     <aside class="sidebar-drawer" style="overflow-y: auto; max-height: 100vh; padding-bottom: 60px;">
       <div class="sidebar-header" style="position: sticky; top: 0; background: var(--card); z-index: 10; padding-top: 10px; padding-bottom: 10px; display:flex; align-items:center; justify-content:space-between;">
@@ -189,6 +201,11 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button id="closeSidebar" class="side-btn" style="padding:4px 10px;">✕</button>
       </div>
       <div class="sidebar-menu-items" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+        <div style="background:var(--bg); padding:10px; border-radius:10px; border:1px solid var(--line);">
+          <label style="margin-top:0; font-weight:700;">👤 Profil Actif</label>
+          <select id="profileSelect" style="margin-top:4px; font-weight:bold; margin-bottom:8px;"></select>
+          <button id="openNewProfileModalBtn" style="background:var(--in); color:#fff; border:0; border-radius:8px; padding:6px; font-size:0.8rem; width:100%; font-weight:700; cursor:pointer;">+ Créer un nouveau profil</button>
+        </div>
         <button class="side-btn" id="installPwaBtn" style="background:var(--in); color:#fff; display:none; text-align:center;">📱 Installer l'Application</button>
         <button class="side-btn" id="navBills">🎯 Échéancier <span id="menuNotificationBadge" style="display:none; background:var(--out); color:#fff; border-radius:10px; padding:2px 6px; font-size:0.7rem; float:right;">0</span></button>
         <button class="side-btn" id="menuDirectExcelExport" style="background:var(--in); color:#fff;">📊 Exporter en Excel (.csv)</button>
@@ -207,7 +224,6 @@ li .a { font-weight: 700; white-space: nowrap; }
         <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres & Devises</h3>
         <button id="closeSettingsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
-      
       <div style="margin-bottom:12px;">
         <label>💱 Devise monétaire</label>
         <select id="currencySelect" style="margin-top:4px;">
@@ -216,7 +232,6 @@ li .a { font-weight: 700; white-space: nowrap; }
           <option value="USD">USD ($)</option>
         </select>
       </div>
-
       <div style="display:flex; gap:10px; margin-top:16px;">
         <button id="closeSettingsBottom" style="flex:1; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">← Retour</button>
         <button id="saveSettingsBtn" style="flex:1; background:var(--in); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">💾 Enregistrer</button>
@@ -245,7 +260,7 @@ li .a { font-weight: 700; white-space: nowrap; }
     <section class="solde-container-clean">
       <div class="solde-main-box">
         <div class="solde-title-label">
-          <span>Solde Principal Global</span>
+          <span id="soldeBoxTitle">Solde Principal Global</span>
           <button id="toggleHideBalance" style="background:none; border:0; cursor:pointer; font-size:1rem;">👁️</button>
         </div>
         <div class="solde-big-amount" id="solde">0 FCFA</div>
@@ -270,16 +285,41 @@ li .a { font-weight: 700; white-space: nowrap; }
         <div><label for="cat">Catégorie</label><select id="cat"></select></div>
         <div><label for="tagLocation">Lieu / Tag</label><input id="tagLocation" type="text" maxlength="30"></div>
       </div>
-      <div style="margin-top:8px;"><label for="note">Note / Libellé de la dépense</label><input id="note" type="text" maxlength="60"></div>
+      <div style="margin-top:8px;"><label for="note">Note (facultatif)</label><input id="note" type="text" maxlength="60"></div>
       <button class="go" id="add">Enregistrer</button>
     </section>
   </div>
 
-  <!-- 2. PAGE COMPTES -->
+  <!-- 2. PAGE COMPTES & DETTES -->
   <div id="pageAccounts" class="app-page-content" style="display:none;">
     <section>
       <h2>💳 Comptes & Portefeuilles</h2>
       <div id="accountsListDetailed" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </section>
+
+    <section>
+      <h2>🤝 Prêts & Dettes Séparés</h2>
+      <div style="background:var(--bg); padding:12px; border-radius:12px; margin-bottom:14px; border:1px solid var(--line);">
+        <label style="margin-top:0; font-weight:700;">Type</label>
+        <select id="debtTypeSelect" style="margin-bottom:8px;">
+          <option value="lent">🟢 Prêt accordé (On me doit)</option>
+          <option value="borrowed">🔴 Dette contractée (Je dois)</option>
+        </select>
+        <div class="row2">
+          <div><label style="margin-top:0;">Nom et Prénom</label><input id="debtPerson" type="text"></div>
+          <div><label style="margin-top:0;">Profession</label><input id="debtProfession" type="text"></div>
+        </div>
+        <div class="row2" style="margin-top:8px;">
+          <div><label style="margin-top:0;">Montant total</label><input id="debtAmt" type="text" inputmode="decimal"></div>
+          <div><label style="margin-top:0;">Échéance</label><input id="debtDueDate" type="date"></div>
+        </div>
+        <div style="margin-top:8px;"><label style="margin-top:0;">Motif</label><input id="debtNote" type="text"></div>
+        <button class="go" id="addDebtBtn" style="margin-top:10px; background:var(--in);">Enregistrer</button>
+      </div>
+      <h3 style="font-size:0.95rem; margin:14px 0 8px; color:var(--in);">🟢 Mes Prêts</h3>
+      <div id="lentList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+      <h3 style="font-size:0.95rem; margin:14px 0 8px; color:var(--out);">🔴 Mes Dettes</h3>
+      <div id="borrowedList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </section>
   </div>
 
@@ -294,7 +334,7 @@ li .a { font-weight: 700; white-space: nowrap; }
   <!-- 4. PAGE ANALYSES & IA -->
   <div id="pageAnalytics" class="app-page-content" style="display:none;">
     <section>
-      <h2>📊 Dépenses par Note / Libellé</h2>
+      <h2>📊 Dépenses par Profil & Note</h2>
       <div style="position: relative; height: 220px; width: 100%; margin-bottom: 20px;"><canvas id="expenseChart"></canvas></div>
     </section>
 
@@ -362,8 +402,27 @@ const DEFAULT_ICONS = {
   "Salaire": "💵", "Prime": "🎁", "Aide familiale": "🤲", "Cadeau": "🎁", "Autre revenu": "💼"
 };
 
+const DEFAULT_PROFILES_CATS = {
+  "Dépenses personnelles": {
+    out: ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Électricité","Eau","Santé","École","Famille","Vêtements","Loisirs","Épargne","Autre"],
+    in: ["Salaire","Prime","Aide familiale","Cadeau","Autre revenu"]
+  },
+  "Famille": {
+    out: ["Alimentation","Scolarité","Santé","Factures maison","Loisirs famille","Autre"],
+    in: ["Revenus conjoints","Aide","Autre"]
+  },
+  "Église": {
+    out: ["Aide sociale","Entretien temple","Événements","Autre"],
+    in: ["Dîme", "Offrande", "Action de grâce", "Dons spéciaux", "Quêtes"]
+  },
+  "Entreprise": {
+    out: ["Loyer","Salaires","Fournitures","Transport","Autre"],
+    in: ["Ventes", "Services", "Commissions", "Apport", "Autre"]
+  }
+};
+
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v4";
+const USERS_KEY = "gestion_financiere_pro_db_v5";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -371,7 +430,7 @@ const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d
 
 let S = { 
   tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }],
-  bills: [], debts: [], goals: [], cur: "FCFA", theme: "light"
+  bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles"
 };
 
 let chartInstance = null;
@@ -380,7 +439,6 @@ let month = today().slice(0, 7), type = "out";
 let tempRegData = null;
 let codeVerificationAttendu = null;
 
-// Envoi direct du code via l'API WhatsApp (wa.me)
 function envoyerCodeVerificationWhatsApp(numeroDestinataire) {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     codeVerificationAttendu = code;
@@ -444,6 +502,7 @@ function checkAuth() {
     const usersDb = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
     const uInfo = usersDb[currentUserKey];
     $("userGreeting").textContent = (uInfo && uInfo.prenom && uInfo.nom) ? `${uInfo.prenom} ${uInfo.nom}` : "Gestion Financière Pro";
+    renderProfilesSelect();
     setType("out");
     render();
   } else {
@@ -457,6 +516,7 @@ function showPage(pageId) {
   $(pageId).style.display = "block";
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (pageId === 'pageAnalytics') { updateChart(); generateGeminiAiAdvice(); }
+  if (pageId === 'pageGoals') renderGoals();
 }
 
 function showInfoModal(title, msg, icon = "✅") {
@@ -510,7 +570,48 @@ $("nextMonth").onclick = () => {
 
 $("toggleHideBalance").onclick = () => { hideBalanceActive = !hideBalanceActive; render(); };
 
-$("navBills").onclick = () => { $("sidebarOverlay").style.display = "none"; $("billsModal").style.display = "flex"; };
+function getAllProfiles() {
+  const defaults = Object.keys(DEFAULT_PROFILES_CATS);
+  const customs = Object.keys(S.customProfiles || {});
+  return [...defaults, ...customs];
+}
+
+function renderProfilesSelect() {
+  const sel = $("profileSelect");
+  if (!sel) return;
+  const profiles = getAllProfiles();
+  sel.replaceChildren(...profiles.map(p => new Option(p, p)));
+  if (!profiles.includes(S.activeProfile)) S.activeProfile = profiles[0];
+  sel.value = S.activeProfile;
+}
+
+$("profileSelect").onchange = (e) => {
+  S.activeProfile = e.target.value;
+  save(); setType("out"); render();
+};
+
+$("openNewProfileModalBtn").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  $("newProfileInputName").value = "";
+  $("newProfileModal").style.display = "flex";
+};
+$("cancelNewProfileBtn").onclick = () => { $("newProfileModal").style.display = "none"; };
+$("confirmNewProfileBtn").onclick = () => {
+  const name = $("newProfileInputName").value.trim();
+  if (!name) { alert("Entrez un nom."); return; }
+  if (getAllProfiles().includes(name)) { alert("Ce profil existe déjà."); return; }
+  
+  if (!S.customProfiles) S.customProfiles = {};
+  S.customProfiles[name] = { out: ["Nourriture", "Transport", "Divers", "Autre"], in: ["Revenu", "Autre"] };
+  S.activeProfile = name;
+  save();
+  $("newProfileModal").style.display = "none";
+  renderProfilesSelect();
+  setType("out");
+  render();
+};
+
+$("navBills").onclick = () => { $("sidebarOverlay").style.display = "none"; renderBills(); $("billsModal").style.display = "flex"; };
 $("closeBillsModal").onclick = () => { $("billsModal").style.display = "none"; };
 $("saveNewBillBtn").onclick = () => {
   const client = $("billClientName").value.trim();
@@ -521,14 +622,26 @@ $("saveNewBillBtn").onclick = () => {
   S.bills.push({ id: Date.now(), client, amt, due });
   save();
   $("billClientName").value = ""; $("billAmt").value = ""; $("billDate").value = "";
+  renderBills();
   showInfoModal("Échéance", "Échéance enregistrée !");
 };
+
+function renderBills() {
+  const box = $("billsList"); box.replaceChildren();
+  if (!S.bills || !S.bills.length) { box.innerHTML = '<div style="color:var(--mute);">Aucune échéance.</div>'; return; }
+  S.bills.forEach(b => {
+    const card = document.createElement("div");
+    card.style.cssText = "background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;";
+    card.innerHTML = `<div><b>${b.client}</b><small style="color:var(--mute);">${b.due}</small></div><div style="font-weight:700; color:var(--out);">${money(b.amt)}</div>`;
+    box.append(card);
+  });
+}
 
 $("menuDirectExcelExport").onclick = () => {
   $("sidebarOverlay").style.display = "none";
   if (!S.tx.length) { alert("Aucune opération à exporter."); return; }
-  let csvContent = "\uFEFFID;Type;Montant;Categorie;Date;Note\r\n";
-  S.tx.forEach(t => { csvContent += `${t.id};${t.type};${t.amt};${t.cat};${t.date};"${t.note || ''}"\r\n`; });
+  let csvContent = "\uFEFFID;Profil;Type;Montant;Categorie;Date;Note\r\n";
+  S.tx.forEach(t => { csvContent += `${t.id};${t.profile || 'Dépenses personnelles'};${t.type};${t.amt};${t.cat};${t.date};"${t.note || ''}"\r\n`; });
   const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -541,9 +654,9 @@ $("menuDirectExcelExport").onclick = () => {
 
 $("menuOpenReportPage").onclick = () => {
   $("sidebarOverlay").style.display = "none";
-  const mTx = S.tx.filter(t => t.date.startsWith(month));
+  const mTx = S.tx.filter(t => t.date.startsWith(month) && (t.profile || 'Dépenses personnelles') === S.activeProfile);
   const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
-  $("fullReportContentBody").innerHTML = `<b>Période :</b> ${month}<br>• Revenus : ${money(sum("in"))}<br>• Dépenses : ${money(sum("out"))}<br>• Net : ${money(sum("in") - sum("out"))}`;
+  $("fullReportContentBody").innerHTML = `<b>Profil :</b> ${S.activeProfile} (${month})<br>• Revenus : ${money(sum("in"))}<br>• Dépenses : ${money(sum("out"))}<br>• Net : ${money(sum("in") - sum("out"))}`;
   showPage("pageReportView");
 };
 $("btnPrintReportPage").onclick = () => window.print();
@@ -620,7 +733,7 @@ async function hashPassword(pw) {
 $("add").onclick = () => {
   const amt = parseFloat($("amt").value.trim().replace(/\s/g, "").replace(",", "."));
   if (isNaN(amt) || !(amt > 0)) { showInfoModal("Erreur", "Montant invalide.", "❌"); return; }
-  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim() || "Dépense générale", date: today() });
+  S.tx.push({ id: Date.now(), type, amt, cat: $("cat").value, note: $("note").value.trim() || "Dépense générale", date: today(), profile: S.activeProfile });
   save(); $("amt").value = ""; $("note").value = ""; render();
   showInfoModal("Succès", "Opération enregistrée !");
 };
@@ -629,18 +742,80 @@ function setType(t) {
   type = t;
   $("bOut").setAttribute("aria-pressed", t === "out");
   $("bIn").setAttribute("aria-pressed", t === "in");
-  const cats = t === 'out' ? ["Nourriture","Transport","Essence","Crédit téléphone","Internet","Logement","Santé","Autre"] : ["Salaire","Prime","Autre"];
-  $("cat").replaceChildren(...cats.map(c => new Option(getIcon(c) + " " + c, c)));
+  let catsList;
+  if (DEFAULT_PROFILES_CATS[S.activeProfile]) {
+    catsList = DEFAULT_PROFILES_CATS[S.activeProfile][t];
+  } else if (S.customProfiles && S.customProfiles[S.activeProfile]) {
+    catsList = S.customProfiles[S.activeProfile][t];
+  } else {
+    catsList = ["Nourriture", "Autre"];
+  }
+  $("cat").replaceChildren(...catsList.map(c => new Option(getIcon(c) + " " + c, c)));
 }
 $("bOut").onclick = () => setType("out");
 $("bIn").onclick = () => setType("in");
 
+// Gestion des prêts et dettes
+$("addDebtBtn").onclick = () => {
+  const type = $("debtTypeSelect").value;
+  const person = $("debtPerson").value.trim();
+  const profession = $("debtProfession").value.trim();
+  const amt = parseFloat($("debtAmt").value);
+  const dueDate = $("debtDueDate").value;
+  const note = $("debtNote").value.trim();
+  
+  if (!person || !(amt > 0)) { alert("Remplissez le nom et le montant."); return; }
+  if (!S.debts) S.debts = [];
+  S.debts.push({ id: Date.now(), person, profession, totalAmt: amt, paidAmt: 0, type, dueDate, note });
+  save();
+  $("debtPerson").value = ""; $("debtProfession").value = ""; $("debtAmt").value = ""; $("debtDueDate").value = ""; $("debtNote").value = "";
+  renderDebts();
+  showInfoModal("Prêts & Dettes", "Enregistré !");
+};
+
+function renderDebts() {
+  const lentBox = $("lentList"); const borrowedBox = $("borrowedList");
+  if (!lentBox || !borrowedBox) return;
+  lentBox.replaceChildren(); borrowedBox.replaceChildren();
+
+  const lents = (S.debts || []).filter(d => d.type === 'lent');
+  const borrowed = (S.debts || []).filter(d => d.type === 'borrowed');
+
+  if (!lents.length) lentBox.innerHTML = '<div style="color:var(--mute); font-size:0.8rem;">Aucun prêt.</div>';
+  if (!borrowed.length) borrowedBox.innerHTML = '<div style="color:var(--mute); font-size:0.8rem;">Aucune dette.</div>';
+
+  lents.forEach(d => {
+    const card = document.createElement("div");
+    card.style.cssText = "background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px;";
+    card.innerHTML = `<b>🟢 ${d.person}</b> - Reste : ${money(d.totalAmt - d.paidAmt)}`;
+    lentBox.append(card);
+  });
+
+  borrowed.forEach(d => {
+    const card = document.createElement("div");
+    card.style.cssText = "background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px;";
+    card.innerHTML = `<b>🔴 ${d.person}</b> - Reste : ${money(d.totalAmt - d.paidAmt)}`;
+    borrowedBox.append(card);
+  });
+}
+
+function renderGoals() {
+  const box = $("goalsList"); if (!box) return; box.replaceChildren();
+  if (!S.goals || !S.goals.length) { box.innerHTML = '<div style="color:var(--mute);">Aucun objectif.</div>'; return; }
+  S.goals.forEach(g => {
+    const card = document.createElement("div");
+    card.style.cssText = "background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;";
+    card.innerHTML = `<b>🎯 ${g.title}</b>`;
+    box.append(card);
+  });
+}
+
 function generateGeminiAiAdvice() {
   const box = $("aiAdviceBox");
   if (!box) return;
-  const mTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
+  const mTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out' && (t.profile || 'Dépenses personnelles') === S.activeProfile);
   if (!mTx.length) {
-    box.innerHTML = "💡 <b>Conseil Agent IA :</b> Enregistrez vos premières dépenses du mois pour que l'IA puisse analyser vos flux et structurer votre planning de gestion financière.";
+    box.innerHTML = "💡 <b>Conseil Agent IA :</b> Enregistrez vos premières dépenses du mois pour ce profil pour que l'IA puisse analyser vos flux et structurer votre planning.";
     return;
   }
   
@@ -650,19 +825,19 @@ function generateGeminiAiAdvice() {
   const highest = sortedNotes[0];
 
   box.innerHTML = `
-    🧠 <b>Analyse Gemini (Mois de ${month}) :</b><br>
-    • Poste budgétaire le plus lourd : <b style="color:var(--out);">${highest[0]}</b> (${money(highest[1])}).<br>
-    • <b>Recommandation d'optimisation :</b> Il est conseillé de <b>diminuer de 15%</b> les dépenses sur "${highest[0]}" pour sécuriser votre épargne.<br>
-    • <b>Planning de Gestion Recommandé :</b><br>
-      1. Semaine 1 & 2 : Allouez un budget fixe strict pour les charges incompressibles.<br>
-      2. Semaine 3 & 4 : Freinez les sorties et privilégiez les provisions locales.
+    🧠 <b>Analyse Gemini (Profil [${S.activeProfile}] - ${month}) :</b><br>
+    • Poste le plus lourd : <b style="color:var(--out);">${highest[0]}</b> (${money(highest[1])}).<br>
+    • <b>Recommandation d'optimisation :</b> Réduisez de <b>15%</b> les dépenses sur "${highest[0]}" pour optimiser votre budget.<br>
+    • <b>Planning de Gestion :</b><br>
+      1. Semaine 1 & 2 : Maîtrisez vos charges fixes.<br>
+      2. Semaine 3 & 4 : Limitez les dépenses secondaires.
   `;
 }
 $("refreshAiAdvice").onclick = generateGeminiAiAdvice;
 
 function updateChart() {
   const ctx = $("expenseChart"); if (!ctx) return;
-  const monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out');
+  const monthTx = S.tx.filter(t => t.date.startsWith(month) && t.type === 'out' && (t.profile || 'Dépenses personnelles') === S.activeProfile);
   const noteTotals = {};
   monthTx.forEach(t => { const n = t.note || "Général"; noteTotals[n] = (noteTotals[n] || 0) + t.amt; });
   const labels = Object.keys(noteTotals), data = Object.values(noteTotals);
@@ -677,12 +852,17 @@ function updateChart() {
 
 function render() {
   $("monthLabel").textContent = month;
-  const mTx = S.tx.filter(t => t.date.startsWith(month));
+  const profileTx = S.tx.filter(t => (t.profile || 'Dépenses personnelles') === S.activeProfile);
+  const mTx = profileTx.filter(t => t.date.startsWith(month));
   const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
   const out = sum("out"), inc = sum("in");
+  
+  $("soldeBoxTitle").textContent = `Solde du Profil (${S.activeProfile})`;
   $("tOut").textContent = money(out);
   $("tIn").textContent = money(inc);
   $("solde").textContent = money(inc - out);
+
+  renderDebts();
 
   const ul = $("list");
   if (ul) {
