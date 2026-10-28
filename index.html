@@ -108,16 +108,7 @@ li .a { font-weight: 700; white-space: nowrap; }
   section { border: 0; box-shadow: none; padding: 0; margin-bottom: 20px; }
 }
 </style>
-<!-- Inclusion du SDK EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  (function(){
-      emailjs.init({
-        publicKey: "jLxh0MKr4Ev3PCepR",
-      });
-  })();
-</script>
 </head>
 <body>
 
@@ -140,18 +131,18 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button class="go" id="submitLoginBtn" style="margin-top: 8px; background: var(--in);">Se connecter</button>
       </div>
 
-      <!-- Formulaire d'Inscription (Étape 1 : Email) -->
+      <!-- Formulaire d'Inscription (Étape 1 : Numéro WhatsApp) -->
       <div id="formRegisterView" style="display: none; flex-direction: column; gap: 10px;">
         <div><label for="regNom">Nom</label><input id="regNom" type="text" placeholder="Ex: Zongo"></div>
         <div><label for="regPrenom">Prénom</label><input id="regPrenom" type="text" placeholder="Ex: Alfred"></div>
-        <div><label for="regEmail">Adresse E-mail</label><input id="regEmail" type="email" placeholder="razagwendezongo@gmail.com"></div>
+        <div><label for="regWhatsApp">Numéro WhatsApp</label><input id="regWhatsApp" type="tel" placeholder="+22677086889"></div>
         <div><label for="regPass">Créer un mot de passe</label><input id="regPass" type="password" placeholder="••••••••"></div>
-        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">Recevoir le code par e-mail</button>
+        <button class="go" id="submitRegisterBtn" style="margin-top: 6px; background: var(--btn);">Recevoir le code par WhatsApp</button>
       </div>
 
       <!-- Étape 2 : Saisie du Code à 6 chiffres -->
       <div id="formVerificationView" style="display: none; flex-direction: column; gap: 10px; margin-top: 10px;">
-        <p style="font-size: 0.85rem; color: var(--mute); text-align: center; margin: 0;">Entrez le code à 6 chiffres reçu par e-mail :</p>
+        <p style="font-size: 0.85rem; color: var(--mute); text-align: center; margin: 0;">Entrez le code à 6 chiffres reçu sur WhatsApp :</p>
         <div><label for="regCodeSaisi">Code de vérification</label><input id="regCodeSaisi" type="text" placeholder="Ex: 489123" maxlength="6"></div>
         <button class="go" id="submitVerifyCodeBtn" style="margin-top: 6px; background: var(--in);">Valider le code et créer le compte</button>
       </div>
@@ -552,38 +543,47 @@ let hideBalanceActive = false;
 let month = today().slice(0, 7), type = "out";
 
 let tempRegData = null;
-let codeVerificationAttendu = null;
 
 // ==========================================
-// FONCTIONS DE VÉRIFICATION VIA EMAILJS
+// FONCTIONS DE VÉRIFICATION VIA WHATSAPP
 // ==========================================
 function genererCodeVerification() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function envoyerCodeVerificationEmail(emailDestinataire) {
+function envoyerCodeVerificationWhatsApp(numeroDestinataire) {
     const code = genererCodeVerification();
-    codeVerificationAttendu = code;
+    
+    // Stockage temporaire sécurisé (valide 5 minutes)
+    localStorage.setItem('temp_verification_code', code);
+    localStorage.setItem('temp_verification_expire', Date.now() + 5 * 60 * 1000);
 
-    const templateParams = {
-        to_email: emailDestinataire,
-        passcode: code
-    };
-
-    try {
-        await emailjs.send('service_fxs3mug', 'template_u56u5jz', templateParams);
-        showInfoModal("E-mail envoyé", "Un code de vérification à 6 chiffres a été envoyé à votre adresse e-mail.", "📧");
-        return true;
-    } catch (error) {
-        console.error("Erreur EmailJS :", error);
-        alert("Échec d'envoi de l'e-mail. Vérifiez votre connexion.");
-        return false;
-    }
+    // Nettoyage du numéro de téléphone
+    const numeroPropre = numeroDestinataire.replace(/\D/g, '');
+    
+    // Message pré-rempli WhatsApp
+    const message = `Votre code de vérification pour Gestion Financière Pro est : *${code}*. (Valide 5 minutes)`;
+    
+    // Lien officiel de l'API WhatsApp
+    const urlWhatsApp = `https://wa.me/${numeroPropre}?text=${encodeURIComponent(message)}`;
+    
+    window.open(urlWhatsApp, '_blank');
+    showInfoModal("WhatsApp", "WhatsApp s'ouvre pour vous transmettre votre code de vérification. Revenez ensuite le saisir ici.", "📱");
+    return true;
 }
 
 function verifierCodeSaisi(codeUtilisateur) {
-    if (codeUtilisateur === codeVerificationAttendu) {
-        codeVerificationAttendu = null;
+    const codeStocke = localStorage.getItem('temp_verification_code');
+    const expiration = localStorage.getItem('temp_verification_expire');
+
+    if (!codeStocke || Date.now() > expiration) {
+        alert("Le code a expiré ou est invalide. Veuillez en demander un nouveau.");
+        return false;
+    }
+
+    if (codeUtilisateur === codeStocke) {
+        localStorage.removeItem('temp_verification_code');
+        localStorage.removeItem('temp_verification_expire');
         return true;
     } else {
         alert("Code de vérification incorrect.");
@@ -923,32 +923,31 @@ $("submitLoginBtn").onclick = async () => {
   checkAuth();
 };
 
-$("submitRegisterBtn").onclick = async () => {
+// ÉTAPE 1 : Inscription et envoi WhatsApp
+$("submitRegisterBtn").onclick = () => {
   const nom = $("regNom").value.trim();
   const prenom = $("regPrenom").value.trim();
-  const email = $("regEmail").value.trim();
+  const whatsapp = $("regWhatsApp").value.trim();
   const p = $("regPass").value;
   
-  if (!nom || !prenom || !email || !email.includes('@') || !p) { 
-    $("authMsg").textContent = "Veuillez remplir tous les champs et entrer une adresse e-mail valide."; 
+  if (!nom || !prenom || !whatsapp || !p) { 
+    $("authMsg").textContent = "Veuillez remplir tous les champs."; 
     return; 
   }
 
-  tempRegData = { nom, prenom, email, pass: p };
-  $("authMsg").textContent = "Envoi du code en cours...";
+  tempRegData = { nom, prenom, whatsapp, pass: p };
+  $("authMsg").textContent = "";
+  
+  const success = envoyerCodeVerificationWhatsApp(whatsapp);
 
-  const envoiReussi = await envoyerCodeVerificationEmail(email);
-
-  if (envoiReussi) {
-    $("authMsg").textContent = "";
+  if (success) {
     $("formRegisterView").style.display = 'none';
     $("formVerificationView").style.display = 'flex';
-    $("authCardTitle").textContent = "Vérification de l'e-mail";
-  } else {
-    $("authMsg").textContent = "Échec d'envoi. Veuillez réessayer.";
+    $("authCardTitle").textContent = "Vérification WhatsApp";
   }
 };
 
+// ÉTAPE 2 : Validation du code reçu sur WhatsApp
 $("submitVerifyCodeBtn").onclick = async () => {
   const champCode = $("regCodeSaisi");
   if (!champCode) return;
@@ -965,7 +964,7 @@ $("submitVerifyCodeBtn").onclick = async () => {
       usersDb[accountKey] = {
         nom: tempRegData.nom, 
         prenom: tempRegData.prenom, 
-        email: tempRegData.email, 
+        whatsapp: tempRegData.whatsapp, 
         passHash: hashed,
         data: { tx: [], accounts: [{ id: 'acc_main', name: 'Compte Principal', balance: 0 }], bills: [], debts: [], goals: [], customProfiles: {}, cur: "FCFA", theme: "light", activeProfile: "Dépenses personnelles" }
       };
