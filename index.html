@@ -221,7 +221,7 @@ li .a { font-weight: 700; white-space: nowrap; }
   <div id="settingsModal" class="modal-screen" style="display:none;">
     <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:14px;">
-        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres & Devises</h3>
+        <h3 style="margin:0; font-size:1.1rem;">⚙️ Paramètres & Informations</h3>
         <button id="closeSettingsModal" style="background:none; border:0; font-size:1.2rem; cursor:pointer; color:var(--mute);">✕</button>
       </div>
       <div style="margin-bottom:12px;">
@@ -235,7 +235,7 @@ li .a { font-weight: 700; white-space: nowrap; }
       
       <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
         <button class="side-btn" id="openHelpPage" style="text-align:center;">💡 Aide & Règlement</button>
-        <button class="side-btn" id="openContactPage" style="text-align:center;">📞 Contact</button>
+        <button class="side-btn" id="openContactPage" style="text-align:center;">📞 Contactez-nous</button>
         <button class="side-btn" id="openTermsPage" style="text-align:center;">📜 Conditions d'utilisation</button>
         <button class="side-btn" id="openAboutPage" style="text-align:center;">ℹ️ À propos</button>
       </div>
@@ -376,29 +376,34 @@ li .a { font-weight: 700; white-space: nowrap; }
     </section>
   </div>
 
-  <!-- PAGES INFORMATIVES (Aide, Contact, Conditions, À propos) -->
+  <!-- PAGES INFORMATIVES ENRICHIES -->
   <div id="pageHelpView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <h2 style="margin:0;">💡 Aide & Règlement</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem; line-height:1.6;">Ce guide méthodologique vous éclaire sur l'utilisation optimale de l'écosystème de gestion financière.</p>
+      <div style="font-size:0.9rem; line-height:1.6; color:var(--ink);">
+        <p><b>1. Gestion des Profils :</b> Vous pouvez basculer ou créer des profils distincts (Dépenses personnelles, Famille, Église, Entreprise) depuis le menu hamburger (☰) pour organiser vos finances par secteur.</p>
+        <p><b>2. Saisie des Opérations :</b> Enregistrez vos revenus et dépenses en renseignant le montant, la catégorie et une note libre pour affiner vos graphiques par libellé.</p>
+        <p><b>3. Agent IA Gemini :</b> L'assistant analyse automatiquement vos flux du mois pour vous recommander quels postes budgétaires réduire et vous fournit un planning de gestion hebdomadaire.</p>
+      </div>
     </section>
   </div>
 
-  <div id="pageContactView" class="app-page-content" style="display:none;">
+  <div id="pageContactDetailsView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <h2 style="margin:0;">📞 Contactez-nous</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem; color:var(--mute);">Envoyez vos avis ou suggestions directement sur votre e-mail en temps réel :</p>
-      
-      <div style="margin-top:12px;">
-        <label for="contactNom">Votre Nom</label><input id="contactNom" type="text">
-        <label for="contactMsg">Votre Commentaire / Message</label><textarea id="contactMsg" rows="4" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink);"></textarea>
-        <button class="go" id="sendCommentBtn" style="background:var(--in); margin-top:10px;">Envoyer sur mon e-mail</button>
+      <div style="font-size:0.9rem; line-height:1.6; color:var(--ink);">
+        <p>Besoin d'assistance directe ou de renseignements ? Vous pouvez nous joindre à tout moment via les canaux officiels :</p>
+        <ul>
+          <li>📧 <b>E-mail :</b> razagwendezongo@gmail.com</li>
+          <li>📱 <b>WhatsApp :</b> +226 77 08 68 89</li>
+          <li>📍 <b>Localisation :</b> Ouagadougou, Burkina Faso</li>
+        </ul>
       </div>
     </section>
   </div>
@@ -409,7 +414,9 @@ li .a { font-weight: 700; white-space: nowrap; }
         <h2 style="margin:0;">📜 Conditions d'Utilisation</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem; line-height:1.6;">L'utilisation de cette application implique le stockage local sécurisé de vos données sur votre terminal.</p>
+      <div style="font-size:0.9rem; line-height:1.6; color:var(--ink);">
+        <p>L'utilisation de <b>Gestion Financière Pro</b> est soumise aux règles de sécurisation et de stockage local (LocalStorage) sur votre appareil. Vos données financières vous appartiennent et sont conservées en toute confidentialité sur votre terminal.</p>
+      </div>
     </section>
   </div>
 
@@ -419,7 +426,27 @@ li .a { font-weight: 700; white-space: nowrap; }
         <h2 style="margin:0;">ℹ️ À Propos</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <p style="font-size:0.9rem; line-height:1.6;"><b>Gestion Financière Pro (Édition Ultime Intégrale)</b> est conçue pour simplifier et optimiser votre comptabilité quotidienne.</p>
+      <div style="font-size:0.9rem; line-height:1.6; color:var(--ink);">
+        <p><b>Gestion Financière Pro (Édition Ultime Intégrale)</b> est une application web progressive (PWA) de pointe conçue pour simplifier la comptabilité personnelle, le suivi des prêts/dettes et l'optimisation budgétaire grâce à l'intelligence artificielle intégrée.</p>
+        <p>Développé avec passion pour une maîtrise financière totale.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- COMMENTAIRES & SUPPORT EN TEMPS RÉEL SUR VOTRE E-MAIL -->
+  <div id="pageContactView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">💬 Commentaires & Support Direct</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <p style="font-size:0.9rem; color:var(--mute);">Envoyez vos avis ou suggestions directement sur votre e-mail en temps réel :</p>
+      
+      <div style="margin-top:12px;">
+        <label for="contactNom">Votre Nom</label><input id="contactNom" type="text">
+        <label for="contactMsg">Votre Commentaire / Message</label><textarea id="contactMsg" rows="4" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink);"></textarea>
+        <button class="go" id="sendCommentBtn" style="background:var(--in); margin-top:10px;">Envoyer sur mon e-mail</button>
+      </div>
     </section>
   </div>
 
@@ -473,7 +500,7 @@ const DEFAULT_PROFILES_CATS = {
 };
 
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v8";
+const USERS_KEY = "gestion_financiere_pro_db_v9";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -597,7 +624,7 @@ $("navSettingsTop").onclick = () => {
 $("closeSettingsModal").onclick = $("closeSettingsBottom").onclick = () => { $("settingsModal").style.display = "none"; };
 
 $("openHelpPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageHelpView"); };
-$("openContactPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageContactView"); };
+$("openContactPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageContactDetailsView"); };
 $("openTermsPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageTermsView"); };
 $("openAboutPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageAboutView"); };
 
