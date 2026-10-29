@@ -232,6 +232,14 @@ li .a { font-weight: 700; white-space: nowrap; }
           <option value="USD">USD ($)</option>
         </select>
       </div>
+      
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+        <button class="side-btn" id="openHelpPage" style="text-align:center;">💡 Aide & Règlement</button>
+        <button class="side-btn" id="openContactPage" style="text-align:center;">📞 Contact</button>
+        <button class="side-btn" id="openTermsPage" style="text-align:center;">📜 Conditions d'utilisation</button>
+        <button class="side-btn" id="openAboutPage" style="text-align:center;">ℹ️ À propos</button>
+      </div>
+
       <div style="display:flex; gap:10px; margin-top:16px;">
         <button id="closeSettingsBottom" style="flex:1; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">← Retour</button>
         <button id="saveSettingsBtn" style="flex:1; background:var(--in); color:#fff; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer;">💾 Enregistrer</button>
@@ -368,23 +376,21 @@ li .a { font-weight: 700; white-space: nowrap; }
     </section>
   </div>
 
-  <!-- RAPPORT DU MOIS -->
-  <div id="pageReportView" class="app-page-content" style="display:none;">
+  <!-- PAGES INFORMATIVES (Aide, Contact, Conditions, À propos) -->
+  <div id="pageHelpView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">📄 Rapport Financier</h2>
+        <h2 style="margin:0;">💡 Aide & Règlement</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
-      <div id="fullReportContentBody" style="font-size:0.92rem; line-height:1.6; margin-bottom:16px; background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);"></div>
-      <button class="go" id="btnPrintReportPage" style="background:var(--btn); color:var(--btn-t);">🖨️ Imprimer / PDF</button>
+      <p style="font-size:0.9rem; line-height:1.6;">Ce guide méthodologique vous éclaire sur l'utilisation optimale de l'écosystème de gestion financière.</p>
     </section>
   </div>
 
-  <!-- COMMENTAIRES & SUPPORT EN TEMPS RÉEL SUR VOTRE E-MAIL -->
   <div id="pageContactView" class="app-page-content" style="display:none;">
     <section>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h2 style="margin:0;">💬 Commentaires & Support Direct</h2>
+        <h2 style="margin:0;">📞 Contactez-nous</h2>
         <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
       </div>
       <p style="font-size:0.9rem; color:var(--mute);">Envoyez vos avis ou suggestions directement sur votre e-mail en temps réel :</p>
@@ -394,6 +400,38 @@ li .a { font-weight: 700; white-space: nowrap; }
         <label for="contactMsg">Votre Commentaire / Message</label><textarea id="contactMsg" rows="4" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink);"></textarea>
         <button class="go" id="sendCommentBtn" style="background:var(--in); margin-top:10px;">Envoyer sur mon e-mail</button>
       </div>
+    </section>
+  </div>
+
+  <div id="pageTermsView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">📜 Conditions d'Utilisation</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <p style="font-size:0.9rem; line-height:1.6;">L'utilisation de cette application implique le stockage local sécurisé de vos données sur votre terminal.</p>
+    </section>
+  </div>
+
+  <div id="pageAboutView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">ℹ️ À Propos</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <p style="font-size:0.9rem; line-height:1.6;"><b>Gestion Financière Pro (Édition Ultime Intégrale)</b> est conçue pour simplifier et optimiser votre comptabilité quotidienne.</p>
+    </section>
+  </div>
+
+  <!-- RAPPORT DU MOIS -->
+  <div id="pageReportView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">📄 Rapport Financier</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <div id="fullReportContentBody" style="font-size:0.92rem; line-height:1.6; margin-bottom:16px; background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);"></div>
+      <button class="go" id="btnPrintReportPage" style="background:var(--btn); color:var(--btn-t);">🖨️ Imprimer / PDF</button>
     </section>
   </div>
 
@@ -435,7 +473,7 @@ const DEFAULT_PROFILES_CATS = {
 };
 
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v7";
+const USERS_KEY = "gestion_financiere_pro_db_v8";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -551,13 +589,17 @@ document.querySelectorAll(".bottom-nav-btn").forEach(btn => {
 
 $("openSidebarBtn").onclick = () => { $("sidebarOverlay").style.display = "flex"; };
 $("closeSidebar").onclick = () => { $("sidebarOverlay").style.display = "none"; };
-$("navContactPage").onclick = () => { $("sidebarOverlay").style.display = "none"; showPage("pageContactView"); };
 
 $("navSettingsTop").onclick = () => {
   $("currencySelect").value = S.cur || "FCFA";
   $("settingsModal").style.display = "flex";
 };
 $("closeSettingsModal").onclick = $("closeSettingsBottom").onclick = () => { $("settingsModal").style.display = "none"; };
+
+$("openHelpPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageHelpView"); };
+$("openContactPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageContactView"); };
+$("openTermsPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageTermsView"); };
+$("openAboutPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageAboutView"); };
 
 $("saveSettingsBtn").onclick = () => {
   S.cur = $("currencySelect").value;
