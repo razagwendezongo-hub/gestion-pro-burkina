@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14302b">
-<title>Gestion Financière Pro - Édition Ultime IA</title>
+<title>Gestion Financière Pro - Édition Ultime Intégrale</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root {
@@ -357,6 +357,13 @@ li .a { font-weight: 700; white-space: nowrap; }
   <div id="pageGoals" class="app-page-content" style="display:none;">
     <section>
       <h2>🎯 Objectifs</h2>
+      <div style="background:var(--bg); padding:14px; border-radius:12px; border:1px solid var(--line); margin-bottom:14px;">
+        <label style="margin-top:0;">Nouvel objectif</label>
+        <input id="goalTitle" type="text" style="margin-bottom:6px;">
+        <label style="margin-top:0;">Montant cible</label>
+        <input id="goalTargetAmt" type="text" inputmode="decimal" style="margin-bottom:6px;">
+        <button class="go" id="addGoalBtn" style="background:var(--in); margin-top:0;">Créer</button>
+      </div>
       <div id="goalsList" style="display:flex; flex-direction:column; gap:10px;"></div>
     </section>
   </div>
@@ -428,7 +435,7 @@ const DEFAULT_PROFILES_CATS = {
 };
 
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v6";
+const USERS_KEY = "gestion_financiere_pro_db_v7";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -805,13 +812,33 @@ function renderDebts() {
   });
 }
 
+$("addGoalBtn").onclick = () => {
+  const title = $("goalTitle").value.trim();
+  const targetAmt = parseFloat($("goalTargetAmt").value);
+  if (!title || isNaN(targetAmt) || !(targetAmt > 0)) { alert("Entrez un titre et un montant valide."); return; }
+  if (!S.goals) S.goals = [];
+  S.goals.push({ id: Date.now(), title, targetAmt, currentAmt: 0 });
+  save();
+  $("goalTitle").value = ""; $("goalTargetAmt").value = "";
+  renderGoals();
+  showInfoModal("Objectif", "Objectif créé avec succès !");
+};
+
 function renderGoals() {
   const box = $("goalsList"); if (!box) return; box.replaceChildren();
   if (!S.goals || !S.goals.length) { box.innerHTML = '<div style="color:var(--mute);">Aucun objectif.</div>'; return; }
   S.goals.forEach(g => {
+    const pct = Math.min(Math.round((g.currentAmt / g.targetAmt) * 100), 100);
     const card = document.createElement("div");
     card.style.cssText = "background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;";
-    card.innerHTML = `<b>🎯 ${g.title}</b>`;
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <b>🎯 ${g.title}</b><span>${money(g.currentAmt)} / ${money(g.targetAmt)}</span>
+      </div>
+      <div style="background:var(--line); border-radius:4px; height:8px; overflow:hidden;">
+        <div style="width:${pct}%; background:var(--in); height:100%;"></div>
+      </div>
+    `;
     box.append(card);
   });
 }
