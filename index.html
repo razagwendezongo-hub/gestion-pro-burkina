@@ -43,9 +43,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .menu-hamburger-btn { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; cursor: pointer; font-weight: 700; font-size: 1.1rem; position: relative; }
 
 .header-right-controls { display: flex; align-items: center; gap: 8px; }
-.header-date-picker { display: flex; align-items: center; gap: 4px; }
-.mini-nav-btn { width: 26px; height: 26px; border: 1px solid var(--line); background: var(--bg); border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.mini-month-title { margin: 0; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.header-date-picker { display: flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 4px 8px; }
+.mini-nav-btn { width: 24px; height: 24px; border: 1px solid var(--line); background: var(--card); border-radius: 50%; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.mini-month-title { margin: 0; font-size: 0.8rem; font-weight: 700; cursor: pointer; color: var(--in); }
 .settings-top-btn { background: var(--card); border: 1px solid var(--line); border-radius: 10px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
 /* BARRE DE NAVIGATION INFÉRIEURE */
@@ -256,7 +256,7 @@ li .a { font-weight: 700; white-space: nowrap; }
     <div class="header-right-controls">
       <div class="header-date-picker">
         <button id="prevMonth" class="mini-nav-btn">‹</button>
-        <h1 id="monthLabel" class="mini-month-title"></h1>
+        <h1 id="monthLabel" class="mini-month-title" title="Changer de mois"></h1>
         <button id="nextMonth" class="mini-nav-btn">›</button>
       </div>
       <button id="navSettingsTop" class="settings-top-btn" title="Paramètres">⚙️</button>
@@ -373,6 +373,21 @@ li .a { font-weight: 700; white-space: nowrap; }
         <button class="go" id="addGoalBtn" style="background:var(--in); margin-top:0;">Créer</button>
       </div>
       <div id="goalsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </section>
+  </div>
+
+  <!-- PAGE DE SÉLECTION DU MOIS (CALENDRIER) -->
+  <div id="pageCalendarPickerView" class="app-page-content" style="display:none;">
+    <section>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0;">📅 Sélection du Mois</h2>
+        <button class="backToHomeBtn" style="background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:700;">← Accueil</button>
+      </div>
+      <div style="background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line); text-align:center;">
+        <label for="monthInputPicker" style="font-weight:700; margin-bottom:8px;">Choisissez un mois à consulter :</label>
+        <input id="monthInputPicker" type="month" style="margin-bottom:14px; text-align:center; font-size:1.1rem; font-weight:bold;">
+        <button class="go" id="confirmMonthPickerBtn" style="background:var(--in); margin-top:0;">Afficher ce mois</button>
+      </div>
     </section>
   </div>
 
@@ -500,7 +515,7 @@ const DEFAULT_PROFILES_CATS = {
 };
 
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v10";
+const USERS_KEY = "gestion_financiere_pro_db_v11";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -647,10 +662,23 @@ $("saveSettingsBtn").onclick = () => {
   showInfoModal("Paramètres", "Enregistré avec succès !");
 };
 
+// Clic sur le mois en haut pour ouvrir la page dédiée de sélection du mois
 $("monthLabel").onclick = () => {
-  const val = prompt("Entrez le mois (AAAA-MM) :", month);
-  if (val) { month = val; render(); }
+  $("monthInputPicker").value = month;
+  showPage("pageCalendarPickerView");
 };
+
+$("confirmMonthPickerBtn").onclick = () => {
+  const val = $("monthInputPicker").value;
+  if (val) {
+    month = val;
+    render();
+    showPage("pageHome");
+  } else {
+    alert("Veuillez sélectionner un mois valide.");
+  }
+};
+
 $("prevMonth").onclick = () => {
   let [y, m] = month.split("-").map(Number);
   m--; if (m < 1) { m = 12; y--; }
