@@ -500,7 +500,7 @@ const DEFAULT_PROFILES_CATS = {
 };
 
 let currentUserKey = localStorage.getItem("current_user_key");
-const USERS_KEY = "gestion_financiere_pro_db_v9";
+const USERS_KEY = "gestion_financiere_pro_db_v10";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -628,6 +628,19 @@ $("openContactPage").onclick = () => { $("settingsModal").style.display = "none"
 $("openTermsPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageTermsView"); };
 $("openAboutPage").onclick = () => { $("settingsModal").style.display = "none"; showPage("pageAboutView"); };
 
+$("navContactPage").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  showPage("pageContactView");
+};
+
+$("menuOpenReportPage").onclick = () => {
+  $("sidebarOverlay").style.display = "none";
+  const mTx = S.tx.filter(t => t.date.startsWith(month) && (t.profile || 'Dépenses personnelles') === S.activeProfile);
+  const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
+  $("fullReportContentBody").innerHTML = `<b>Profil :</b> ${S.activeProfile} (${month})<br>• Revenus : ${money(sum("in"))}<br>• Dépenses : ${money(sum("out"))}<br>• Net : ${money(sum("in") - sum("out"))}`;
+  showPage("pageReportView");
+};
+
 $("saveSettingsBtn").onclick = () => {
   S.cur = $("currencySelect").value;
   save(); render(); $("settingsModal").style.display = "none";
@@ -735,13 +748,6 @@ $("menuDirectExcelExport").onclick = () => {
   link.remove();
 };
 
-$("menuOpenReportPage").onclick = () => {
-  $("sidebarOverlay").style.display = "none";
-  const mTx = S.tx.filter(t => t.date.startsWith(month) && (t.profile || 'Dépenses personnelles') === S.activeProfile);
-  const sum = k => mTx.filter(t => t.type === k).reduce((s, t) => s + t.amt, 0);
-  $("fullReportContentBody").innerHTML = `<b>Profil :</b> ${S.activeProfile} (${month})<br>• Revenus : ${money(sum("in"))}<br>• Dépenses : ${money(sum("out"))}<br>• Net : ${money(sum("in") - sum("out"))}`;
-  showPage("pageReportView");
-};
 $("btnPrintReportPage").onclick = () => window.print();
 
 document.querySelectorAll(".backToHomeBtn").forEach(b => { b.onclick = () => showPage("pageHome"); });
